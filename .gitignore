@@ -44,6 +44,17 @@ captures/
 .idea/vcs.xml
 .idea/misc.xml
 
+client/*.iml
+client/.idea/workspace.xml
+client/.idea/tasks.xml
+client/.idea/gradle.xml
+client/.idea/assetWizardSettings.xml
+client/.idea/dictionaries
+client/.idea/libraries
+client/.idea/caches
+client/.idea/vcs.xml
+client/.idea/misc.xml
+
 # Keystore files
 # Uncomment the following line if you do not want to check your keystore files in.
 #*.jks
