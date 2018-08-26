@@ -1,0 +1,36 @@
+type User {
+  id: ID!
+  name: String!
+  stu_id: Int!
+  gender: String!
+  passwd: String!
+  created: String!
+  bongsa_time: Int!
+}
+
+input CreateUserInput {
+  name: String!
+  stu_id: Int!
+  gender: String!
+  passwd: String!
+  bongsa_time: Int
+}
+
+input UpdateUserInput {
+  name: String
+  stu_id: Int
+  gender: String
+  passwd: String
+  bongsa_time: Int
+}
+
+type Query {
+  getUser(id: ID!): User
+  getAllUser: [User]
+}
+
+type Mutation {
+  createUser(input: CreateUserInput!): String!
+  updateUser(id: ID!, input: UpdateUserInput): String!
+  deleteUser(id: ID!): String!
+}

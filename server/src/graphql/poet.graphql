@@ -1,0 +1,23 @@
+type Poet {
+  id: ID!
+  name: String!
+}
+
+input CreatePoetInput {
+  name: String!
+}
+
+input UpdatePoetInput {
+  name: String
+}
+
+type Query {
+  getPoet(id: ID!): Poet
+  getAllPoet: [Poet]
+}
+
+type Mutation {
+  createPoet(input: CreatePoetInput!): String!
+  updatePoet(id: ID!, input: UpdatePoetInput): String!
+  deletePoet(id: ID!): String!
+}

@@ -1,0 +1,33 @@
+type Poem {
+  id: ID!
+  name: String!
+  poet_id: ID!
+  content: String!
+  auth_count: Int!
+  point: Int!
+}
+
+input CreatePoemInput {
+  name: String!
+  poet_id: ID!
+  content: String!
+  point: Int
+}
+
+input UpdatePoemInput {
+  name: String
+  poet_id: ID
+  content: String
+  point: Int
+}
+
+type Query {
+  getPoem(id: ID!): Poem
+  getAllPoem: [Poem]
+}
+
+type Mutation {
+  createPoem(input: CreatePoemInput!): String!
+  updatePoem(id: ID!, input: UpdatePoemInput): String!
+  deletePoem(id: ID!): String!
+}

@@ -1,0 +1,26 @@
+type Notice {
+  id: ID!
+  content: String!
+  date: String!
+  writer_id: ID!
+}
+input CreateNoticeInput {
+  content: String!
+  writer_id: ID!
+}
+
+input UpdateNoticeInput {
+  content: String
+  writer_id: ID
+}
+
+type Query {
+  getNotice(id: ID!): Notice
+  getAllNotice: [Notice]
+}
+
+type Mutation {
+  createNotice(input: CreateNoticeInput!): String!
+  updateNotice(id: ID!, input: UpdateNoticeInput): String!
+  deleteNotice(id: ID!): String!
+}

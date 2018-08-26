@@ -1,0 +1,16 @@
+# import Query.* from 'test.graphql'
+
+# import Query.* from 'user.graphql'
+# import Mutation.* from 'user.graphql'
+
+# import Query.* from 'notice.graphql'
+# import Mutation.* from 'notice.graphql'
+
+# import Query.* from 'poem.graphql'
+# import Mutation.* from 'poem.graphql'
+
+# import Query.* from 'poet.graphql'
+# import Mutation.* from 'poet.graphql'
+
+# import Query.* from 'recording.graphql'
+# import Mutation.* from 'recording.graphql'

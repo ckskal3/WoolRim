@@ -1,0 +1,25 @@
+type Recording {
+  id: ID!
+  path: String!
+  auth_flag: Int
+  user_id: ID!
+  duration: String!
+  poem_id: ID!   
+}
+
+input CreateRecordingInput {
+  path: String!
+  user_id: ID!
+  duration: String!
+  poem_id: ID!
+}
+
+type Query {
+  getRecording(id: ID!): Recording
+  getAllRecording: [Recording]
+}
+
+type Mutation {
+  createRecording(input: CreateRecordingInput!): String!
+  deleteRecording(id: ID!): String!
+}
