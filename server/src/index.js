@@ -8,4 +8,6 @@ app.use('/graphql', graphqlHTTP({
   graphiql: true,
 }));
 
-app.listen(3000);
+app.listen(3000, 'localhost', () => {
+  console.log('localhost:3000 연결 !!');
+});
