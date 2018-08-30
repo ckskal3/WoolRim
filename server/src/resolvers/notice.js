@@ -53,12 +53,12 @@ const deleteNotice = (id) => {
 const noticeResolver = {
   Query: {
     getAllNotice,
-    getNotice,
+    getNotice: (obj, { id }) => getNotice(id),
   },
   Mutation: {
-    createNotice,
-    updateNotice,
-    deleteNotice,
+    createNotice: (obj, { input }) => createNotice(input),
+    updateNotice: (obj, { id, input }) => updateNotice(id, input),
+    deleteNotice: (obj, { id }) => deleteNotice(id),
   }
 }
 

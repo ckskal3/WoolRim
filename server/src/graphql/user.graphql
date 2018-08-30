@@ -5,7 +5,7 @@ type User {
   gender: String!
   passwd: String!
   created: String!
-  bongsa_time: Int!
+  bongsa_time: Int
 }
 
 input CreateUserInput {

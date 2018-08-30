@@ -44,11 +44,11 @@ const deleteRecording = (id) => {
 const recordingResolver = {
   Query: {
     getAllRecording,
-    getRecording,
+    getRecording: (obj, { id }) => getRecording(id),
   },
   Mutation: {
-    createRecording,
-    deleteRecording,
+    createRecording: (obj, { input }) => createRecording(input),
+    deleteRecording: (obj, { id }) => deleteRecording(id),
   }
 }
 

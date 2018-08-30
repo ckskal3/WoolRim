@@ -63,12 +63,12 @@ const deletePoem = (id) => {
 const poemResolver = {
   Query: {
     getAllPoem,
-    getPoem,
+    getPoem: (obj, { id }) => getPoem(id),
   },
   Mutation: {
-    createPoem,
-    updatePoem,
-    deletePoem,
+    createPoem: (obj, { input }) => createPoem(input),
+    updatePoem: (obj, { id, input }) => updatePoem(id, input),
+    deletePoem: (obj, { id }) => deletePoem(id),
   }
 }
 

@@ -1,3 +1,5 @@
+import { User } from '../model';
+
 const sampleData = [
   {
     id: 1,
@@ -19,47 +21,62 @@ const sampleData = [
   },
 ]
 
-const getAllUser = () => {
-  return sampleData;
+const getAllUser = async () => {
+  return await User.query();
 }
 
-const getUser = (id) => {
-  if (id >= sampleData.length || id < 0) {
-    return '범위 벗어남'
-  }
-  return sampleData[id];
+const getUser = async (id) => {
+  return await User.find(id);
 }
 
-const createUser = (user) => {
-  sampleData.push(user);
-  return 'success';
+const createUser = async (input_user) => {
+  const user = new User({
+    name: input_user.name,
+    stu_id: input_user.stu_id,
+    gender: input_user.gender,
+    passwd: input_user.passwd,
+    created: new Date(),
+    bongsa_time: input_user.bongsa_time,
+  })
+  try {
+    await user.save();
+    return 'success';
+  } catch (err) {
+    console.log(err);
+    return 'err';
+  }
 }
 
-const updateUser = (id, user) => {
-  if (id >= sampleData.length || id < 0) {
-    return '범위 벗어남'
+const updateUser = async (id, user) => {
+  try {
+    if (user.name) {
+      await User.find(id).update({ name: user.name })
+    }
+    if (user.stu_id) {
+      await User.find(id).update({ stu_id: user.stu_id })
+    }
+    if (user.gender) {
+      await User.find(id).update({ gender: user.gender })
+    }
+    if (user.passwd) {
+      await User.find(id).update({ passwd: user.passwd })
+    }
+    if (user.bongsa_time) {
+      await User.find(id).update({ bongsa_time: user.bongsa_time })
+    }
+    return 'success';
+  } catch (err) {
+    console.log(err);
+    return 'error';
   }
-  if (user.name) {
-    sampleData[id].name = user.name;
-  }
-  if (user.stu_id) {
-    sampleData[id].stu_id = user.stu_id;
-  }
-  if (user.gender) {
-    sampleData[id].gender = user.gender;
-  }
-  if (user.passwd) {
-    sampleData[id].passwd = user.passwd;
-  }
-  if (user.bongsa_time) {
-    sampleData[id].bongsa_time = user.bongsa_time;
-  }
-  return 'success';
 }
 
-const deleteUser = (id) => {
-  if (id >= sampleData.length || id < 0) {
-    return '범위 벗어남'
+const deleteUser = async (id) => {
+  try {
+    await User.delete({ id });
+  } catch (err) {
+    console.log(err);
+    return 'error';
   }
   sampleData[id] = null;
   return 'success';
@@ -71,9 +88,9 @@ const userResolver = {
     getUser: (obj, { id }) => getUser(id),
   },
   Mutation: {
-    createUser,
-    updateUser,
-    deleteUser,
+    createUser: (obj, { input }) => createUser(input),
+    updateUser: (obj, { id, input }) => updateUser(id, input),
+    deleteUser: (obj, { id }) => deleteUser(id),
   }
 }
 

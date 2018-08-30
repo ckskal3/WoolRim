@@ -46,12 +46,12 @@ const deletePoet = (id) => {
 const poetResolver = {
   Query: {
     getAllPoet,
-    getPoet,
+    getPoet: (obj, { id }) => getPoet(id),
   },
   Mutation: {
-    createPoet,
-    updatePoet,
-    deletePoet,
+    createPoet: (obj, { input }) => createPoet(input),
+    updatePoet: (obj, { id, input }) => updatePoet(id, input),
+    deletePoet: (obj, { id }) => deletePoet(id),
   }
 }
 
