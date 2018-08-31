@@ -11,7 +11,7 @@ input CreatePoemInput {
   name: String!
   poet_id: ID!
   content: String!
-  point: Int
+  point: Int!
 }
 
 input UpdatePoemInput {

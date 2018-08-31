@@ -1,51 +1,61 @@
-const sampleData = [
-  {
-    id: 1,
-    name: '김소월',
-  },
-  {
-    id: 2,
-    name: '윤동주',
-  },
-]
+import { Poet } from '../model';
 
-const getAllPoet = () => {
-  return sampleData;
+const getAllPoet = async () => {
+  try {
+    return await Poet.query();
+  } catch (err) {
+    console.log(err);
+    return 'error';
+  }
 }
 
-const getPoet = (id) => {
-  if (id >= sampleData.length || id < 0) {
-    return '범위 벗어남'
+const getPoet = async (id) => {
+  try {
+    return await Poet.find(id);
+  } catch (err) {
+    console.log(err);
+    return 'error';
   }
-  return sampleData[id];
 }
 
-const createPoet = (poet) => {
-  sampleData.push(poet);
-  return 'success';
+const createPoet = async (input_poet) => {
+  const poet = new Poet({
+    name: input_poet.name,
+  });
+  try {
+    await poet.save();
+    return 'success';
+  } catch (err) {
+    console.log(err);
+    return 'error';
+  }
 }
 
-const updatePoet = (id, poet) => {
-  if (id >= sampleData.length || id < 0) {
-    return '범위 벗어남'
+const updatePoet = async (id, poet) => {
+  try {
+    if (poet.name) {
+      await Poet.find(id).update({ name: poet.name });
+    }
+    return 'success';
+  } catch (err) {
+    console.log(err);
+    return 'error';
   }
-  if (poet.name) {
-    sampleData[id].name = poet.name;
-  }
-  return 'success';
 }
 
-const deletePoet = (id) => {
-  if (id >= sampleData.length || id < 0) {
-    return '범위 벗어남'
+const deletePoet = async (id) => {
+  try {
+    await Poet.delete({ id });
+    return 'success';
+  } catch (err) {
+    console.log(err);
+    return 'error';
   }
-  sampleData[id] = null;
-  return 'success';
 }
 
 const poetResolver = {
   Query: {
-    getAllPoet,
+    getAllPoet: () => getAllPoet(id),
     getPoet: (obj, { id }) => getPoet(id),
   },
   Mutation: {

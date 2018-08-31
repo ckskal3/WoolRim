@@ -1,49 +1,52 @@
-const sampleData = [
-  {
-    id: 1,
-    path: 'storage/record/',
-    auth_flag: 0,
-    user_id: 1,
-    duration: '5:00',
-    poem_id: 3,
-  },
-  {
-    id: 2,
-    path: 'storage/record/',
-    auth_flag: 1,
-    user_id: 2,
-    duration: '3:50',
-    poem_id: 2,
-  },
-]
+import { Recording } from '../model';
 
-const getAllRecording = () => {
-  return sampleData;
-}
-
-const getRecording = (id) => {
-  if (id >= sampleData.length || id < 0) {
-    return '범위 벗어남'
+const getAllRecording = async () => {
+  try {
+    return await Recording.query();
+  } catch (err) {
+    console.log(err);
+    return 'error';
   }
-  return sampleData[id];
 }
 
-const createRecording = (recording) => {
-  sampleData.push(recording);
-  return 'success';
-}
-
-const deleteRecording = (id) => {
-  if (id >= sampleData.length || id < 0) {
-    return '범위 벗어남'
+const getRecording = async (id) => {
+  try {
+    return await Recording.find(id);
+  } catch (err) {
+    console.log(err);
+    return 'error';
   }
-  sampleData[id] = null;
-  return 'success';
+}
+
+const createRecording = async (input_recording) => {
+  const recording = new Recording({
+    path: input_recording.path,
+    user_id: input_recording.user_id,
+    duration: input_recording.duration,
+    poem_id: input_recording.poem_id,
+  });
+  try {
+    await recording.save();
+    return 'success';
+  } catch (err) {
+    console.log(err);
+    return 'error';
+  }
+}
+
+const deleteRecording = async (id) => {
+  try {
+    await Recording.delete({ id });
+    return 'success';
+  } catch (err) {
+    console.log(err);
+    return 'error';
+  }
 }
 
 const recordingResolver = {
   Query: {
-    getAllRecording,
+    getAllRecording: () => getAllRecording(),
     getRecording: (obj, { id }) => getRecording(id),
   },
   Mutation: {

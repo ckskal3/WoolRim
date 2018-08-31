@@ -1,14 +1,14 @@
-import {Connection} from './connect_db';
-import {User} from './User';
-import {Poem} from './Poem';
-import {Poet} from './Poet';
-import {Recording} from './Recording';
-import {Notice} from './Notice';
+import { Connection } from './connect_db';
+import { User } from './User';
+import { Poem } from './Poem';
+import { Poet } from './Poet';
+import { Recording } from './Recording';
+import { Notice } from './Notice';
 
-//Conn.dropAllModels();
+Connection.applySchemasSync({ verbose: true });
 
-User.hasMany(Recording);
-Recording.belongsTo(User);
+User.hasMany('recording', { foreign_key: 'user_id', integrity: 'delete' });
+Recording.belongsTo('user', { required: true });
 
 User.hasMany(Notice);
 Notice.belongsTo(User);
@@ -19,7 +19,7 @@ Recording.belongsTo(Poem);
 Poet.hasMany(Poem);
 Poem.belongsTo(Poet);
 
-Connection.applySchemasSync({ verbose: true });
+
 
 export { Connection };
 export * from './User';

@@ -1,68 +1,73 @@
-const sampleData = [
-  {
-    id: 1,
-    name: '진달래꽃',
-    poet_id: 1,
-    content: '나보기가 역겨워 가실때에는....',
-    auth_count: 0,
-    point: 100,
-  },
-  {
-    id: 2,
-    name: '별헤는밤',
-    poet_id: 2,
-    content: '별이 헤는 밤에는....',
-    auth_count: 3,
-    point: 50,
-  },
-]
+import { Poem } from '../model';
 
-const getAllPoem = () => {
-  return sampleData;
+const getAllPoem = async () => {
+  try {
+    return await Poem.query();
+  } catch (err) {
+    console.log(err);
+    return 'error';
+  }
 }
 
-const getPoem = (id) => {
-  if (id >= sampleData.length || id < 0) {
-    return '범위 벗어남'
+const getPoem = async (id) => {
+  try {
+    return await Poem.find(id);
+  } catch (err) {
+    console.log(err);
+    return 'error';
   }
-  return sampleData[id];
 }
 
-const createPoem = (poem) => {
-  sampleData.push(poem);
-  return 'success';
+const createPoem = async (input_poem) => {
+  const poem = new Poem({
+    name: input_poem.name,
+    poet_id: input_poem.poet_id,
+    content: input_poem.content,
+    point: input_poem.point,
+  });
+  try {
+    await poem.save();
+    return 'success';
+  } catch (err) {
+    console.log(err);
+    return 'error';
+  }
 }
 
-const updatePoem = (id, poem) => {
-  if (id >= sampleData.length || id < 0) {
-    return '범위 벗어남'
+const updatePoem = async (id, poem) => {
+  try {
+    if (poem.name) {
+      await Poem.find(id).update({ name: poem.name });
+    }
+    if (poem.poet_id) {
+      await Poem.find(id).update({ poet_id: poem.poet_id });
+    }
+    if (poem.content) {
+      await Poem.find(id).update({ content: poem.content });
+    }
+    if (poem.point) {
+      await Poem.find(id).update({ point: poem.point });
+    }
+    return 'success';
+  } catch (err) {
+    console.log(err);
+    return 'error';
   }
-  if (poem.name) {
-    sampleData[id].name = poem.name;
-  }
-  if (poem.poet_id) {
-    sampleData[id].poet_id = poem.poet_id;
-  }
-  if (poem.content) {
-    sampleData[id].content = poem.content;
-  }
-  if (poem.point) {
-    sampleData[id].point = poem.point;
-  }
-  return 'success';
 }
 
-const deletePoem = (id) => {
-  if (id >= sampleData.length || id < 0) {
-    return '범위 벗어남'
+const deletePoem = async (id) => {
+  try {
+    await Poem.delete({ id });
+    return 'success';
+  } catch (err) {
+    console.log(err)
+    return 'error';
   }
-  sampleData[id] = null;
-  return 'success';
 }
 
 const poemResolver = {
   Query: {
-    getAllPoem,
+    getAllPoem: () => getAllPoem(),
     getPoem: (obj, { id }) => getPoem(id),
   },
   Mutation: {

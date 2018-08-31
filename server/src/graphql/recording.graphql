@@ -10,6 +10,7 @@ type Recording {
 input CreateRecordingInput {
   path: String!
   user_id: ID!
+  auth_flag: Boolean!
   duration: String!
   poem_id: ID!
 }

@@ -1,32 +1,21 @@
 import { User } from '../model';
 
-const sampleData = [
-  {
-    id: 1,
-    name: 'tnrms',
-    stu_id: 201201548,
-    gender: '남',
-    passwd: '123445',
-    created: '오늘',
-    bongsa_time: 30,
-  },
-  {
-    id: 2,
-    name: 'ckskal',
-    stu_id: 201201547,
-    gender: '남',
-    passwd: '123456',
-    created: 'tomorrow',
-    bongsa_time: 50,
-  },
-]
-
 const getAllUser = async () => {
-  return await User.query();
+  try {
+    return await User.query();
+  } catch (err) {
+    console.log(err);
+    return 'error';
+  }
 }
 
 const getUser = async (id) => {
-  return await User.find(id);
+  try {
+    return await User.find(id);
+  } catch (err) {
+    console.log(err);
+    return 'error';
+  }
 }
 
 const createUser = async (input_user) => {
@@ -43,7 +32,7 @@ const createUser = async (input_user) => {
     return 'success';
   } catch (err) {
     console.log(err);
-    return 'err';
+    return 'error';
   }
 }
 
@@ -74,17 +63,16 @@ const updateUser = async (id, user) => {
 const deleteUser = async (id) => {
   try {
     await User.delete({ id });
+    return 'success';
   } catch (err) {
     console.log(err);
     return 'error';
   }
-  sampleData[id] = null;
-  return 'success';
 }
 
 const userResolver = {
   Query: {
-    getAllUser,
+    getAllUser: () => getAllUser(),
     getUser: (obj, { id }) => getUser(id),
   },
   Mutation: {

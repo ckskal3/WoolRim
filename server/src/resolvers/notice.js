@@ -1,58 +1,62 @@
-const sampleData = [
-  {
-    id: 1,
-    content: '공지합니다 1111',
-    date: '오늘',
-    writer_id: 999,
-  },
-  {
-    id: 2,
-    content: '공지합니다 2222',
-    date: '어제',
-    writer_id: 999,
-  },
-]
+import { Notice } from '../model';
 
-const getAllNotice = () => {
-  return sampleData;
+const getAllNotice = async () => {
+  try {
+    return await Notice.query();
+  } catch (err) {
+    console.log(err);
+    return 'error';
+  }
 }
 
-const getNotice = (id) => {
-  if (id >= sampleData.length || id < 0) {
-    return '범위 벗어남'
+const getNotice = async (id) => {
+  try {
+    return await Notice.find(id);
+  } catch (err) {
+    console.log(err);
+    return 'error';
   }
-  return sampleData[id];
 }
 
-const createNotice = (notice) => {
-  sampleData.push(notice);
-  return 'success';
+const createNotice = async (input_notice) => {
+  const notice = new Notice({
+    content: input_notice.content,
+    user_id: input_notice.user_id,
+  });
+  try {
+    await notice.save();
+    return 'success';
+  } catch (err) {
+    console.log(err);
+    return 'error';
+  }
 }
 
-const updateNotice = (id, notice) => {
-  if (id >= sampleData.length || id < 0) {
-    return '범위 벗어남'
+const updateNotice = async (id, notice) => {
+  try {
+    if (notice.content) {
+      await Notice.find(id).update({ content: notice.content });
+    }
+    return 'success';
+  } catch (err) {
+    console.log(err);
+    return 'error';
   }
-  if (notice.content) {
-    sampleData[id].content = notice.content;
-  }
-  if (notice.writer_id) {
-    sampleData[id].writer_id = notice.writer_id;
-  }
-  return 'success';
 }
 
-const deleteNotice = (id) => {
-  if (id >= sampleData.length || id < 0) {
-    return '범위 벗어남'
+const deleteNotice = async (id) => {
+  try {
+    await Notice.delete({ id });
+    return 'success';
+  } catch (err) {
+    console.log(err)
+    return 'error';
   }
-  sampleData[id] = null;
-  return 'success';
 }
 
 const noticeResolver = {
   Query: {
-    getAllNotice,
+    getAllNotice: () => getAllNotice(),
     getNotice: (obj, { id }) => getNotice(id),
   },
   Mutation: {
