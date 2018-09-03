@@ -5,21 +5,20 @@ import { Poet } from './Poet';
 import { Recording } from './Recording';
 import { Notice } from './Notice';
 
+
+User.hasMany(Recording, { integrity: 'delete' });
+Recording.belongsTo(User, { required: true });
+
+User.hasMany(Notice, { integrity: 'delete' });
+Notice.belongsTo(User, { required: true });
+
+Poem.hasMany(Recording, { integrity: 'delete' });
+Recording.belongsTo(Poem, { required: true });
+
+Poet.hasMany(Poem, { integrity: 'delete' });
+Poem.belongsTo(Poet, { required: true });
+
 Connection.applySchemasSync({ verbose: true });
-
-User.hasMany('recording', { foreign_key: 'user_id', integrity: 'delete' });
-Recording.belongsTo('user', { required: true });
-
-User.hasMany(Notice);
-Notice.belongsTo(User);
-
-Poem.hasMany(Recording);
-Recording.belongsTo(Poem);
-
-Poet.hasMany(Poem);
-Poem.belongsTo(Poet);
-
-
 
 export { Connection };
 export * from './User';

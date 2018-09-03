@@ -1,5 +1,5 @@
-import {Connection} from './connect_db';
- 
+import { Connection } from './connect_db';
+
 export const Poet = Connection.model('poet', {
-  name: { type: String },
+  name: { type: String, required: true },
 });
