@@ -1,5 +1,8 @@
 import { Poem } from '../model';
-
+/* TODO 
+    중복 체크
+    poet id 없는 경우 테스트 해보기
+*/
 const getAllPoem = async () => {
   try {
     return await Poem.query();
@@ -24,13 +27,20 @@ const createPoem = async (input_poem) => {
     poet_id: input_poem.poet_id,
     content: input_poem.content,
     point: input_poem.point,
+    auth_count: input_poem.auth_count ? input_poem.auth_count : 0
   });
   try {
     await poem.save();
-    return 'success';
+    return {
+      Item: poem,
+      isSuccess: true,
+      msg: '시 생성 완료',
+    };
   } catch (err) {
     console.log(err);
-    return 'error';
+    return {
+      isSuccess: false,
+    }
   }
 }
 

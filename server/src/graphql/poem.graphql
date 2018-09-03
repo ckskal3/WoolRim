@@ -14,11 +14,29 @@ input CreatePoemInput {
   point: Int!
 }
 
+type CreatePoemResult {
+  Item: Poem
+  isSuccess: Boolean!
+  msg: String
+}
+
 input UpdatePoemInput {
   name: String
   poet_id: ID
   content: String
   point: Int
+}
+
+type UpdatePoemResult {
+  Item: Poem
+  isSuccess: Boolean!
+  msg: String
+}
+
+type DeletePoemResult {
+  Item: Poem
+  isSuccess: Boolean!
+  msg: String
 }
 
 type Query {
@@ -27,7 +45,7 @@ type Query {
 }
 
 type Mutation {
-  createPoem(input: CreatePoemInput!): String!
-  updatePoem(id: ID!, input: UpdatePoemInput): String!
-  deletePoem(id: ID!): String!
+  createPoem(input: CreatePoemInput!): CreatePoemResult!
+  updatePoem(id: ID!, input: UpdatePoemInput): UpdatePoemResult!
+  deletePoem(id: ID!): DeletePoemResult!
 }
