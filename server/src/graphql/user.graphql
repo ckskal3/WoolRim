@@ -15,11 +15,6 @@ input CreateUserInput {
   passwd: String!
   bongsa_time: Int
 }
-type CreateUserResult {
-  Item: User
-  isSuccess: Boolean!
-  msg: String
-}
 
 input UpdateUserInput {
   name: String
@@ -29,14 +24,8 @@ input UpdateUserInput {
   bongsa_time: Int
 }
 
-type UpdateUserResult {
-  Item: User
-  isSuccess: Boolean!
-  msg: String
-}
-
-type DeleteUserResult {
-  Item: User
+type UserResult {
+  item: User
   isSuccess: Boolean!
   msg: String
 }
@@ -47,7 +36,7 @@ type Query {
 }
 
 type Mutation {
-  createUser(input: CreateUserInput!): CreateUserResult!
-  updateUser(id: ID!, input: UpdateUserInput): UpdateUserResult!
-  deleteUser(id: ID!): DeleteUserResult!
+  createUser(input: CreateUserInput!): UserResult!
+  updateUser(id: ID!, input: UpdateUserInput): UserResult!
+  deleteUser(id: ID!): UserResult!
 }

@@ -4,8 +4,8 @@ const getAllNotice = async () => {
   try {
     return await Notice.query();
   } catch (err) {
-    console.log(err);
-    return 'error';
+    console.log('getAllNotice has err : ', err);
+    return null;
   }
 }
 
@@ -13,8 +13,8 @@ const getNotice = async (id) => {
   try {
     return await Notice.find(id);
   } catch (err) {
-    console.log(err);
-    return 'error';
+    console.log('getNotice has err : ', err);
+    return null;
   }
 }
 
@@ -25,10 +25,17 @@ const createNotice = async (input_notice) => {
   });
   try {
     await notice.save();
-    return 'success';
+    return {
+      item: notice,
+      isSuccess: true,
+      msg: '공지사항 생성 완료',
+    };
   } catch (err) {
-    console.log(err);
-    return 'error';
+    console.log('createNotice has err : ', err);
+    return {
+      isSuccess: false,
+      msg: err,
+    };
   }
 }
 
@@ -37,20 +44,30 @@ const updateNotice = async (id, notice) => {
     if (notice.content) {
       await Notice.find(id).update({ content: notice.content });
     }
-    return 'success';
+    return {
+      isSuccess: true,
+    };
   } catch (err) {
-    console.log(err);
-    return 'error';
+    console.log('updateNotice has err : ', err);
+    return {
+      isSuccess: false,
+      msg: err,
+    };
   }
 }
 
 const deleteNotice = async (id) => {
   try {
     await Notice.delete({ id });
-    return 'success';
+    return {
+      isSuccess: true,
+    };
   } catch (err) {
-    console.log(err)
-    return 'error';
+    console.log('deleteNotice has err : ', err)
+    return {
+      isSuccess: false,
+      msg: err,
+    };
   }
 }
 

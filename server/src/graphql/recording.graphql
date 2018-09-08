@@ -15,14 +15,8 @@ input CreateRecordingInput {
   poem_id: ID!
 }
 
-type CreateRecordingResult {
-  Item: Recording
-  isSuccess: Boolean!
-  msg: String
-}
-
-type DeleteRecordingResult {
-  Item: Recording
+type RecordingResult {
+  item: Recording
   isSuccess: Boolean!
   msg: String
 }
@@ -33,6 +27,6 @@ type Query {
 }
 
 type Mutation {
-  createRecording(input: CreateRecordingInput!): String!
-  deleteRecording(id: ID!): DeleteRecordingResult!
+  createRecording(input: CreateRecordingInput!): RecordingResult!
+  deleteRecording(id: ID!): RecordingResult!
 }

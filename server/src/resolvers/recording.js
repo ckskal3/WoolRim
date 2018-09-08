@@ -4,8 +4,8 @@ const getAllRecording = async () => {
   try {
     return await Recording.query();
   } catch (err) {
-    console.log(err);
-    return 'error';
+    console.log('getAllRecording has err : ', err);
+    return null;
   }
 }
 
@@ -13,8 +13,8 @@ const getRecording = async (id) => {
   try {
     return await Recording.find(id);
   } catch (err) {
-    console.log(err);
-    return 'error';
+    console.log('getRecording has err : ', err);
+    return null;
   }
 }
 
@@ -27,20 +27,30 @@ const createRecording = async (input_recording) => {
   });
   try {
     await recording.save();
-    return 'success';
+    return {
+      isSuccess: true,
+    };
   } catch (err) {
-    console.log(err);
-    return 'error';
+    console.log('createRecording has err : ', err);
+    return {
+      isSuccess: false,
+      msg: err,
+    };
   }
 }
 
 const deleteRecording = async (id) => {
   try {
     await Recording.delete({ id });
-    return 'success';
+    return {
+      isSuccess: true,
+    };
   } catch (err) {
-    console.log(err);
-    return 'error';
+    console.log('deleteRecording has err : ', err);
+    return {
+      isSuccess: false,
+      msg: err,
+    };
   }
 }
 

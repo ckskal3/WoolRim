@@ -4,8 +4,8 @@ const getAllUser = async () => {
   try {
     return await User.query();
   } catch (err) {
-    console.log(err);
-    return 'error';
+    console.log('getAllUser has err : ', err);
+    return null;
   }
 }
 
@@ -13,8 +13,8 @@ const getUser = async (id) => {
   try {
     return await User.find(id);
   } catch (err) {
-    console.log(err);
-    return 'error';
+    console.log('getUser has err : ', err);
+    return null;
   }
 }
 
@@ -29,10 +29,15 @@ const createUser = async (input_user) => {
   })
   try {
     await user.save();
-    return 'success';
+    return {
+      isSuccess: true,
+    };
   } catch (err) {
-    console.log(err);
-    return 'error';
+    console.log('createUser has err : ', err);
+    return {
+      isSuccess: false,
+      msg: err,
+    };
   }
 }
 
@@ -53,20 +58,30 @@ const updateUser = async (id, user) => {
     if (user.bongsa_time) {
       await User.find(id).update({ bongsa_time: user.bongsa_time })
     }
-    return 'success';
+    return {
+      isSuccess: true,
+    };
   } catch (err) {
-    console.log(err);
-    return 'error';
+    console.log('updateUser has err : ', err);
+    return {
+      isSuccess: false,
+      msg: err,
+    };
   }
 }
 
 const deleteUser = async (id) => {
   try {
     await User.delete({ id });
-    return 'success';
+    return {
+      isSuccess: true,
+    };
   } catch (err) {
-    console.log(err);
-    return 'error';
+    console.log('deleteUser has err : ', err);
+    return {
+      isSuccess: false,
+      msg: err,
+    };
   }
 }
 

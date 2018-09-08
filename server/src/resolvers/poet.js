@@ -4,8 +4,8 @@ const getAllPoet = async () => {
   try {
     return await Poet.query();
   } catch (err) {
-    console.log(err);
-    return 'error';
+    console.log('getAllPoet has err : ', err);
+    return null;
   }
 }
 
@@ -13,8 +13,8 @@ const getPoet = async (id) => {
   try {
     return await Poet.find(id);
   } catch (err) {
-    console.log(err);
-    return 'error';
+    console.log('getPoet has err : ', err);
+    return null;
   }
 }
 
@@ -24,10 +24,17 @@ const createPoet = async (input_poet) => {
   });
   try {
     await poet.save();
-    return 'success';
+    return {
+      item: poet,
+      isSuccess: true,
+      msg: '시인 생성 완료',
+    };
   } catch (err) {
-    console.log(err);
-    return 'error';
+    console.log('createPoet has err : ', err);
+    return {
+      isSuccess: false,
+      msg: err,
+    };
   }
 }
 
@@ -36,20 +43,30 @@ const updatePoet = async (id, poet) => {
     if (poet.name) {
       await Poet.find(id).update({ name: poet.name });
     }
-    return 'success';
+    return {
+      isSuccess: true,
+    };
   } catch (err) {
-    console.log(err);
-    return 'error';
+    console.log('updatePoet has err : ', err);
+    return {
+      isSuccess: false,
+      msg: err,
+    };
   }
 }
 
 const deletePoet = async (id) => {
   try {
     await Poet.delete({ id });
-    return 'success';
+    return {
+      isSuccess: true,
+    };
   } catch (err) {
-    console.log(err);
-    return 'error';
+    console.log('deletePoet has err : ', err);
+    return {
+      isSuccess: false,
+      msg: err,
+    };
   }
 }
 

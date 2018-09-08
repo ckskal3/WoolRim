@@ -10,23 +10,11 @@ input CreateNoticeInput {
   user_id: ID!
 }
 
-type CreateNoticeResult {
-  Item: Notice
-  isSuccess: Boolean!
-  msg: String
-}
-
 input UpdateNoticeInput {
   content: String
 }
 
-type UpdateNoticeResult {
-  Item: Notice
-  isSuccess: Boolean!
-  msg: String
-}
-
-type DeleteNoticeResult {
+type NoticeResult {
   item: Notice
   isSuccess: Boolean!
   msg: String
@@ -38,7 +26,7 @@ type Query {
 }
 
 type Mutation {
-  createNotice(input: CreateNoticeInput!): CreateNoticeResult!
-  updateNotice(id: ID!, input: UpdateNoticeInput): UpdateNoticeResult!
-  deleteNotice(id: ID!): DeleteNoticeResult!
+  createNotice(input: CreateNoticeInput!): NoticeResult!
+  updateNotice(id: ID!, input: UpdateNoticeInput): NoticeResult!
+  deleteNotice(id: ID!): NoticeResult!
 }

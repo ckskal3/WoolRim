@@ -7,24 +7,12 @@ input CreatePoetInput {
   name: String!
 }
 
-type CreatePoetResult {
-  Item: Poet
-  isSuccess: Boolean!
-  msg: String
-}
-
 input UpdatePoetInput {
   name: String
 }
 
-type UpdatePoetResult {
-  Item: Poet
-  isSuccess: Boolean!
-  msg: String
-}
-
-type DeletePoetResult {
-  Item: Poet
+type PoetResult {
+  item: Poet
   isSuccess: Boolean!
   msg: String
 }
@@ -35,7 +23,7 @@ type Query {
 }
 
 type Mutation {
-  createPoet(input: CreatePoetInput!): CreatePoetResult!
-  updatePoet(id: ID!, input: UpdatePoetInput): UpdatePoetResult!
-  deletePoet(id: ID!): DeletePoetResult!
+  createPoet(input: CreatePoetInput!): PoetResult!
+  updatePoet(id: ID!, input: UpdatePoetInput): PoetResult!
+  deletePoet(id: ID!): PoetResult!
 }

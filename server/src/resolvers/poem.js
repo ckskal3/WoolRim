@@ -7,8 +7,8 @@ const getAllPoem = async () => {
   try {
     return await Poem.query();
   } catch (err) {
-    console.log(err);
-    return 'error';
+    console.log('getAllPoem has err : ', err);
+    return null;
   }
 }
 
@@ -16,8 +16,8 @@ const getPoem = async (id) => {
   try {
     return await Poem.find(id);
   } catch (err) {
-    console.log(err);
-    return 'error';
+    console.log('getPoem has err : ', err);
+    return null;
   }
 }
 
@@ -27,19 +27,21 @@ const createPoem = async (input_poem) => {
     poet_id: input_poem.poet_id,
     content: input_poem.content,
     point: input_poem.point,
-    auth_count: input_poem.auth_count ? input_poem.auth_count : 0
+    auth_count: input_poem.auth_count ? input_poem.auth_count : 0,
+    length: input_poem.length,
   });
   try {
     await poem.save();
     return {
-      Item: poem,
+      item: poem,
       isSuccess: true,
       msg: '시 생성 완료',
     };
   } catch (err) {
-    console.log(err);
+    console.log('createPoem has err : ', err);
     return {
       isSuccess: false,
+      msg: err,
     }
   }
 }
@@ -58,20 +60,30 @@ const updatePoem = async (id, poem) => {
     if (poem.point) {
       await Poem.find(id).update({ point: poem.point });
     }
-    return 'success';
+    return {
+      isSuccess: true,
+    };
   } catch (err) {
-    console.log(err);
-    return 'error';
+    console.log('updatePoem has err : ', err);
+    return {
+      isSuccess: false,
+      msg: err,
+    };
   }
 }
 
 const deletePoem = async (id) => {
   try {
     await Poem.delete({ id });
-    return 'success';
+    return {
+      isSuccess: true,
+    };
   } catch (err) {
-    console.log(err)
-    return 'error';
+    console.log('deletePoem has err : ', err)
+    return {
+      isSuccess: false,
+      msg: err,
+    };
   }
 }
 
