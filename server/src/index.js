@@ -38,6 +38,10 @@ app.post('/upload', upload.single('userfile'), function(req, res){
   console.log(req.body)
 });
 
-app.listen(3000, 'localhost', () => {
-  console.log('localhost:3000 연결 !!');
+app.get('/', (req, res, next) => {
+  res.send('hello im woolrim');
+});
+
+app.listen(9788,  () => {
+  console.log('9788번 포트 개방!!');
 });
