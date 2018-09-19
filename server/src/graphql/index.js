@@ -17,7 +17,8 @@ const schema = makeExecutableSchema({
     poemResolver,
     noticeResolver,
     recordingResolver,
-    testResolver],
+    testResolver
+  ],
 });
 
 export default schema;

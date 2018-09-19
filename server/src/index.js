@@ -34,7 +34,7 @@ app.get('/upload', function(req, res){
 });
 
 app.post('/upload', upload.single('userfile'), function(req, res){
-  res.status(200).send('Uploaded! : '+req.file.originalname); // object를 리턴함
+  res.status( 200).send('Uploaded! : '+req.file.originalname); // object를 리턴함
   console.log(req.body)
 });
 
@@ -42,6 +42,6 @@ app.get('/', (req, res, next) => {
   res.send('hello im woolrim');
 });
 
-app.listen(9788,  () => {
-  console.log('9788번 포트 개방!!');
+app.listen(3000,  () => {
+  console.log('3000번 포트 개방!!');
 });

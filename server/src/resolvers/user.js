@@ -25,7 +25,7 @@ const createUser = async (input_user) => {
     gender: input_user.gender,
     passwd: input_user.passwd,
     created: new Date(),
-    bongsa_time: input_user.bongsa_time,
+    bongsa_time: input_user.bongsa_time ? input_user.bongsa_time : 0,
   })
   try {
     await user.save();
@@ -42,6 +42,7 @@ const createUser = async (input_user) => {
 }
 
 const updateUser = async (id, user) => {
+  console.log(`id : ${id}, user : ${user}`)
   try {
     if (user.name) {
       await User.find(id).update({ name: user.name })
