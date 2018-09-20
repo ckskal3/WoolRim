@@ -1,10 +1,10 @@
 import React from 'react';
 import { Table } from 'reactstrap';
 
-export const Poet = ({ data }) => {
+export const Notice = ({ data }) => {
   let contents;
   if (data) {
-    contents = data.data.data.getAllPoet.map(data => {
+    contents = data.data.data.getAllNotice.map(data => {
       return (
         <tr>
           <th scope="row">{data.id}</th>

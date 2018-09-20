@@ -8,17 +8,17 @@ import {
 
 import 'bootstrap/dist/css/bootstrap.min.css';
 import Header from './common/header'
-import { UserContainer, Poet, Poem, Notice, Recording } from './container'
+import { UserContainer, PoetContainer, PoemContainer, NoticeContainer, RecordingContainer } from './container'
 
 ReactDOM.render(
   <Router>
     <div>
       <Header />
       <Route path="/user" component={UserContainer} />
-      <Route path="/poet" component={Poet} />
-      <Route path="/poem" component={Poem} />
-      <Route path="/notice" component={Notice} />
-      <Route path="/recording" component={Recording} />
+      <Route path="/poet" component={PoetContainer} />
+      <Route path="/poem" component={PoemContainer} />
+      <Route path="/notice" component={NoticeContainer} />
+      <Route path="/recording" component={RecordingContainer} />
     </div>
   </Router>
   , document.getElementById('root')
