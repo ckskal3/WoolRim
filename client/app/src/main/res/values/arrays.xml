@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array  name = "poets">
+        <item>김소월</item>
+        <item>신동엽</item>
+        <item>윤동주</item>
+        <item>이상</item>
+        <item>한용운</item>
+        <item>작자미상</item>
+    </string-array>
+    <string-array  name = "김소월">
+        <item>진달래꽃</item>
+        <item>먼 후일</item>
+        <item>산유화</item>
+        <item>접동새</item>
+        <item>초혼</item>
+    </string-array>
+    <string-array  name = "신동엽">
+        <item>누가 하늘을 보았다 하는가</item>
+        <item>껍데기는 가라</item>
+    </string-array>
+    <string-array  name = "윤동주">
+        <item>별 헤는 밤 </item>
+        <item>서시</item>
+        <item>자화상</item>
+        <item>참회록</item>
+        <item>소년</item>
+        <item>쉽게 씌여진 시</item>
+        <item>길</item>
+    </string-array>
+    <string-array  name = "이상">
+        <item>거울</item>
+        <item>오감도</item>
+    </string-array>
+    <string-array  name = "한용운">
+        <item>님의 침묵</item>
+        <item>나룻배와 행인</item>
+        <item>이별은 미의 창조</item>
+    </string-array>
+    <string-array  name = "작자미상">
+        <item>청산별곡</item>
+    </string-array>
+</resources>

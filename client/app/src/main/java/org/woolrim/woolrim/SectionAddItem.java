@@ -9,6 +9,7 @@ import android.widget.Toast;
 import java.util.List;
 
 import io.github.luizgrp.sectionedrecyclerviewadapter.SectionParameters;
+import io.github.luizgrp.sectionedrecyclerviewadapter.SectionedRecyclerViewAdapter;
 import io.github.luizgrp.sectionedrecyclerviewadapter.StatelessSection;
 
 /*
@@ -21,8 +22,15 @@ public class SectionAddItem extends StatelessSection {
     public List<String> list;
     public Context mContext;
     public int activityNumber;
+    public SectionedRecyclerViewAdapter mSectionedRecyclerViewAdapter;
+    OnItemClickListenr listener;
 
-    SectionAddItem(String title, List<String> list, Context context, int activityNumber) {
+
+    public static interface OnItemClickListenr {
+        public void onItemClick(SectionItemViewHolder holder, View view, int position);
+    }
+
+    SectionAddItem(String title, List<String> list, Context context, SectionedRecyclerViewAdapter sectionAdapter, int activityNumber) {
         super(SectionParameters.builder()
                 .itemResourceId(R.layout.sectionlistview_item)
                 .headerResourceId(R.layout.sectionlistview_header)
@@ -32,7 +40,13 @@ public class SectionAddItem extends StatelessSection {
         this.list = list;
         this.activityNumber = activityNumber;
         this.mContext = context;
+        this.mSectionedRecyclerViewAdapter = sectionAdapter;
     }
+
+    public void setOnItemClickListener(OnItemClickListenr listener) {
+        this.listener = listener;
+    }
+
 
     @Override
     public int getContentItemsTotal() {
@@ -51,20 +65,27 @@ public class SectionAddItem extends StatelessSection {
         String name = list.get(position);
 
         itemHolder.tvItem.setText(name);
+        itemHolder.setOnItemClickListener(listener);
 
-        itemHolder.rootView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if (activityNumber == 105) { //녹음 리스트 뷰일때 녹음액티비티 실행
-//                    Intent itn = new Intent(mContext, VoiceRecordActivity.class);
-//                    itn.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+//        itemHolder.rootView.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                if (activityNumber == 105) { //녹음 리스트 뷰일때 녹음액티비티 실행
+//
+//                    Intent itn = new Intent(mContext, RecordFragment.class);
+//                    itn.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP|Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_NO_ANIMATION);
 //                    mContext.startActivity(itn);
-                } else {// 시 재생일떄는 해당 위치에 맞는 재생 액티비티 실행
-                    Toast.makeText(mContext, "clicked",
-                            Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
+//                } else {// 시 재생일때는 해당 위치에 맞는 재생 액티비티 실행
+//                    Toast.makeText(mContext, "clicked",
+//                            Toast.LENGTH_SHORT).show();
+//                    Intent itn = new Intent(mContext,PlayerActivity.class);
+//                    itn.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP|Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_NO_ANIMATION);
+//                    itn.putExtra("title",title);
+//                    itn.putExtra("poem", mSectionedRecyclerViewAdapter.getPositionInSection(itemHolder.getPosition()));
+//                    mContext.startActivity(itn);
+//                }
+//            }
+//        });
     }
 
     @Override

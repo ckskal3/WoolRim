@@ -10,7 +10,7 @@ public class SectionHeaderViewHolder  extends RecyclerView.ViewHolder {
 
     SectionHeaderViewHolder(View view) {
         super(view);
+        tvTitle = view.findViewById(R.id.tvTitle);
 
-        tvTitle = (TextView) view.findViewById(R.id.tvTitle);
     }
 }

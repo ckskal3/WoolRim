@@ -6,12 +6,30 @@ import android.widget.TextView;
 
 public class SectionItemViewHolder extends RecyclerView.ViewHolder {
 
-public final View rootView;
-public final TextView tvItem;
+    public final View rootView;
+    public final TextView tvItem;
+    public SectionAddItem.OnItemClickListenr listener;
 
-    SectionItemViewHolder(View view) {
+    public SectionItemViewHolder(View view) {
         super(view);
         rootView = view;
-        tvItem = (TextView) view.findViewById(R.id.tvItem);
-        }
+        tvItem = view.findViewById(R.id.tvItem);
+
+
+        view.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int position = getAdapterPosition();
+                if(listener != null){
+                    listener.onItemClick(SectionItemViewHolder.this, view ,position);
+                }
+            }
+        });
+
+    }
+
+    public void setOnItemClickListener(SectionAddItem.OnItemClickListenr listener) {
+        this.listener = listener;
+    }
+
 }

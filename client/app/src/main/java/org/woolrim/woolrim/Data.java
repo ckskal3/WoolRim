@@ -10,7 +10,7 @@ import java.util.List;
 
 public class Data {
     List<Result> result;
-    public class Result implements Serializable { //serializable  -> 데이터 인텐트시 필요함
+    public class Result  { //serializable  -> 데이터 인텐트시 필요함
         String name;
         double lat,lng;
     }
