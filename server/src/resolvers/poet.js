@@ -34,11 +34,13 @@ const createPoet = async (input_list) => {
   }
 }
 
-const updatePoet = async (id, poet) => {
+const updatePoet = async (poet_list) => {
   try {
-    if (poet.name) {
-      await Poet.find(id).update({ name: poet.name });
-    }
+    poet_list.map(async poet => {
+      if (poet.name) {
+        await Poet.find(poet.id).update({ name: poet.name });
+      }
+    })
     return {
       isSuccess: true,
     };
@@ -73,7 +75,7 @@ const poetResolver = {
   },
   Mutation: {
     createPoet: (obj, { input_list }) => createPoet(input_list),
-    updatePoet: (obj, { id, input }) => updatePoet(id, input),
+    updatePoet: (obj, { input }) => updatePoet(input),
     deletePoet: (obj, { id_list }) => deletePoet(id_list),
   }
 }

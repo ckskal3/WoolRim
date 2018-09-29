@@ -12,6 +12,23 @@ const getAllPoet = async () => {
   return result.data.data.getAllPoet;
 }
 
+const updatePoet = async (input) => {
+  const query = `mutation($input:[UpdatePoetInput]){
+    updatePoet(input:$input){
+      isSuccess
+    }
+  }`
+  const result = await axios.post(serverInfo.urlDev,
+    {
+      query,
+      variables: {
+        input,
+      }
+    }
+  );
+  return result.data.data.updatePoet;
+}
+
 const deletePoet = async (id_list) => {
   const query = `mutation($id_list:[ID]!){
     deletePoet(id_list:$id_list){
@@ -19,9 +36,10 @@ const deletePoet = async (id_list) => {
       msg
     }
   }`
-  const result = await axios.post(serverInfo.urlDev, 
-    { query, 
-      variables:{
+  const result = await axios.post(serverInfo.urlDev,
+    {
+      query,
+      variables: {
         id_list
       }
     }
@@ -36,8 +54,9 @@ const createPoet = async (input) => {
     }
   }`
   const result = await axios.post(serverInfo.urlDev,
-    { query,
-      variables:{
+    {
+      query,
+      variables: {
         input,
       }
     }
@@ -46,4 +65,4 @@ const createPoet = async (input) => {
 }
 
 
-export { getAllPoet, deletePoet, createPoet}
+export { getAllPoet, deletePoet, createPoet, updatePoet }

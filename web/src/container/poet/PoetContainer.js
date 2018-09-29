@@ -13,6 +13,8 @@ export class PoetContainer extends Component {
       onRegitActive: false,
       toRemoveList: [],
       toCreateList: [],
+      toUpdataList: [],
+      toModifyList: [],
       poetList: [],
       newPoetRecord: null,
     }
@@ -56,6 +58,23 @@ export class PoetContainer extends Component {
         toRemoveList: toRemoveList.concat(id),
       });
     }
+  }
+
+  onModifyToggle = (input) => {
+    console.log(input);
+    const { toModifyList, poetList } = this.state;
+    const remove_duple = toModifyList.filter(item => {
+      return item.id!==input.id;
+    })
+    poetList.forEach(item => {
+      if(item.id === input.id){
+        item.name = input.name;
+      }
+    })
+    this.setState({
+        toModifyList: remove_duple.concat(input),
+        poetList,
+    });
   }
 
   onEnterRecord = (e) => {
@@ -124,7 +143,7 @@ export class PoetContainer extends Component {
     return (
       <div className='main'>
         <h2>----시인 목록----</h2>
-        <PoetList data={poetList} addFlag={this.state.onRegitActive} onRemove={this.onRemoveToggle} removeList={toRemoveList} onEnterRecord={this.onEnterRecord} />
+        <PoetList data={poetList} addFlag={this.state.onRegitActive} onRemove={this.onRemoveToggle} onModify={this.onModifyToggle} removeList={toRemoveList} onEnterRecord={this.onEnterRecord} />
         <RegistBtn root='poet' onRegitToggle={this.onRegitToggle} onRegitCanceled={this.onCancelClicked} />
         <h3>삭제 목록 = [ {toRemoveList.map(item => {
           return item + '번 ';

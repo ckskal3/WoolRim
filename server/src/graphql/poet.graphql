@@ -8,6 +8,7 @@ input CreatePoetInput {
 }
 
 input UpdatePoetInput {
+  id:ID!
   name: String
 }
 
@@ -24,6 +25,6 @@ type Query {
 
 type Mutation {
   createPoet(input_list: [CreatePoetInput]!): PoetResult!
-  updatePoet(id: ID!, input: UpdatePoetInput): PoetResult!
+  updatePoet(input: [UpdatePoetInput]): PoetResult!
   deletePoet(id_list: [ID]!): PoetResult!
 }
