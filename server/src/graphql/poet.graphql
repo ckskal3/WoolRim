@@ -23,7 +23,7 @@ type Query {
 }
 
 type Mutation {
-  createPoet(input: CreatePoetInput!): PoetResult!
+  createPoet(input_list: [CreatePoetInput]!): PoetResult!
   updatePoet(id: ID!, input: UpdatePoetInput): PoetResult!
-  deletePoet(id: ID!): PoetResult!
+  deletePoet(id_list: [ID]!): PoetResult!
 }

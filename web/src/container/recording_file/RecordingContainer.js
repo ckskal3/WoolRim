@@ -20,9 +20,13 @@ export class RecordingContainer extends Component {
         id
         path
         auth_flag
-        user_id
         duration
-        poem_id
+        user {
+          name
+        }
+        poem {
+          name
+        }
       }
     }`;
     const result = await axios.post('http://localhost:3000/graphql', { query });

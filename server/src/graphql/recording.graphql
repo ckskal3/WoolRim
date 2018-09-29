@@ -1,10 +1,10 @@
 type Recording {
   id: ID!
-  path: String!
-  auth_flag: Int
-  user_id: ID!
-  duration: String!
-  poem_id: ID!   
+  path: String
+  auth_flag: Status
+  duration: String
+  user: User
+  poem: Poem
 }
 
 input CreateRecordingInput {
@@ -15,6 +15,11 @@ input CreateRecordingInput {
   poem_id: ID!
 }
 
+enum Status {
+  REJECTED
+  ACCEPTED
+  WAITING
+}
 type RecordingResult {
   item: Recording
   isSuccess: Boolean!

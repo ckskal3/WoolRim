@@ -2,7 +2,7 @@ type Notice {
   id: ID!
   content: String!
   date: String!
-  user_id: ID!
+  user: User
 }
 
 input CreateNoticeInput {

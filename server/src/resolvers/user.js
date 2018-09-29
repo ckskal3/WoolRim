@@ -1,4 +1,5 @@
 import { User } from '../model';
+import pbkdf2 from 'pbkdf2'
 
 const getAllUser = async () => {
   try {
@@ -19,11 +20,13 @@ const getUser = async (id) => {
 }
 
 const createUser = async (input_user) => {
+  const encryption = await pbkdf2.pbkdf2Sync(input_user.passwd, input_user.name, 30, 32, 'sha512');
   const user = new User({
     name: input_user.name,
+    type: input_user.type,
     stu_id: input_user.stu_id,
     gender: input_user.gender,
-    passwd: input_user.passwd,
+    passwd: encryption.toString(),
     created: new Date(),
     bongsa_time: input_user.bongsa_time ? input_user.bongsa_time : 0,
   })
@@ -98,4 +101,4 @@ const userResolver = {
   }
 }
 
-export { userResolver };
+export { userResolver, getUser };

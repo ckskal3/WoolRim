@@ -18,14 +18,10 @@ const getPoet = async (id) => {
   }
 }
 
-const createPoet = async (input_poet) => {
-  const poet = new Poet({
-    name: input_poet.name,
-  });
+const createPoet = async (input_list) => {
   try {
-    await poet.save();
+    await Poet.createBulk(input_list);
     return {
-      item: poet,
       isSuccess: true,
       msg: '시인 생성 완료',
     };
@@ -55,9 +51,9 @@ const updatePoet = async (id, poet) => {
   }
 }
 
-const deletePoet = async (id) => {
+const deletePoet = async (id_list) => {
   try {
-    await Poet.delete({ id });
+    await Poet.delete({ id: id_list });
     return {
       isSuccess: true,
     };
@@ -72,14 +68,14 @@ const deletePoet = async (id) => {
 
 const poetResolver = {
   Query: {
-    getAllPoet: () => getAllPoet(id),
+    getAllPoet: () => getAllPoet(),
     getPoet: (obj, { id }) => getPoet(id),
   },
   Mutation: {
-    createPoet: (obj, { input }) => createPoet(input),
+    createPoet: (obj, { input_list }) => createPoet(input_list),
     updatePoet: (obj, { id, input }) => updatePoet(id, input),
-    deletePoet: (obj, { id }) => deletePoet(id),
+    deletePoet: (obj, { id_list }) => deletePoet(id_list),
   }
 }
 
-export { poetResolver };
+export { poetResolver, getPoet };

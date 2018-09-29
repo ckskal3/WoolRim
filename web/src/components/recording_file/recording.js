@@ -11,8 +11,8 @@ export const Recording = ({ data }) => {
           <td>{data.path}</td>
           <td>{data.auth_flag}</td>
           <td>{data.duration}</td>
-          <td>{data.user_id}</td>
-          <td>{data.poem_id}</td>
+          <td>{data.user.name}</td>
+          <td>{data.poem.name}</td>
         </tr>
       );
     })

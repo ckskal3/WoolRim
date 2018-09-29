@@ -1,4 +1,6 @@
 import { Recording } from '../model';
+import { getUser } from './user';
+import { getPoem } from './poem';
 
 const getAllRecording = async () => {
   try {
@@ -55,6 +57,15 @@ const deleteRecording = async (id) => {
 }
 
 const recordingResolver = {
+  Recording: {
+    user: (obj) => getUser(obj.user_id),
+    poem: (obj) => getPoem(obj.poem_id),
+  },
+  Status: {
+    REJECTED: -1,
+    ACCEPTED: 1,
+    WAITING: 0,
+  },
   Query: {
     getAllRecording: () => getAllRecording(),
     getRecording: (obj, { id }) => getRecording(id),

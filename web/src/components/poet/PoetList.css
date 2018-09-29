@@ -1,0 +1,9 @@
+.table {
+  border: 3px solid grey;
+  border-right-width: 0px;
+  border-left-width: 0px;
+}
+
+.table th {
+  width: 30%;
+}

@@ -1,10 +1,10 @@
 type Poem {
   id: ID!
   name: String!
-  poet_id: ID!
   content: String!
   auth_count: Int!
   point: Int!
+  poet: Poet
 }
 
 input CreatePoemInput {

@@ -1,4 +1,5 @@
 import { Poem } from '../model';
+import { getPoet } from './poet';
 /* TODO 
     중복 체크
     poet id 없는 경우 테스트 해보기
@@ -88,6 +89,9 @@ const deletePoem = async (id) => {
 }
 
 const poemResolver = {
+  Poem: {
+    poet: (obj) => getPoet(obj.poet_id),
+  },
   Query: {
     getAllPoem: () => getAllPoem(),
     getPoem: (obj, { id }) => getPoem(id),
@@ -99,4 +103,4 @@ const poemResolver = {
   }
 }
 
-export { poemResolver };
+export { poemResolver, getPoem };

@@ -1,6 +1,7 @@
 type User {
   id: ID!
   name: String!
+  type: String!
   stu_id: Int!
   gender: String!
   passwd: String!
@@ -10,10 +11,10 @@ type User {
 
 input CreateUserInput {
   name: String!
-  stu_id: Int!
+  type: Int!
+  stu_id: Int
   gender: String!
   passwd: String!
-  bongsa_time: Int
 }
 
 input UpdateUserInput {

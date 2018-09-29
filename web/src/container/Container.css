@@ -1,0 +1,8 @@
+.main {
+  margin: 20px;
+}
+
+.main > h2 {
+  width: 100%;
+  text-align: center;
+}

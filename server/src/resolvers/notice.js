@@ -1,4 +1,5 @@
 import { Notice } from '../model';
+import { getUser } from './user';
 
 const getAllNotice = async () => {
   try {
@@ -72,6 +73,9 @@ const deleteNotice = async (id) => {
 }
 
 const noticeResolver = {
+  Notice: {
+    user: (obj) => getUser(obj.user_id),
+  },
   Query: {
     getAllNotice: () => getAllNotice(),
     getNotice: (obj, { id }) => getNotice(id),
