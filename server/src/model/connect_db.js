@@ -1,4 +1,4 @@
-import cormo from 'cormo';
+import { Connection } from 'cormo';
 
 // export const Connection = new cormo.Connection('mysql', { 
 //     host: 'woolrimdb.cbb7lmv7tjj3.ap-northeast-2.rds.amazonaws.com',
@@ -7,7 +7,7 @@ import cormo from 'cormo';
 //     password: 'dnfflaelql',
 //     database: 'woolrim_proj',
 // });
-export const Connection = new cormo.Connection('mysql', { 
+export const Conn = new Connection('mysql', {
   host: 'localhost',
   port: 3306,
   user: 'root',

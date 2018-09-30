@@ -1,4 +1,4 @@
-import { Connection } from './connect_db';
+import { Conn } from './connect_db';
 import { User } from './User';
 import { Poem } from './Poem';
 import { Poet } from './Poet';
@@ -18,9 +18,9 @@ Recording.belongsTo(Poem, { required: true });
 Poet.hasMany(Poem, { integrity: 'delete' });
 Poem.belongsTo(Poet, { required: true });
 
-Connection.applySchemasSync({ verbose: true });
+Conn.applySchemas({ verbose: true });
 
-export { Connection };
+export { Conn };
 export * from './User';
 export * from './Poet';
 export * from './Poem';

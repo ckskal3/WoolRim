@@ -1,6 +1,6 @@
-import {Connection} from './connect_db';
+import {Conn} from './connect_db';
 
-export const Notice = Connection.model('notice', {
+export const Notice = Conn.model('notice', {
   content: { type: String, required: true },
   date: { type: Date, required: true },
 });
