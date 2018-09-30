@@ -7,3 +7,7 @@
 .table th {
   width: 30%;
 }
+
+.table th:first-child {
+  width: 5%;
+}

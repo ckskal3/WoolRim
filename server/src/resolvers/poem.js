@@ -1,8 +1,7 @@
 import { Poem } from '../model';
 import { getPoet } from './poet';
 /* TODO 
-    중복 체크
-    poet id 없는 경우 테스트 해보기
+    poet id 없는 경우 테스트 해보기 -> err 메세지 클라이언트로 던져주는 방법 알아보기
 */
 const getAllPoem = async () => {
   try {
@@ -22,19 +21,16 @@ const getPoem = async (id) => {
   }
 }
 
-const createPoem = async (input_poem) => {
-  const poem = new Poem({
-    name: input_poem.name,
-    poet_id: input_poem.poet_id,
-    content: input_poem.content,
-    point: input_poem.point,
-    auth_count: input_poem.auth_count ? input_poem.auth_count : 0,
-    length: input_poem.length,
+const createPoem = async (input_list) => {
+  input_list.map(item => { // default_value 설정
+    if (!item.auth_count) {
+      item.auth_count = 0;
+    }
   });
   try {
-    await poem.save();
+    await Poem.createBulk(input_list);
+    // cormo 라이브러리 createBulk 에서는 default_value 속성 작동 안함
     return {
-      item: poem,
       isSuccess: true,
       msg: '시 생성 완료',
     };
@@ -47,20 +43,22 @@ const createPoem = async (input_poem) => {
   }
 }
 
-const updatePoem = async (id, poem) => {
+const updatePoem = async (poem_list) => { // 효율성 떨어짐 추후 수정해야힘
   try {
-    if (poem.name) {
-      await Poem.find(id).update({ name: poem.name });
-    }
-    if (poem.poet_id) {
-      await Poem.find(id).update({ poet_id: poem.poet_id });
-    }
-    if (poem.content) {
-      await Poem.find(id).update({ content: poem.content });
-    }
-    if (poem.point) {
-      await Poem.find(id).update({ point: poem.point });
-    }
+    poem_list.map(async poem => {
+      if (poem.name) {
+        await Poem.find(poem.id).update({ name: poem.name });
+      }
+      if (poem.poet_id) {
+        await Poem.find(poem.id).update({ poet_id: poem.poet_id });
+      }
+      if (poem.content) {
+        await Poem.find(poem.id).update({ content: poem.content });
+      }
+      if (poem.point) {
+        await Poem.find(poem.id).update({ point: poem.point });
+      }
+    })
     return {
       isSuccess: true,
     };
@@ -73,9 +71,9 @@ const updatePoem = async (id, poem) => {
   }
 }
 
-const deletePoem = async (id) => {
+const deletePoem = async (id_list) => {
   try {
-    await Poem.delete({ id });
+    await Poem.delete({ id: id_list });
     return {
       isSuccess: true,
     };
@@ -97,9 +95,9 @@ const poemResolver = {
     getPoem: (obj, { id }) => getPoem(id),
   },
   Mutation: {
-    createPoem: (obj, { input }) => createPoem(input),
-    updatePoem: (obj, { id, input }) => updatePoem(id, input),
-    deletePoem: (obj, { id }) => deletePoem(id),
+    createPoem: (obj, { input_list }) => createPoem(input_list),
+    updatePoem: (obj, { input }) => updatePoem(input),
+    deletePoem: (obj, { id_list }) => deletePoem(id_list),
   }
 }
 

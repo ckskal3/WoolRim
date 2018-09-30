@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { PoetList } from '../../components';
 import RegistBtn from '../../common/RegistBtn';
 import '../Container.css';
-import './PoetContainer.css';
 import ApplyBtn from '../../common/ApplyBtn';
 import { getAllPoet, deletePoet, createPoet, updatePoet } from './PoetQueries';
 
@@ -151,15 +150,13 @@ export class PoetContainer extends Component {
   }
 
   render() {
-    const { poetList, toDeleteList } = this.state;
+    const { poetList, onRegitActive } = this.state;
     return (
       <div className='main'>
         <h2>----시인 목록----</h2>
-        <PoetList data={poetList} addFlag={this.state.onRegitActive} onRemove={this.onDeleteToggle} onModify={this.onModifyToggle} removeList={toDeleteList} onEnterRecord={this.onEnterRecord} />
+        <PoetList data={poetList} regitFlag={onRegitActive} onRemove={this.onDeleteToggle} onModify={this.onModifyToggle} onEnterRecord={this.onEnterRecord} />
         <RegistBtn root='poet' onRegitToggle={this.onRegitToggle} onRegitCanceled={this.onCancelClicked} />
-        <h3>삭제 목록 = [ {toDeleteList.map(item => {
-          return item + '번 ';
-        })}]</h3>
+        <hr/>
         <ApplyBtn onConfirm={this.onApply} isDisable={false} />
       </div>
     );

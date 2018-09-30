@@ -1,10 +1,12 @@
 import React from 'react';
 import { Table } from 'reactstrap';
+import './PoemList.css'
 
-export const Poem = ({ data }) => {
+export const PoemList = ({ data }) => {
   let contents;
+  console.log('data: ',data);
   if (data) {
-    contents = data.data.data.getAllPoem.map(data => {
+    contents = data.map(data => {
       return (
         <tr>
           <th scope="row">{data.id}</th>
@@ -12,7 +14,7 @@ export const Poem = ({ data }) => {
           <td>{data.content}</td>
           <td>{data.auth_count}</td>
           <td>{data.point}</td>
-          <td>{data.poet_id}</td>
+          <td>{data.poet.name}</td>
           <td>{data.lenght}</td>
         </tr>
       );
@@ -22,7 +24,7 @@ export const Poem = ({ data }) => {
   }
   return (
     <div>
-      <Table>
+      <Table className='table'>
         <thead>
           <tr>
             <th>id</th>

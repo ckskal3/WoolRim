@@ -32,7 +32,7 @@ export class PoetList extends Component {
     })
   }
 
-  test = (id) => {
+  passModifyValue = (id) => {
     const { onModify } = this.props;
     const { modified_value } = this.state;
     onModify({ id, name: modified_value });
@@ -40,7 +40,7 @@ export class PoetList extends Component {
 
 
   render() {
-    const { onRemove, onEnterRecord, data, addFlag } = this.props;
+    const { onRemove, onEnterRecord, data, regitFlag } = this.props;
     const { modifying_list } = this.state;
     let contents;
     let key = 0;
@@ -50,7 +50,7 @@ export class PoetList extends Component {
         const buttons = (<td>
           <RemoveBtn id={data.id} onRemoveToggle={onRemove} />
           &nbsp;&nbsp;&nbsp;
-          <ModifyBtn data={data} onModifyToggle={this.test} toggleModifying={this.toggleModifyingList} />
+          <ModifyBtn data={data} onModifyToggle={this.passModifyValue} toggleModifying={this.toggleModifyingList} />
         </td>);
         let table_contents;
         const isModify = modifying_list.includes(data.id);
@@ -72,7 +72,7 @@ export class PoetList extends Component {
     }
 
     let addForm = null;
-    if (addFlag) {
+    if (regitFlag) {
       addForm = (
         <tr>
           <th scope="row">NEW</th>

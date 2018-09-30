@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
-import { Poem } from '../../components';
-import axios from 'axios';
+import { PoemList } from '../../components';
+import { getAllPoem, deletePoem, createPoem, updatePoem } from './PoemQueries';
 
 export class PoemContainer extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      data: null,
+      poemList: [],
     }
   }
 
@@ -15,26 +15,16 @@ export class PoemContainer extends Component {
   }
 
   getData = async () => {
-    const query = `query {
-      getAllPoem{
-        id
-        name
-        poet_id
-        content
-        auth_count
-        point
-      }
-    }`;
-    const result = await axios.post('http://localhost:3000/graphql', { query });
+    const data = await getAllPoem();
     this.setState({
-      data: result,
+      poemList: data,
     })
   }
 
   render() {
-    const { data } = this.state;
+    const { poemList } = this.state;
     return (
-      <Poem data={data}/>
+      <PoemList data={poemList}/>
     );
   }
 }
