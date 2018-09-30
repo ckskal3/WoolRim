@@ -17,7 +17,7 @@ export class PoetList extends Component {
     const { modifying_list } = this.state;
     if (modifying_list.includes(input)) {
       this.setState({
-        modifying_list: modifying_list.filter(val => val!==input),
+        modifying_list: modifying_list.filter(val => val !== input),
       })
     } else {
       this.setState({
@@ -35,7 +35,7 @@ export class PoetList extends Component {
   test = (id) => {
     const { onModify } = this.props;
     const { modified_value } = this.state;
-    onModify({id, name: modified_value});
+    onModify({ id, name: modified_value });
   }
 
 
@@ -56,29 +56,8 @@ export class PoetList extends Component {
         const isModify = modifying_list.includes(data.id);
         if (isModify) {
           table_contents = (<td><input type='text' placeholder={data.name} onChange={this.onModifyValue} /></td>);
-          // return (
-          //   <tr key={key}>
-          //     <th scope="row">{data.id}</th>
-          //     <td>
-          //       <RemoveBtn id={data.id} onRemoveToggle={onRemove} />
-          //       &nbsp;&nbsp;&nbsp;
-          //     <ModifyBtn data={data} onModifyToggle={onModify} />
-          //     </td>
-          //   </tr>
-          // );
         } else {
           table_contents = (<td>{data.name}</td>);
-          // return (
-          //   <tr key={key}>
-          //     <th scope="row">{data.id}</th>
-          //     <td>{data.name}</td>
-          //     <td>
-          //       <RemoveBtn id={data.id} onRemoveToggle={onRemove} />
-          //       &nbsp;&nbsp;&nbsp;
-          //     <ModifyBtn data={data} onModifyToggle={onModify} />
-          //     </td>
-          //   </tr>
-          // );
         }
         return (
           <tr key={key}>
