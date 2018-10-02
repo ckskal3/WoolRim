@@ -9,6 +9,7 @@ const getAllPoem = async () => {
       content
       auth_count
       point
+      length
       poet{
         name
       }
@@ -18,9 +19,9 @@ const getAllPoem = async () => {
   return result.data.data.getAllPoem;
 }
 
-const updatePoem = async (input) => {
-  const query = `mutation($input:[UpdatePoemInput]){
-    updatePoem(input:$input){
+const updatePoem = async (input_list) => {
+  const query = `mutation($input_list:[UpdatePoemInput]){
+    updatePoem(input_list:$input_list){
       isSuccess
     }
   }`
@@ -28,7 +29,7 @@ const updatePoem = async (input) => {
     {
       query,
       variables: {
-        input,
+        input_list,
       }
     }
   );

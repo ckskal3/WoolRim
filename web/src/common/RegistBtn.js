@@ -9,6 +9,10 @@ class RegistBtn extends Component {
       case 'poet':
         btn_name = '시인 등록';
         break;
+      case 'poem':
+        btn_name = '시 등록';
+        break;
+
     }
     this.state = {
       isActive: false,
@@ -26,22 +30,22 @@ class RegistBtn extends Component {
 
   onRegitCanceled = () => {
     const { isActive } = this.state;
-    this.props.onRegitCanceled();    
+    this.props.onRegitCanceled();
     this.setState({
       isActive: !isActive,
     })
   }
 
   render() {
-    const {isActive} = this.state;
+    const { isActive } = this.state;
     const complete_str = isActive ? '완료' : '';
     const btn_color = isActive ? 'success' : 'primary';
     return (
-      <div>
+      <span>
         <Button color={btn_color} onClick={this.onRegitClicked}>{this.state.btn_name} {complete_str}</Button>
         &nbsp;&nbsp;&nbsp;
-        {isActive? <Button color='warning' onClick={this.onRegitCanceled}>등록 취소</Button> :''}
-      </div>
+        {isActive ? <Button color='warning' onClick={this.onRegitCanceled}>등록 취소</Button> : ''}
+      </span>
     )
   }
 }

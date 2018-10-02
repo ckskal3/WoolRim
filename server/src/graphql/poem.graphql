@@ -4,6 +4,7 @@ type Poem {
   content: String!
   auth_count: Int!
   point: Int!
+  length: Float!
   poet: Poet
 }
 
@@ -35,6 +36,6 @@ type Query {
 
 type Mutation {
   createPoem(input_list: [CreatePoemInput]!): PoemResult!
-  updatePoem(input: [UpdatePoemInput]): PoemResult!
+  updatePoem(input_list: [UpdatePoemInput]): PoemResult!
   deletePoem(id_list: [ID]!): PoemResult!
 }

@@ -43,7 +43,7 @@ const createPoem = async (input_list) => {
   }
 }
 
-const updatePoem = async (poem_list) => { // 효율성 떨어짐 추후 수정해야힘
+const updatePoem = async (poem_list) => { // 효율성 떨어짐 추후 수정해야함
   try {
     poem_list.map(async poem => {
       if (poem.name) {
@@ -96,7 +96,7 @@ const poemResolver = {
   },
   Mutation: {
     createPoem: (obj, { input_list }) => createPoem(input_list),
-    updatePoem: (obj, { input }) => updatePoem(input),
+    updatePoem: (obj, { input_list }) => updatePoem(input_list),
     deletePoem: (obj, { id_list }) => deletePoem(id_list),
   }
 }
