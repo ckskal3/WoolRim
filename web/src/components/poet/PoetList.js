@@ -1,9 +1,9 @@
 import React, { Component } from 'react'
-import { Table } from 'reactstrap';
+import { Table, Button } from 'reactstrap';
 import './PoetList.css'
 import RemoveBtn from '../../common/RemoveBtn';
-import ModifyBtn from '../../common/ModifyBtn';
-import { Redirect } from 'react-router-dom'
+import { Link, Route } from 'react-router-dom';
+import ModifyPoet from './ModifyPoet';
 
 export class PoetList extends Component {
   constructor(props) {
@@ -54,17 +54,19 @@ export class PoetList extends Component {
         const buttons = (<td>
           <RemoveBtn id={data.id} onRemoveToggle={onRemove} />
           &nbsp;&nbsp;&nbsp;
-          <ModifyBtn data={data} onModifyToggle={this.passModifyValue} toggleModifying={this.toggleModifyingList} />
+          <Link to={`/poet/modify/${data.id}`}>
+            <Button color='info'>수정</Button>
+          </Link>
         </td>);
         let table_contents;
         const isModify = modifying_list.includes(data.id);
         if (isModify) {
           table_contents = (<td><input type='text' placeholder={data.name} onChange={this.onModifyValue} /></td>);
         } else {
-          table_contents = (<td>{data.name}</td>);
+          table_contents = (<td>{data.name}<Route path='/poet/modify/:id' component={ModifyPoet}/></td>);
         }
         return (
-          <tr key={key} onClick={() => this.redirectModify(data.id)}>
+          <tr key={key}>
             <th scope="row">{data.id}</th>
             {table_contents}
             {buttons}

@@ -5,6 +5,8 @@ import '../Container.css';
 import ApplyBtn from '../../common/ApplyBtn';
 import { getAllPoet, deletePoet, createPoet, updatePoet } from './PoetQueries';
 
+import testData from './PoetTestData';
+
 export class PoetContainer extends Component {
   constructor(props) {
     super(props)
@@ -150,9 +152,9 @@ export class PoetContainer extends Component {
   // }
 
   getData = async () => {
-    const data = await getAllPoet();
+    // const data = await getAllPoet();
     this.setState({
-      poetList: data,
+      poetList: testData,
     })
   }
 
