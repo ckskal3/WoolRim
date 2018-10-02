@@ -3,6 +3,7 @@ import { Table } from 'reactstrap';
 import './PoetList.css'
 import RemoveBtn from '../../common/RemoveBtn';
 import ModifyBtn from '../../common/ModifyBtn';
+import { Redirect } from 'react-router-dom'
 
 export class PoetList extends Component {
   constructor(props) {
@@ -38,6 +39,9 @@ export class PoetList extends Component {
     onModify({ id, name: modified_value });
   }
 
+  redirectModify = (id) => {
+    console.log(id);
+  }
 
   render() {
     const { onRemove, onEnterRecord, data, regitFlag } = this.props;
@@ -60,7 +64,7 @@ export class PoetList extends Component {
           table_contents = (<td>{data.name}</td>);
         }
         return (
-          <tr key={key}>
+          <tr key={key} onClick={() => this.redirectModify(data.id)}>
             <th scope="row">{data.id}</th>
             {table_contents}
             {buttons}
