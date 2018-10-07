@@ -1,24 +1,4 @@
-.header {
-  background-color: #343a40;
-  height: 3.5rem;
-}
-
-.menu-item {
-  display: inline-block;
-  color: white;
-  font-size: 1rem;
-  line-height: 3.5rem;
-  text-align: center;
-  width: 20%;
-  cursor: pointer;
-  transition: background-color 0.3s;
+.nav-link {
   text-decoration: none;
-}
-
-.menu-item:hover {
-  background-color: #495057;
-}
-
-.menu-item:active, .menu-item.active {
-  background-color: #1862ab;
+  margin-left: 5px;
 }

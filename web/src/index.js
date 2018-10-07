@@ -7,7 +7,10 @@ import {
 } from 'react-router-dom';
 
 import 'bootstrap/dist/css/bootstrap.min.css';
-import Header from './common/header'
+import '@blueprintjs/core/lib/css/blueprint.css';
+import '@blueprintjs/table/lib/css/table.css';
+
+import Header from './common/Header'
 import { UserContainer, PoetContainer, PoemContainer, NoticeContainer, RecordingContainer } from './container'
 
 ReactDOM.render(
