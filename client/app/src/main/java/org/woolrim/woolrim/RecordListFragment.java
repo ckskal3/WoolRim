@@ -24,6 +24,9 @@ public class RecordListFragment extends Fragment {
     private SectionedRecyclerViewAdapter sectionAdapter;
     private EditText searchEditText;
 
+    private ArrayList<PoetItem> importedPoetItems;
+
+
     public static RecordListFragment newInstance(Bundle bundle){
         RecordListFragment recordFragment = new RecordListFragment();
         recordFragment.setArguments(bundle);
@@ -33,6 +36,11 @@ public class RecordListFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        Bundle bundle = getArguments();
+
+        assert bundle != null;
+        importedPoetItems = bundle.getParcelableArrayList("DataItems");
+
         return inflater.inflate(R.layout.fragment_recordlist,container,false);
     }
 
@@ -62,23 +70,6 @@ public class RecordListFragment extends Fragment {
 
         sectionAdapter = new SectionedRecyclerViewAdapter();
 
-        for (String contact : getResources().getStringArray(R.array.poets)) {
-            List<String> items = getContactsWithLetter(contact);
-
-            if (items.size() > 0) {
-                SectionAddItem sectionAddItem = new SectionAddItem(contact,items,getContext(),sectionAdapter,105);
-                sectionAddItem.setOnItemClickListener(new SectionAddItem.OnItemClickListenr() {
-                    @Override
-                    public void onItemClick(SectionItemViewHolder holder, View view, int position) {
-                        RecordFragment recordFragment = RecordFragment.newInstance(new Bundle());
-                        getActivity().getSupportFragmentManager().beginTransaction().addToBackStack("RecordListFragment")
-                                .replace(R.id.container,recordFragment).commit();
-                    }
-                });
-                sectionAdapter.addSection(sectionAddItem);
-            }
-        }
-
 
 
         mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
@@ -87,11 +78,6 @@ public class RecordListFragment extends Fragment {
     }
 
 
-    private void setNaviItem(View view){
-//        backIv = view.findViewById(R.id.navibackimageview);
-//        searchEditText = view.findViewById(R.id.searchpoemedittext);
-//        searchIv = view.findViewById(R.id.searchimageview);
-    }
 
     private void search(String searchKey){
         if(searchKey.length() == 0){
@@ -102,22 +88,8 @@ public class RecordListFragment extends Fragment {
     }
 
     private void init(View view) {
-        mRecyclerView = view.findViewById(R.id.recyclerview);
-        searchEditText = view.findViewById(R.id.search_edittext);
+        mRecyclerView = view.findViewById(R.id.poem_list_recyclerview);
+        searchEditText = view.findViewById(R.id.search_record_edittext);
     }
 
-    private List<String> getContactsWithLetter(String name) {
-        List<String> items = new ArrayList<>();
-        int id =0;
-        if(name.equals("김소월")) id = R.array.김소월;
-        else if(name.equals("이상")) id = R.array.이상;
-        else if(name.equals("한용운")) id = R.array.한용운;
-        else if(name.equals("윤동주")) id = R.array.윤동주;
-        else if(name.equals("신동엽")) id = R.array.신동엽;
-        else id = R.array.작자미상;
-        for (String contact : getResources().getStringArray(id) ){
-            items.add(contact);
-        }
-        return items;
-    }
 }

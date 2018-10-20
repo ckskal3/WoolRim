@@ -7,6 +7,7 @@ import com.android.volley.toolbox.Volley;
 
 public class WoolrimApplication extends Application {
     public static RequestQueue requestQueue;
+    public static DBManagerHelper dbManagerHelper;
 
     @Override
     public void onCreate() {
@@ -15,10 +16,16 @@ public class WoolrimApplication extends Application {
         if (requestQueue == null) {
             requestQueue = Volley.newRequestQueue(getApplicationContext());
         }
+
+        dbManagerHelper = new DBManagerHelper(WoolrimApplication.this);
+        dbManagerHelper.openDatabase();
     }
 
     @Override
     public void onTerminate() {
+        requestQueue.stop();
+        requestQueue = null;
+        dbManagerHelper.closeDatabase();
         super.onTerminate();
     }
 

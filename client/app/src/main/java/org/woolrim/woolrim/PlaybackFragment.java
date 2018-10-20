@@ -1,22 +1,39 @@
 package org.woolrim.woolrim;
 
-import android.app.AlertDialog;
+import android.annotation.SuppressLint;
 import android.app.Dialog;
-import android.app.DialogFragment;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
+import android.support.design.widget.BottomSheetDialogFragment;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
-import android.view.Window;
+import android.view.ViewGroup;
 import android.view.WindowManager;
-import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.SeekBar;
+import android.widget.TextView;
+import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.error.VolleyError;
+import com.android.volley.request.SimpleMultiPartRequest;
+import com.google.gson.Gson;
+
+import org.woolrim.woolrim.SQLiteDAO.RecordDAO;
+
+import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-public class PlaybackFragment extends DialogFragment implements View.OnClickListener{
+import io.feeeei.circleseekbar.CircleSeekBar;
+
+public class PlaybackFragment extends BottomSheetDialogFragment implements View.OnClickListener {
+
 
     private static final String RECORDITEM = "RecordItem";
     private RecordItem recordItem;
@@ -24,123 +41,166 @@ public class PlaybackFragment extends DialogFragment implements View.OnClickList
     private Handler handler = new Handler();
 
     private MediaPlayer mediaPlayer;
-    private SeekBar seekBar;
-    private Button playBtn, completeBtn, deleteBtn;
+    private CircleSeekBar seekBar;
+    private ImageView playBtn;
+    private TextView completeTv, deleteTv, fullTimeTv;
 
     private boolean isPlaying = false;
 
-    public static PlaybackFragment newInstance(RecordItem recordItem){
+    public static PlaybackFragment newInstance(Bundle bundle) {
         PlaybackFragment playbackFragment = new PlaybackFragment();
-        Bundle bundle = new Bundle();
-        bundle.putParcelable(RECORDITEM, recordItem);
         playbackFragment.setArguments(bundle);
         return playbackFragment;
     }
 
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d("here", "here");
         recordItem = getArguments().getParcelable(RECORDITEM);
 
     }
 
+
+    @Nullable
     @Override
-    public Dialog onCreateDialog(Bundle savedInstanceState) {
-        Dialog dialog = super.onCreateDialog(savedInstanceState);
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        return inflater.inflate(R.layout.fragment_playback, container, false);
+    }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        View view  = getActivity().getLayoutInflater().inflate(R.layout.fragment_playback
-        ,null);
-
+    @Override
+    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
         init(view);
 
+
+        setUpPlayer();
+
         playBtn.setOnClickListener(this);
-        completeBtn.setOnClickListener(this);
-        deleteBtn.setOnClickListener(this);
+        completeTv.setOnClickListener(this);
+        deleteTv.setOnClickListener(this);
 
-        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+        seekBar.setOnSeekBarChangeListener(new CircleSeekBar.OnSeekBarChangeListener() {
             @Override
-            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-                if(mediaPlayer != null && b){
-                    mediaPlayer.seekTo(i);
-                    handler.removeCallbacks(runnable);
+            public void onChanged(CircleSeekBar circleSeekBar, int i) {
 
-                    updateSeekBar();
-                }else if(mediaPlayer == null && b ){
-                    try {
-                        prepareMediaPlayer(i);
-                    }catch (IOException e){}
-                    updateSeekBar();
-                }
             }
 
-            @Override
-            public void onStartTrackingTouch(SeekBar seekBar) {
-                if(mediaPlayer != null){
-                    handler.removeCallbacks(runnable);
-                }
-            }
-
-            @Override
-            public void onStopTrackingTouch(SeekBar seekBar) {
-                if(mediaPlayer !=null){
-                    handler.removeCallbacks(runnable);
-                    mediaPlayer.seekTo(seekBar.getProgress());
-
-                    updateSeekBar();
-                }
-            }
+//            @Override
+//            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+//                if (mediaPlayer != null && b) {
+//                    mediaPlayer.seekTo(i);
+//                    handler.removeCallbacks(runnable);
+//
+//                    updateSeekBar();
+//                } else if (mediaPlayer == null && b) {
+//                    try {
+//                        prepareMediaPlayer(i);
+//                    } catch (IOException e) {
+//                    }
+//                    updateSeekBar();
+//                }
+//            }
+//
+//            @Override
+//            public void onStartTrackingTouch(SeekBar seekBar) {
+//                if (mediaPlayer != null) {
+//                    handler.removeCallbacks(runnable);
+//                }
+//            }
+//
+//            @Override
+//            public void onStopTrackingTouch(SeekBar seekBar) {
+//                if (mediaPlayer != null) {
+//                    handler.removeCallbacks(runnable);
+//                    mediaPlayer.seekTo(seekBar.getProgress());
+//
+//                    updateSeekBar();
+//                }
+//            }
         });
 
-        builder.setView(view);
-
-        dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
-
-        return builder.create();
     }
 
-    private void init(View view){
-        seekBar = view.findViewById(R.id.playbackseekBar);
-        playBtn = view.findViewById(R.id.playbutton);
-        completeBtn = view.findViewById(R.id.completebutton);
-        deleteBtn = view.findViewById(R.id.deletebutton);
+
+    private void init(View view) {
+        seekBar = view.findViewById(R.id.playback_circle_seek_bar);
+        playBtn = view.findViewById(R.id.playback_button_icon_imageview);
+        completeTv = view.findViewById(R.id.playback_complete_textview);
+        deleteTv = view.findViewById(R.id.playback_delete_textview);
+        fullTimeTv = view.findViewById(R.id.playback_full_time_textview);
 
     }
 
     @Override
-    public void onClick(View view){
+    public void onClick(View view) {
         try {
             switch (view.getId()) {
-                case R.id.playbutton:
+                case R.id.playback_button_icon_imageview:
                     onPlay(isPlaying);
                     Log.d("ttt", recordItem.path);
                     isPlaying = !isPlaying;
                     break;
-                case R.id.deletebutton:
+                case R.id.playback_delete_textview:
+                    File file = new File(recordItem.path);
+                    if (file.delete())
+                        Toast.makeText(getContext(), "삭제되었습니다.", Toast.LENGTH_SHORT).show();
                     dismiss();
                     break;
-                case R.id.completebutton:
-                    dismiss();
+                case R.id.playback_complete_textview:
+                    recordItem.duration = String.valueOf(mediaPlayer.getDuration());
+                    DBManagerHelper.recordDAO.insertRecord(recordItem);
+
+                    //////////////////서버로 파일 보내는 코드//////////////////
+                    requestServerForFileUpload();
+                    ////////////////////////////////////////////////////////
+
                     break;
             }
-        }catch (IOException e){}
+        } catch (IOException e) {
+        }
     }
 
+    private void requestServerForFileUpload(){
+        String url = "http://stou2.cafe24.com/Woolrim/FileUpload.php";
+        SimpleMultiPartRequest simpleMultiPartRequest = new SimpleMultiPartRequest(
+                Request.Method.POST,
+                url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        processServerResponse(response);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
 
-    @Override
-    public void onStart() {
-        super.onStart();
+                    }
+                }
+        );
+        simpleMultiPartRequest.addFile("file",recordItem.path);
 
-        Window window  = getDialog().getWindow();
-        assert window != null;
-        window.setBackgroundDrawableResource(android.R.color.transparent);
-
-        AlertDialog alertDialog = (AlertDialog) getDialog();
-        alertDialog.getButton(Dialog.BUTTON_POSITIVE).setEnabled(false);
-        alertDialog.getButton(Dialog.BUTTON_NEGATIVE).setEnabled(false);
-        alertDialog.getButton(Dialog.BUTTON_NEUTRAL).setEnabled(false);
-
+        WoolrimApplication.requestQueue.add(simpleMultiPartRequest);
     }
+
+    private void processServerResponse(String response){
+        Gson gson = new Gson();
+//        RequestData result = gson.fromJson(response,RequestData.class);
+        Toast.makeText(getContext(),response,Toast.LENGTH_SHORT).show();
+
+        ///성공일떄와 오류일떄 나눠서 처리해야함////////
+
+        ////////////////////////////////////////////
+        BGMSelectFragment bgmSelectFragment = BGMSelectFragment.newInstance(new Bundle());
+        getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.container, bgmSelectFragment).addToBackStack("BGNSelectFragment")
+                .commit();
+        dismiss();
+
+//        Toast.makeText(getContext(),result.status+" "+String.valueOf(result.code)+result.message,Toast.LENGTH_SHORT).show();
+    }
+
 
     @Override
     public void onPause() {
@@ -160,25 +220,40 @@ public class PlaybackFragment extends DialogFragment implements View.OnClickList
         }
     }
 
-    private void onPlay(boolean isPlaying) throws IOException{
-        if(!isPlaying){
-            if(mediaPlayer == null){
+    private void onPlay(boolean isPlaying) throws IOException {
+        if (!isPlaying) {
+            if (mediaPlayer == null) {
                 startPlay();
-            }else{
+            } else {
                 resumePlay();
             }
-        }else{
+        } else {
             pausePlay();
         }
     }
 
-    private void startPlay() throws  IOException{
-        playBtn.setText("정지");
+    private void setUpPlayer() {
         mediaPlayer = new MediaPlayer();
+        try {
+            mediaPlayer.setDataSource(recordItem.path);
+            mediaPlayer.prepare();
+        }catch (IOException e){}
 
-        mediaPlayer.setDataSource(recordItem.path);
-        mediaPlayer.prepare();
-        seekBar.setMax(mediaPlayer.getDuration());
+
+        seekBar.setMaxProcess(mediaPlayer.getDuration());
+
+        long itemDuration = mediaPlayer.getDuration();
+        long minutes = TimeUnit.MILLISECONDS.toMinutes(itemDuration);
+        long seconds = TimeUnit.MILLISECONDS.toSeconds(itemDuration)
+                - TimeUnit.MINUTES.toSeconds(minutes);
+
+        fullTimeTv.setText(String.format("%02d : %02d", minutes, seconds));
+
+    }
+
+    private void startPlay()  {
+        playBtn.setImageResource(R.drawable.replay_icon);
+
 
         mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
@@ -200,12 +275,12 @@ public class PlaybackFragment extends DialogFragment implements View.OnClickList
 
     }
 
-    private void prepareMediaPlayer(int progress) throws IOException{
+    private void prepareMediaPlayer(int progress) throws IOException {
         mediaPlayer = new MediaPlayer();
 
         mediaPlayer.setDataSource(recordItem.path);
         mediaPlayer.prepare();
-        seekBar.setMax(mediaPlayer.getDuration());
+        seekBar.setMaxProcess(mediaPlayer.getDuration());
         mediaPlayer.seekTo(progress);
 
         mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
@@ -220,21 +295,21 @@ public class PlaybackFragment extends DialogFragment implements View.OnClickList
     }
 
 
-    private void resumePlay(){
-        playBtn.setText("정지");
+    private void resumePlay() {
+        playBtn.setImageResource(R.drawable.replay_icon);
         handler.removeCallbacks(runnable);
         mediaPlayer.start();
         updateSeekBar();
     }
 
-    private void pausePlay(){
-        playBtn.setText("재생");
+    private void pausePlay() {
+        playBtn.setImageResource(R.drawable.play_big_icon);
         handler.removeCallbacks(runnable);
         mediaPlayer.pause();
     }
 
-    private void stopPlay(){
-        playBtn.setText("재생");
+    private void stopPlay() {
+        playBtn.setImageResource(R.drawable.play_big_icon);
         handler.removeCallbacks(runnable);
         isPlaying = false;
         mediaPlayer.stop();
@@ -242,7 +317,7 @@ public class PlaybackFragment extends DialogFragment implements View.OnClickList
         mediaPlayer.release();
         mediaPlayer = null;
 
-        seekBar.setProgress(seekBar.getMax());
+        seekBar.setCurProcess(seekBar.getMaxProcess());
 
         getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
@@ -251,10 +326,10 @@ public class PlaybackFragment extends DialogFragment implements View.OnClickList
     private Runnable runnable = new Runnable() {
         @Override
         public void run() {
-            if(mediaPlayer != null){
+            if (mediaPlayer != null) {
 
                 int mCurrentPosition = mediaPlayer.getCurrentPosition();
-                seekBar.setProgress(mCurrentPosition);
+                seekBar.setCurProcess(mCurrentPosition);
 
                 long minutes = TimeUnit.MILLISECONDS.toMinutes(mCurrentPosition);
                 long seconds = TimeUnit.MILLISECONDS.toSeconds(mCurrentPosition)
@@ -268,9 +343,5 @@ public class PlaybackFragment extends DialogFragment implements View.OnClickList
     private void updateSeekBar() {
         handler.postDelayed(runnable, 100);
     }
-
-
-
-
 
 }

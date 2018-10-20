@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    >
+    android:layout_height="wrap_content">
 
     <View
         android:id="@+id/view2"
@@ -19,12 +17,12 @@
         app:layout_constraintVertical_bias="1.0" />
 
     <TextView
-        android:id="@+id/mypoettextview"
+        android:id="@+id/myrecord_poet_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
         android:layout_marginEnd="8dp"
-        android:layout_marginStart="10dp"
+        android:layout_marginStart="15dp"
         android:layout_marginTop="8dp"
         android:text="@string/poet_temp"
         android:textSize="15sp"
@@ -36,7 +34,7 @@
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/textView4"
+        android:id="@+id/myrecord_item_dash_tecxtview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
@@ -44,14 +42,14 @@
         android:text="@string/dash"
         android:textSize="15sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@+id/mypoettextview"
+        app:layout_constraintBottom_toBottomOf="@+id/myrecord_poet_textview"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/mypoettextview"
-        app:layout_constraintTop_toTopOf="@+id/mypoettextview" />
+        app:layout_constraintStart_toEndOf="@+id/myrecord_poet_textview"
+        app:layout_constraintTop_toTopOf="@+id/myrecord_poet_textview" />
 
     <TextView
-        android:id="@+id/mypoemtextview"
+        android:id="@+id/myrecord_poem_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginEnd="8dp"
@@ -59,35 +57,35 @@
         android:text="@string/poem_temp"
         android:textSize="15sp"
         android:textStyle="bold"
-        app:layout_constraintBottom_toBottomOf="@+id/mypoettextview"
+        app:layout_constraintBottom_toBottomOf="@+id/myrecord_poet_textview"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/textView4"
-        app:layout_constraintTop_toTopOf="@+id/mypoettextview" />
+        app:layout_constraintStart_toEndOf="@+id/myrecord_item_dash_tecxtview"
+        app:layout_constraintTop_toTopOf="@+id/myrecord_poet_textview" />
 
     <ImageView
         android:id="@+id/playimageview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="10dp"
+        android:layout_marginEnd="4dp"
         android:contentDescription="@string/play"
-        app:layout_constraintBottom_toBottomOf="@+id/mypoemtextview"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="@+id/myrecord_poem_textview"
+        app:layout_constraintEnd_toStartOf="@+id/deleteimageview"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/mypoemtextview"
-        app:srcCompat="@android:drawable/ic_menu_close_clear_cancel" />
+        app:layout_constraintTop_toTopOf="@+id/myrecord_poem_textview"
+        app:srcCompat="@drawable/play_small_icon" />
 
     <ImageView
         android:id="@+id/deleteimageview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginEnd="4dp"
+        android:layout_marginEnd="15dp"
         android:contentDescription="@string/delete"
         app:layout_constraintBottom_toBottomOf="@+id/playimageview"
-        app:layout_constraintEnd_toStartOf="@+id/playimageview"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="1.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="@+id/playimageview"
-        app:srcCompat="@android:drawable/ic_media_play" />
+        app:srcCompat="@drawable/delete_icon" />
 </android.support.constraint.ConstraintLayout>

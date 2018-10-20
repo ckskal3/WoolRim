@@ -1,15 +1,15 @@
 package org.woolrim.woolrim;
 
-import android.content.Context;
-import android.content.Intent;
+
+import android.annotation.SuppressLint;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
-import android.widget.Toast;
 
-import java.util.List;
+import org.woolrim.woolrim.Temp.TempDataItem;
+
+import java.util.ArrayList;
 
 import io.github.luizgrp.sectionedrecyclerviewadapter.SectionParameters;
-import io.github.luizgrp.sectionedrecyclerviewadapter.SectionedRecyclerViewAdapter;
 import io.github.luizgrp.sectionedrecyclerviewadapter.StatelessSection;
 
 /*
@@ -19,18 +19,16 @@ import io.github.luizgrp.sectionedrecyclerviewadapter.StatelessSection;
 public class SectionAddItem extends StatelessSection {
 
     public String title;
-    public List<String> list;
-    public Context mContext;
-    public int activityNumber;
-    public SectionedRecyclerViewAdapter mSectionedRecyclerViewAdapter;
-    OnItemClickListenr listener;
+    public ArrayList<TempDataItem> list;
+    public OnItemClickListenr listener;
+    public int pageCode;
 
 
-    public static interface OnItemClickListenr {
-        public void onItemClick(SectionItemViewHolder holder, View view, int position);
+    public interface OnItemClickListenr {
+        void onItemClick(SectionItemViewHolder holder, View view, int position);
     }
 
-    SectionAddItem(String title, List<String> list, Context context, SectionedRecyclerViewAdapter sectionAdapter, int activityNumber) {
+    SectionAddItem(String title, ArrayList<TempDataItem> list, int pageCode) {
         super(SectionParameters.builder()
                 .itemResourceId(R.layout.sectionlistview_item)
                 .headerResourceId(R.layout.sectionlistview_header)
@@ -38,9 +36,8 @@ public class SectionAddItem extends StatelessSection {
 
         this.title = title;
         this.list = list;
-        this.activityNumber = activityNumber;
-        this.mContext = context;
-        this.mSectionedRecyclerViewAdapter = sectionAdapter;
+        this.pageCode = pageCode;
+
     }
 
     public void setOnItemClickListener(OnItemClickListenr listener) {
@@ -58,34 +55,30 @@ public class SectionAddItem extends StatelessSection {
         return new SectionItemViewHolder(view);
     }
 
+    @SuppressLint("ResourceAsColor")
     @Override
     public void onBindItemViewHolder(RecyclerView.ViewHolder holder, int position) {
         final SectionItemViewHolder itemHolder = (SectionItemViewHolder) holder;
 
-        String name = list.get(position);
+        String name = list.get(position).poem;
 
         itemHolder.tvItem.setText(name);
-        itemHolder.setOnItemClickListener(listener);
 
-//        itemHolder.rootView.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                if (activityNumber == 105) { //녹음 리스트 뷰일때 녹음액티비티 실행
-//
-//                    Intent itn = new Intent(mContext, RecordFragment.class);
-//                    itn.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP|Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_NO_ANIMATION);
-//                    mContext.startActivity(itn);
-//                } else {// 시 재생일때는 해당 위치에 맞는 재생 액티비티 실행
-//                    Toast.makeText(mContext, "clicked",
-//                            Toast.LENGTH_SHORT).show();
-//                    Intent itn = new Intent(mContext,PlayerActivity.class);
-//                    itn.addFlags(Intent.FLAG_ACTIVITY_SINGLE_TOP|Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_NO_ANIMATION);
-//                    itn.putExtra("title",title);
-//                    itn.putExtra("poem", mSectionedRecyclerViewAdapter.getPositionInSection(itemHolder.getPosition()));
-//                    mContext.startActivity(itn);
-//                }
-//            }
-//        });
+
+        if(pageCode == MainFragment.SHOW_LIST_LAYOUT_CODE){ //들을수 있는곡 없을시 클릭 불가.
+            if(list.get(position).full_count == 0){
+                itemHolder.tvItem.setTextColor(R.color.gray_bar_color);
+            }else{
+                itemHolder.setOnItemClickListener(listener);
+            }
+        }else{ //녹음 할 수 있는 곡 없을시 클릭 불가.
+            if(list.get(position).full_count == 4){
+                itemHolder.tvItem.setTextColor(R.color.gray_bar_color);
+            }else{
+                itemHolder.setOnItemClickListener(listener);
+            }
+        }
+
     }
 
     @Override

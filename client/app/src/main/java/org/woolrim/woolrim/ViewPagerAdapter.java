@@ -1,5 +1,6 @@
 package org.woolrim.woolrim;
 
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
@@ -27,5 +28,20 @@ public class ViewPagerAdapter extends FragmentPagerAdapter {
     @Override
     public int getCount() {
         return items.size();
+    }
+
+    @Nullable
+    @Override
+    public CharSequence getPageTitle(int position) {
+        CharSequence title = null;
+        switch (position){
+            case 0:
+                title = "마이울림";
+                break;
+            case 1:
+                title = "마이알람";
+                break;
+        }
+        return title;
     }
 }

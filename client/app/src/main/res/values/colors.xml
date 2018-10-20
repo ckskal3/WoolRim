@@ -4,5 +4,9 @@
     <color name="colorPrimaryDark">#303F9F</color>
     <color name="colorAccent">#FF4081</color>
     <color name="item_selected_color">#cccccc</color>
-    <color name="app_background_color">#FAFAFA</color>>
+    <color name="app_background_color">#f3f3f3</color>>
+    <color name="app_main_color">#ff4c7d</color>
+    <color name="gray_bar_color">#707070</color>
+    <color name="app_sub_color">#78e6d0</color>
+    <color name="timer_default_text_color">#c8c8c8</color>
 </resources>

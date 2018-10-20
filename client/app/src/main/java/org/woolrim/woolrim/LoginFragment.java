@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
@@ -19,16 +20,15 @@ import com.android.volley.error.VolleyError;
 import com.android.volley.request.StringRequest;
 import com.google.gson.Gson;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 public class LoginFragment extends Fragment {
     private Button loginBtn, registBtn;
     private EditText idEditText, passEditText;
+    private Bundle bundle;
 
-    public static LoginFragment newInstance(Bundle bundle){
+    public static LoginFragment newInstance(Bundle bundle) {
         LoginFragment loginFragment = new LoginFragment();
         loginFragment.setArguments(bundle);
         return loginFragment;
@@ -37,7 +37,8 @@ public class LoginFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_login,container,false);
+        bundle = getArguments();
+        return inflater.inflate(R.layout.fragment_login, container, false);
     }
 
     @Override
@@ -49,12 +50,16 @@ public class LoginFragment extends Fragment {
 
     }
 
-
+    @Override
+    public void onResume() {
+        super.onResume();
+        MainActivity.toolbarLabelTv.setText("로그인");
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()){
-            case android.R.id.home:{
+        switch (item.getItemId()) {
+            case android.R.id.home: {
                 onDetach();
                 return true;
             }
@@ -62,29 +67,36 @@ public class LoginFragment extends Fragment {
         return super.onOptionsItemSelected(item);
     }
 
-    private void init(View view){
+    private void init(View view) {
         loginBtn = view.findViewById(R.id.login_btn);
         registBtn = view.findViewById(R.id.regist_btn);
         idEditText = view.findViewById(R.id.id_edittext);
         passEditText = view.findViewById(R.id.password_edittext);
     }
 
-    private void setOnClick(){
+    private void setOnClick() {
         loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                RecordListFragment recordListFagment = RecordListFragment.newInstance(new Bundle());
+
+
+                PoemListFragment poemListFragment = PoemListFragment.newInstance(bundle);
                 getActivity().getSupportFragmentManager()
                         .beginTransaction()
                         .addToBackStack("LoginFagment")
-                        .replace(R.id.container,recordListFagment).commit();
+                        .replace(R.id.container, poemListFragment).commit();
 
             }
         });
         registBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                request("http://54.180.81.190:9788/graphql");
+                SignUpFragment signUpFragment = SignUpFragment.newInstance(new Bundle());
+                getActivity().getSupportFragmentManager()
+                        .beginTransaction()
+                        .addToBackStack("LoginFagment")
+                        .replace(R.id.container, signUpFragment).commit();
+//                request("http://54.180.81.190:9788/graphql");
             }
         });
     }
@@ -115,11 +127,11 @@ public class LoginFragment extends Fragment {
 //                        println("에러 -> " + error.getMessage());
                     }
                 }
-        ){
+        ) {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
-                Map<String,String> params = new HashMap<String,String>();
-                params.put("query",body2);
+                Map<String, String> params = new HashMap<String, String>();
+                params.put("query", body2);
                 return params;
             }
         };
@@ -128,15 +140,32 @@ public class LoginFragment extends Fragment {
         WoolrimApplication.requestQueue.add(request);
     }
 
-    private void processResponse(String response){
-        Log.d("Result",response);
+    private void processResponse(String response) {
+        Log.d("Result", response);
         Gson gson = new Gson();
-        RequestData rd = gson.fromJson(response,RequestData.class);
+        RequestData rd = gson.fromJson(response, RequestData.class);
 
-       User ud = rd.data;
-       UserDetail udd = ud.getUser;
+        UserItem ud = rd.data;
+        UserDetail udd = ud.getUser;
 
-        Log.d("Result",String.valueOf(udd.stuId)+" "+udd.passwd);
+
+        String tempID = idEditText.getText().toString();
+        String insertPass = passEditText.getText().toString();
+        if (tempID.length() ==0 || insertPass.length() == 0) {
+            Toast.makeText(getContext(), "입력하세요.", Toast.LENGTH_SHORT).show();
+        } else {
+
+            int insertID = Integer.parseInt(tempID);
+
+            if (insertPass.equals(udd.passwd) && insertID == udd.stuId) {
+                Toast.makeText(getContext(), "일치합니다.", Toast.LENGTH_SHORT).show();
+            }else{
+                Toast.makeText(getContext(), "불일치합니다.", Toast.LENGTH_SHORT).show();
+            }
+        }
+
+
+        Log.d("Result", String.valueOf(udd.stuId) + " " + udd.passwd);
 
     }
 

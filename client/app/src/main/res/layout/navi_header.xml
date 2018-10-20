@@ -3,30 +3,72 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="176dp"
-    android:background="@drawable/gradient_header_background"
-    android:gravity="bottom"
+    android:layout_height="146dp"
+    android:background="@drawable/navigation_header_background"
     android:orientation="vertical"
-    android:padding="16dp"
-    android:theme="@style/ThemeOverlay.AppCompat.Dark">
+    android:fitsSystemWindows="false"
+    android:theme="@style/AppTheme.NoActionBar">
 
-    <ImageView
-        android:layout_width="75dp"
-        android:layout_height="75dp"
-        android:paddingTop="8dp"
-        android:src="@drawable/profile"/>
+    <android.support.constraint.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_marginTop="15dp">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/navi_profile_iv"
+            android:layout_width="88dp"
+            android:layout_height="88dp"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginTop="12dp"
+            app:civ_border_color="@android:color/white"
+            app:civ_border_width="4dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:src="@drawable/profile_icon"/>
+
+        <ImageView
+            android:id="@+id/profile_modify_iv"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="79dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
+            app:layout_constraintStart_toStartOf="@+id/navi_profile_iv"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="1.0"
+            app:srcCompat="@drawable/navigation_profile_modify_icon" />
+
+        <ImageView
+            android:id="@+id/navi_x_imageview"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="15dp"
+            android:layout_marginStart="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="1.0"
+            app:layout_constraintStart_toEndOf="@+id/navi_profile_iv"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.0"
+            app:srcCompat="@drawable/x_icon" />
+
+    </android.support.constraint.ConstraintLayout>
+
 
     <TextView
         android:id="@+id/user_name"
-        android:layout_width="match_parent"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingTop="8dp"
+        android:layout_gravity="center_horizontal"
         android:textAppearance="@style/TextAppearance.AppCompat"
+        android:textColor="@android:color/white"
+        android:textSize="15sp"
+        android:textStyle="bold"
         tools:text="@string/ex_navi_header_user_name" />
 
-    <TextView
-        android:id="@+id/user_email"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        tools:text="@string/ex_navi_header_user_email" />
 </LinearLayout>

@@ -2,11 +2,11 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <!-- 배경 -->
     <item
-        android:drawable="@color/cardview_light_background"/>
+        android:drawable="@drawable/splash_background"/>
     <!-- 로고 -->
     <item>
         <bitmap
             android:gravity="center"
-            android:src="@drawable/woolrim_temp"/>
+            android:src="@drawable/splash_icon"/>
     </item>
 </layer-list>

@@ -1,68 +1,130 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/app_background_color"
     tools:context=".PlayerFragment">
 
-    <Button
-        android:id="@+id/btn_play"
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:id="@+id/player_profile_layout"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="28dp"
-        android:text="@string/play"
+        android:background="@drawable/profile_background"
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/btn_pause"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <Button
-        android:id="@+id/btn_pause"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:text="@string/pause"
-        app:layout_constraintBottom_toBottomOf="@+id/btn_play"
-        app:layout_constraintEnd_toStartOf="@+id/btn_stop"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/btn_play" />
-
-    <Button
-        android:id="@+id/btn_stop"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="8dp"
-        android:text="@string/stop"
-        app:layout_constraintBottom_toBottomOf="@+id/btn_pause"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.5"
-        app:layout_constraintStart_toEndOf="@+id/btn_pause" />
-
-    <SeekBar
-        android:id="@+id/seekBar_progress"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="168dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        app:layout_constraintBottom_toTopOf="@+id/btn_pause"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent" />
-
-    <ImageView
-        android:id="@+id/imageView"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginBottom="100dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="8dp"
-        android:layout_marginTop="30dp"
-        app:layout_constraintBottom_toTopOf="@+id/seekBar_progress"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:srcCompat="@mipmap/ic_launcher" />
+        app:layout_constraintVertical_bias="0.0">
+
+        <ImageView
+            android:id="@+id/imageView6"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="34dp"
+            android:src="@drawable/navigation_profile_image" />
+
+        <TextView
+            android:id="@+id/textView3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="1dp"
+            android:text="@string/name_temp"
+            android:textColor="@android:color/white"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+    </LinearLayout>
+
+
+    <!--<com.jesusm.holocircleseekbar.lib.HoloCircleSeekBar-->
+    <!--android:id="@+id/circle_seek_bar"-->
+    <!--android:layout_width="150dp"-->
+    <!--android:layout_height="150dp"-->
+    <!--android:layout_marginBottom="6dp"-->
+    <!--app:layout_constraintBottom_toBottomOf="@+id/play_button_background_imageview"-->
+    <!--app:layout_constraintEnd_toEndOf="@+id/play_button_background_imageview"-->
+    <!--app:layout_constraintStart_toStartOf="@+id/play_button_background_imageview"-->
+    <!--app:layout_constraintTop_toTopOf="@+id/play_button_background_imageview"-->
+    <!--app:pointer_color="@color/gender_selected_color"-->
+    <!--app:pointer_halo_color="@color/gender_selected_color"-->
+    <!--app:pointer_size="3dp"-->
+    <!--app:text_color="#00000000"-->
+    <!--app:text_size="0sp"-->
+    <!--app:wheel_active_color="@color/gender_selected_color"-->
+    <!--app:wheel_unactive_color="#00000000" />-->
+
+    <ImageView
+        android:id="@+id/play_button_background_imageview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="97dp"
+        android:src="@drawable/play_big_circle"
+        android:translationZ="2dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/player_profile_layout"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <ImageView
+        android:id="@+id/play_button_icon_imageview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:src="@drawable/play_big_icon"
+        android:translationZ="2dp"
+        app:layout_constraintBottom_toBottomOf="@+id/play_button_background_imageview"
+        app:layout_constraintEnd_toEndOf="@+id/play_button_background_imageview"
+        app:layout_constraintStart_toStartOf="@+id/play_button_background_imageview"
+        app:layout_constraintTop_toTopOf="@+id/play_button_background_imageview" />
+
+    <io.feeeei.circleseekbar.CircleSeekBar
+        android:id="@+id/player_circle_seek_bar"
+        android:layout_width="160dp"
+        android:layout_height="160dp"
+        android:layout_marginBottom="6dp"
+        android:translationZ="1dp"
+        app:layout_constraintBottom_toBottomOf="@+id/play_button_background_imageview"
+        app:layout_constraintEnd_toEndOf="@+id/play_button_background_imageview"
+        app:layout_constraintStart_toStartOf="@+id/play_button_background_imageview"
+        app:layout_constraintTop_toTopOf="@+id/play_button_background_imageview"
+        app:wheel_pointer_color="@color/app_sub_color"
+        app:wheel_pointer_radius="3dp"
+        app:wheel_reached_color="@color/app_sub_color"
+        app:wheel_reached_has_corner_round="true"
+        app:wheel_reached_width="5dp"
+        app:wheel_unreached_color="#00000000"
+        app:wheel_unreached_width="5dp" />
+
+    <TextView
+        android:id="@+id/player_playing_time_textview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="25dp"
+        android:text="00 : 00"
+        android:textColor="@color/timer_default_text_color"
+        android:textSize="45sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/player_circle_seek_bar"
+        app:layout_constraintVertical_bias="0.0" />
+    <TextView
+        android:id="@+id/player_full_time_textview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        android:text="00 : 00"
+        android:textColor="@color/timer_default_text_color"
+        android:textSize="20sp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/player_playing_time_textview"
+        app:layout_constraintVertical_bias="0.0" />
+
+
 </android.support.constraint.ConstraintLayout>
