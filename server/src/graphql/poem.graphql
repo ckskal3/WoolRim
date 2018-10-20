@@ -5,33 +5,33 @@ type Poem {
   auth_count: Int!
   point: Int!
   length: Float!
-  poet: Poet
+  poet: Poet!
 }
 
 input CreatePoemInput {
   name: String!
-  poet_id: ID!
   content: String!
   point: Int!
   length: Float!
+  poet_id: ID!
 }
 
 input UpdatePoemInput {
-  id:ID!
+  id: ID!
   name: String
-  poet_id: ID
   content: String
   point: Int
+  length: Float
 }
 
 type PoemResult {
   isSuccess: Boolean!
-  msg: String
 }
 
 type Query {
   getPoem(id: ID!): Poem
   getAllPoem: [Poem]
+  getPoemByNames(poet_name: String!, poem_name: String!): Poem
 }
 
 type Mutation {

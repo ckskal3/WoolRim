@@ -1,18 +1,24 @@
 type Recording {
   id: ID!
-  path: String
-  auth_flag: Status
-  duration: String
-  user: User
-  poem: Poem
+  path: String!
+  auth_flag: Status!
+  duration: Float!
+  user: User!
+  poem: Poem!
 }
 
 input CreateRecordingInput {
   path: String!
-  user_id: ID!
-  auth_flag: Boolean!
-  duration: String!
-  poem_id: ID!
+  duration: Float!
+  stu_id: Int!
+  poem_name: String!
+  poet_name: String!
+}
+
+input deleteRecordingInput {
+  stu_id: Int!
+  poet_name: String!
+  poem_name: String!
 }
 
 enum Status {
@@ -20,18 +26,17 @@ enum Status {
   ACCEPTED
   WAITING
 }
+
 type RecordingResult {
-  item: Recording
   isSuccess: Boolean!
-  msg: String
 }
 
 type Query {
   getRecording(id: ID!): Recording
-  getAllRecording: [Recording]
+  getAllRecording(stu_id: Int): [Recording!]!
 }
 
 type Mutation {
   createRecording(input: CreateRecordingInput!): RecordingResult!
-  deleteRecording(id: ID!): RecordingResult!
+  deleteRecording(input: deleteRecordingInput!): RecordingResult!
 }

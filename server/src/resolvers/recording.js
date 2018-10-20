@@ -1,10 +1,15 @@
-import { Recording } from '../model';
+import { Recording, User, Poem } from '../model';
 import { getUser } from './user';
 import { getPoem } from './poem';
 
-const getAllRecording = async () => {
+const getAllRecording = async (stu_id) => {
   try {
-    return await Recording.query();
+    if (!stu_id) {
+      return await Recording.query();
+    }
+    const user_id = User.where({ stu_id }).one();
+    console.log(user_id);
+    return Recording.where({ user_id, });
   } catch (err) {
     console.log('getAllRecording has err : ', err);
     return null;
@@ -20,12 +25,25 @@ const getRecording = async (id) => {
   }
 }
 
-const createRecording = async (input_recording) => {
+const createRecording = async (input) => {
+  const poem = await Poem.where({ name: input.poem_name }).include('poet');
+  const poem_result = poem.filter(v => {
+    if (v.poet.name === input.poet_name) {
+      return true;
+    }
+    return false;
+  })
+  if (poem_result.length === 0) {
+    return {
+      isSuccess: false,
+    }
+  }
+  const user = await User.where({ stu_id: input.stu_id }).one()
   const recording = new Recording({
-    path: input_recording.path,
-    user_id: input_recording.user_id,
-    duration: input_recording.duration,
-    poem_id: input_recording.poem_id,
+    path: input.path,
+    user_id: user.id,
+    duration: input.duration,
+    poem_id: poem_result[0].id,
   });
   try {
     await recording.save();
@@ -36,14 +54,28 @@ const createRecording = async (input_recording) => {
     console.log('createRecording has err : ', err);
     return {
       isSuccess: false,
-      msg: err,
     };
   }
 }
 
-const deleteRecording = async (id) => {
+const deleteRecording = async (input) => {
+  const user_id = (await User.where({ stu_id: input.stu_id }).one()).id
+  const poem = await Poem.where({ name: input.poem_name }).include('poet');
+  const poem_result = poem.filter(v => {
+    if (v.poet.name === input.poet_name) {
+      return true;
+    }
+    return false;
+  })
+  if (poem_result.length === 0) {
+    return {
+      isSuccess: false,
+    }
+  }
+  const recording = await Recording
+    .where({$and: [{ user_id }, { poem_id: poem_result[0].id, }]}).one();
   try {
-    await Recording.delete({ id });
+    await Recording.delete({ id: recording.id });
     return {
       isSuccess: true,
     };
@@ -51,7 +83,6 @@ const deleteRecording = async (id) => {
     console.log('deleteRecording has err : ', err);
     return {
       isSuccess: false,
-      msg: err,
     };
   }
 }
@@ -67,12 +98,12 @@ const recordingResolver = {
     WAITING: 0,
   },
   Query: {
-    getAllRecording: () => getAllRecording(),
+    getAllRecording: (stu_id) => getAllRecording(stu_id),
     getRecording: (obj, { id }) => getRecording(id),
   },
   Mutation: {
     createRecording: (obj, { input }) => createRecording(input),
-    deleteRecording: (obj, { id }) => deleteRecording(id),
+    deleteRecording: (obj, { input }) => deleteRecording(input),
   }
 }
 

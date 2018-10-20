@@ -4,7 +4,9 @@ import { types } from 'cormo';
 export const Poem = Conn.model('poem', {
   name: { type: String, required: true },
   content: { type: String, required: true },
-  auth_count: { type: types.Integer, required: true }, // 서버에서 기본 값 0 으로 설정
+  auth_count: { type: types.Integer, default_value: 0 }, 
+  // 현재까지 시에 대한 심사 완료된 녹음 파일 갯수 
   point: { type: types.Integer, required: true },
-  length: { type: types.Integer, required: true }, // 시 길이 (상식 적인 길이), 분 단위
+  length: { type: types.Number, required: true }, 
+  // 이 시를 녹음 할 수 있는 길이 (상식 적인 길이), 분 단위
 });

@@ -19,47 +19,44 @@ const getNotice = async (id) => {
   }
 }
 
-const createNotice = async (input_notice) => {
-  const notice = new Notice({
-    content: input_notice.content,
-    user_id: input_notice.user_id,
+const createNotice = async (input_list) => {
+  input_list.map(item => {
+    item.date_created = new Date();
   });
   try {
-    await notice.save();
+    await Notice.createBulk(input_list);
     return {
-      item: notice,
       isSuccess: true,
-      msg: '공지사항 생성 완료',
     };
   } catch (err) {
     console.log('createNotice has err : ', err);
     return {
       isSuccess: false,
-      msg: err,
     };
   }
 }
 
-const updateNotice = async (id, notice) => {
+const updateNotice = async (notice_list) => {
   try {
-    if (notice.content) {
-      await Notice.find(id).update({ content: notice.content });
-    }
+    notice_list.map(async notice => {
+      if (notice.content) {
+        await Notice.find(notice.id).update({ content: notice.content })
+      }
+    })
     return {
       isSuccess: true,
-    };
+    }
   } catch (err) {
     console.log('updateNotice has err : ', err);
     return {
       isSuccess: false,
-      msg: err,
     };
   }
 }
 
-const deleteNotice = async (id) => {
+const deleteNotice = async (id_list) => {
   try {
-    await Notice.delete({ id });
+    await Notice.delete({ id: id_list });
     return {
       isSuccess: true,
     };
@@ -67,7 +64,6 @@ const deleteNotice = async (id) => {
     console.log('deleteNotice has err : ', err)
     return {
       isSuccess: false,
-      msg: err,
     };
   }
 }
@@ -81,9 +77,9 @@ const noticeResolver = {
     getNotice: (obj, { id }) => getNotice(id),
   },
   Mutation: {
-    createNotice: (obj, { input }) => createNotice(input),
-    updateNotice: (obj, { id, input }) => updateNotice(id, input),
-    deleteNotice: (obj, { id }) => deleteNotice(id),
+    createNotice: (obj, { input_list }) => createNotice(input_list),
+    updateNotice: (obj, { input_list }) => updateNotice(input_list),
+    deleteNotice: (obj, { id_list }) => deleteNotice(id_list),
   }
 }
 

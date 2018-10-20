@@ -1,4 +1,4 @@
-import { Poem } from '../model';
+import { Poem, Poet } from '../model';
 import { getPoet } from './poet';
 /* TODO 
     poet id 없는 경우 테스트 해보기 -> err 메세지 클라이언트로 던져주는 방법 알아보기
@@ -21,6 +21,19 @@ const getPoem = async (id) => {
   }
 }
 
+const getPoemByNames = async (poet_name, poem_name) => {
+  try {
+    const poet_ids = (await Poet.where({name: poet_name}).select('id')).map(v => {
+      return {poet_id: v.id};
+    });
+    const result = await Poem.where({$or: poet_ids}).where({name: poem_name}).one();
+    return result;
+  } catch (err) {
+    console.log('getPoem has err : ', err);
+    return null;
+  }
+}
+
 const createPoem = async (input_list) => {
   input_list.map(item => { // default_value 설정
     if (!item.auth_count) {
@@ -32,13 +45,11 @@ const createPoem = async (input_list) => {
     // cormo 라이브러리 createBulk 에서는 default_value 속성 작동 안함
     return {
       isSuccess: true,
-      msg: '시 생성 완료',
     };
   } catch (err) {
     console.log('createPoem has err : ', err);
     return {
       isSuccess: false,
-      msg: err,
     }
   }
 }
@@ -66,7 +77,6 @@ const updatePoem = async (poem_list) => { // 효율성 떨어짐 추후 수정�
     console.log('updatePoem has err : ', err);
     return {
       isSuccess: false,
-      msg: err,
     };
   }
 }
@@ -81,7 +91,6 @@ const deletePoem = async (id_list) => {
     console.log('deletePoem has err : ', err)
     return {
       isSuccess: false,
-      msg: err,
     };
   }
 }
@@ -93,6 +102,7 @@ const poemResolver = {
   Query: {
     getAllPoem: () => getAllPoem(),
     getPoem: (obj, { id }) => getPoem(id),
+    getPoemByNames: (obj, { poet_name, poem_name }) => getPoemByNames(poet_name, poem_name),
   },
   Mutation: {
     createPoem: (obj, { input_list }) => createPoem(input_list),

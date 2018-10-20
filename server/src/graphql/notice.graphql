@@ -1,8 +1,8 @@
 type Notice {
   id: ID!
   content: String!
-  date: String!
-  user: User
+  date_created: String!
+  user: User!
 }
 
 input CreateNoticeInput {
@@ -11,13 +11,12 @@ input CreateNoticeInput {
 }
 
 input UpdateNoticeInput {
+  id: ID!
   content: String
 }
 
 type NoticeResult {
-  item: Notice
   isSuccess: Boolean!
-  msg: String
 }
 
 type Query {
@@ -26,7 +25,7 @@ type Query {
 }
 
 type Mutation {
-  createNotice(input: CreateNoticeInput!): NoticeResult!
-  updateNotice(id: ID!, input: UpdateNoticeInput): NoticeResult!
-  deleteNotice(id: ID!): NoticeResult!
+  createNotice(input_list: [CreateNoticeInput]!): NoticeResult!
+  updateNotice(input_list: [UpdateNoticeInput]): NoticeResult!
+  deleteNotice(id_list: [ID]!): NoticeResult!
 }

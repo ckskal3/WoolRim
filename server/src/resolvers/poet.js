@@ -23,13 +23,11 @@ const createPoet = async (input_list) => {
     await Poet.createBulk(input_list);
     return {
       isSuccess: true,
-      msg: '시인 생성 완료',
     };
   } catch (err) {
     console.log('createPoet has err : ', err);
     return {
       isSuccess: false,
-      msg: err,
     };
   }
 }
@@ -48,7 +46,6 @@ const updatePoet = async (poet_list) => {
     console.log('updatePoet has err : ', err);
     return {
       isSuccess: false,
-      msg: err,
     };
   }
 }
@@ -63,7 +60,6 @@ const deletePoet = async (id_list) => {
     console.log('deletePoet has err : ', err);
     return {
       isSuccess: false,
-      msg: err,
     };
   }
 }
@@ -75,7 +71,7 @@ const poetResolver = {
   },
   Mutation: {
     createPoet: (obj, { input_list }) => createPoet(input_list),
-    updatePoet: (obj, { input }) => updatePoet(input),
+    updatePoet: (obj, { input_list }) => updatePoet(input_list),
     deletePoet: (obj, { id_list }) => deletePoet(id_list),
   }
 }

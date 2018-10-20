@@ -38,8 +38,8 @@ app.get('/upload', function(req, res){
   res.render('upload');
 });
 
-app.post('/upload', upload.single('userfile'), function(req, res){
-  res.status( 200).send('Uploaded! : '+req.file.originalname); // object를 리턴함
+app.post('/upload', upload.single('file'), function(req, res){
+  res.status(200).send('Uploaded! : '+req.file.originalname); // object를 리턴함
   console.log(req.body)
 });
 

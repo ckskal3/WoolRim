@@ -23,12 +23,11 @@ const createUser = async (input_user) => {
   const encryption = await pbkdf2.pbkdf2Sync(input_user.passwd, input_user.name, 30, 32, 'sha512');
   const user = new User({
     name: input_user.name,
-    type: input_user.type,
+    univ: input_user.univ,
     stu_id: input_user.stu_id,
     gender: input_user.gender,
     passwd: encryption.toString(),
     created: new Date(),
-    bongsa_time: input_user.bongsa_time ? input_user.bongsa_time : 0,
   })
   try {
     await user.save();
@@ -39,13 +38,11 @@ const createUser = async (input_user) => {
     console.log('createUser has err : ', err);
     return {
       isSuccess: false,
-      msg: err,
     };
   }
 }
 
 const updateUser = async (id, user) => {
-  console.log(`id : ${id}, user : ${user}`)
   try {
     if (user.name) {
       await User.find(id).update({ name: user.name })
@@ -69,7 +66,6 @@ const updateUser = async (id, user) => {
     console.log('updateUser has err : ', err);
     return {
       isSuccess: false,
-      msg: err,
     };
   }
 }
@@ -84,8 +80,22 @@ const deleteUser = async (id) => {
     console.log('deleteUser has err : ', err);
     return {
       isSuccess: false,
-      msg: err,
     };
+  }
+}
+
+const login = async (stu_id, passwd) => {
+  const user = await User.where({stu_id,}).one();
+  const encryption = await pbkdf2.pbkdf2Sync(passwd, user.name, 30, 32, 'sha512');
+  if(user.passwd === encryption.toString()) {
+    return {
+      isSuccess: true,
+      user,
+    }
+  }else {
+    return {
+      isSuccess: false,
+    }
   }
 }
 
@@ -98,6 +108,7 @@ const userResolver = {
     createUser: (obj, { input }) => createUser(input),
     updateUser: (obj, { id, input }) => updateUser(id, input),
     deleteUser: (obj, { id }) => deleteUser(id),
+    login: (obj, {stu_id, passwd}) => login(stu_id, passwd),
   }
 }
 

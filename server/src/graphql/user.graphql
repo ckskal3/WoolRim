@@ -1,43 +1,50 @@
 type User {
   id: ID!
   name: String!
-  type: String!
+  univ: String!
   stu_id: Int!
   gender: String!
-  passwd: String!
   created: String!
   bongsa_time: Int
+  profile: String
 }
 
 input CreateUserInput {
   name: String!
-  type: Int!
-  stu_id: Int
+  univ: String!
+  stu_id: Int!
   gender: String!
   passwd: String!
 }
 
 input UpdateUserInput {
   name: String
+  univ: String
   stu_id: Int
   gender: String
   passwd: String
   bongsa_time: Int
+  profile: String
 }
 
 type UserResult {
-  item: User
   isSuccess: Boolean!
-  msg: String
+}
+
+type LoginResult {
+  isSuccess: Boolean!
+  user: User
 }
 
 type Query {
   getUser(id: ID!): User
-  getAllUser: [User]
+  getAllUser: [User!]!
 }
 
 type Mutation {
   createUser(input: CreateUserInput!): UserResult!
   updateUser(id: ID!, input: UpdateUserInput): UserResult!
   deleteUser(id: ID!): UserResult!
+  login(stu_id: Int!, passwd: String!): LoginResult!
+  modifyUser(input: UpdateUserInput): UserResult!
 }
