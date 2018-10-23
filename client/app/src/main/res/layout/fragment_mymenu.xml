@@ -43,20 +43,20 @@
     </LinearLayout>
 
 
-    <android.support.design.widget.TabLayout
+    <org.woolrim.woolrim.Utils.BadgeTabLayout
         android:id="@+id/my_tabLayout"
         android:layout_width="match_parent"
         android:layout_height="46dp"
         android:background="@android:color/white"
-        app:tabSelectedTextColor="@color/app_main_color"
+        app:tabGravity="center"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/linearLayout"
-        app:layout_constraintVertical_bias="0.0">
+        app:layout_constraintVertical_bias="0.0"/>
 
 
-    </android.support.design.widget.TabLayout>
+
 
     <android.support.v4.view.ViewPager
         android:id="@+id/my_container"
@@ -66,9 +66,8 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/my_tabLayout"
-        app:layout_constraintVertical_bias="0.0">
+        app:layout_constraintVertical_bias="0.0"/>
 
-    </android.support.v4.view.ViewPager>
 
 
 </android.support.constraint.ConstraintLayout>
