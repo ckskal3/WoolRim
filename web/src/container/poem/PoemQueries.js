@@ -6,13 +6,13 @@ const getAllPoem = async () => {
     getAllPoem{
       id
       name
-      content
-      auth_count
-      point
-      length
       poet{
         name
       }
+      content
+      point
+      length
+      auth_count
     }
   }`;
   const result = await axios.post(serverInfo.urlDev, { query });

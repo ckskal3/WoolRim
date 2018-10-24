@@ -1,20 +1,19 @@
 import React, { Component } from 'react';
 import { Route } from 'react-router-dom';
 
-import { PoetTable } from '../../components';
+import { RecordingTable } from '../../components';
 import ControlBtns from '../../common/ControlBtns';
-import PoetRegister from '../../components/poet/PoetRegister';
-import { getAllPoet, deletePoet, createPoet, updatePoet } from './PoetQueries';
+import RecordingRegister from '../../components/recording/RecordingRegister';
+import { getAllRecording, deleteRecording, createRecording } from './RecordingQueries';
 import '../Container.css';
 
-export class PoetContainer extends Component {
+export class RecordingContainer extends Component {
   constructor(props) {
     super(props)
     this.state = {
       data: [],
       toCreateDataList: [],
       toDeleteDataList: [],
-      toUpdateDataList: [],
     }
   }
 
@@ -23,24 +22,22 @@ export class PoetContainer extends Component {
   }
 
   getData = async () => {
-    const result = await getAllPoet();
+    const result = await getAllRecording();
     this.setState({
       data: result,
     })
   }
+
   onDBApply = async () => {
     const { toDeleteDataList, toCreateDataList, toUpdateDataList, data } = this.state;
     if (toCreateDataList.length === 0 &&
-      toDeleteDataList.length === 0 &&
-      toUpdateDataList.length === 0) {
+      toDeleteDataList.length === 0) {
       window.alert('적용 할 내용 없음');
       return;
     }
     const msg = `
       ${toCreateDataList.length} 개 생성
-      ${toDeleteDataList.map(v => `${v}번 `)} 삭제
-      ${toUpdateDataList.map(v => `${v}번 `)} 업데이트
-    `
+      ${toDeleteDataList.map(v => `${v}번 `)} 삭제`
     const confirm = window.confirm(msg)
 
     if (!confirm) {
@@ -52,27 +49,17 @@ export class PoetContainer extends Component {
           delete v.key;
         }
       })
-      await createPoet(toCreateDataList);
+      await createRecording(toCreateDataList);
     }
     if (toDeleteDataList.length > 0) {
-      await deletePoet(toDeleteDataList);
+      await deleteRecording(toDeleteDataList);
     }
-    if (toUpdateDataList.length > 0) {
-      const filteredData = data.filter(v => {
-        return toUpdateDataList.includes(v.id);
-      })
-      await updatePoet(filteredData.map(v => {
-        return {
-          id: v.id,
-          name: v.name,
-        };
-      }));
-    }
+    
     await this.getData();
+
     this.setState({
       toCreateDataList: [],
       toDeleteDataList: [],
-      toUpdateDataList: [],
     })
   }
 
@@ -116,62 +103,21 @@ export class PoetContainer extends Component {
     })
   }
 
-  onUpdate = (input) => {
-    const { data } = this.state;
-    if (input.key) {
-      const { toCreateDataList } = this.state;
-      this.setState({
-        toCreateDataList: toCreateDataList.map(v => {
-          if (v.key === input.key) {
-            return {
-              name: input.name,
-              key: input.key,
-            };
-          }
-          return v;
-        }),
-        data: data.map(v => {
-          if (v.key === input.key) {
-            return input;
-          }
-          return v;
-        }),
-      });
-      return;
-    }
-    const { toUpdateDataList } = this.state;
-    if (!toUpdateDataList.includes(input.id)) {
-      this.setState({
-        toUpdateDataList: toUpdateDataList.concat(input.id),
-      })
-    }
-    this.setState({
-      data: data.map(v => {
-        if (v.id === input.id) {
-          return input;
-        }
-        return v;
-      }),
-    })
-  }
-
   render() {
-    const { data, toDeleteDataList, toCreateDataList, toUpdateDataList } = this.state;
+    const { data, toDeleteDataList, toCreateDataList } = this.state;
     return (
       <div className='main'>
-        <ControlBtns title='시인' match={this.props.match} onApply={this.onDBApply} />
+        <ControlBtns title='녹음파일' match={this.props.match} onApply={this.onDBApply} />
         <hr />
-        <Route path='/poet/create' render={() => <PoetRegister onRegister={this.onCreate} />} />
-        <Route path='/poet' render={() =>
-          <PoetTable data={data}
+        <Route path='/recording/create' render={() => <RecordingRegister onRegister={this.onCreate} />} />
+        <Route path='/recording' render={() =>
+          <RecordingTable data={data}
             toDeleteDataList={toDeleteDataList}
             onDelete={this.onDelete}
-            onUpdate={this.onUpdate}
           />}
         />
         생성: {toCreateDataList.map(v => JSON.stringify(v))}<br />
         삭제: {toDeleteDataList}<br />
-        업뎃: {toUpdateDataList}<br />
       </div>
     );
   }

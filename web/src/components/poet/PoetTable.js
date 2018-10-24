@@ -5,7 +5,7 @@ import { Intent } from '@blueprintjs/core';
 import { dataKey, dateFormatter } from '../../common/Tools';
 import Remover from '../../common/Remover';
 
-export class NoticeTable extends Component {
+export class PoetTable extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -108,9 +108,7 @@ export class NoticeTable extends Component {
           enableGhostCells='true'
           enableRowHeader='false'>
           <Column name='id' cellRenderer={this.cellRenderer} />
-          <Column name='내용' cellRenderer={this.editableCellRenderer} />
-          <Column name='날짜' cellRenderer={this.cellRenderer} />
-          <Column name='작성자' cellRenderer={this.joinedCellRenderer} />
+          <Column name='이름' cellRenderer={this.editableCellRenderer} />
           <Column name='관리' cellRenderer={this.managementCellRenderer} />
         </Table>
       </div>

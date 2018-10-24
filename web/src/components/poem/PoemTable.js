@@ -5,12 +5,12 @@ import { Intent } from '@blueprintjs/core';
 import { dataKey, dateFormatter } from '../../common/Tools';
 import Remover from '../../common/Remover';
 
-export class NoticeTable extends Component {
+export class PoemTable extends Component {
   constructor(props) {
     super(props);
     this.state = {
     }
-  };
+  }
 
   onClickCellToDelete = (data) => {
     this.props.onDelete(data)
@@ -27,13 +27,6 @@ export class NoticeTable extends Component {
     } else {
       return <Cell key={data[rowIndex].id}>{data[rowIndex][columnName]}</Cell>
     }
-  }
-
-  onCellConfirm = (value, rowIndex, columnIndex) => {
-    const { data, onUpdate } = this.props
-    const columnName = dataKey(data, columnIndex);
-    data[rowIndex][columnName] = value;
-    onUpdate(data[rowIndex]);
   }
 
   editableCellRenderer = (rowIndex, columnIndex) => {
@@ -68,24 +61,17 @@ export class NoticeTable extends Component {
     const columnName = dataKey(data, columnIndex);
     if (toDeleteDataList.includes(data[rowIndex].id)) {
       return (
-        <EditableCell
+        <Cell
           key={data[rowIndex].id}
-          intent={Intent.DANGER}
-          rowIndex={rowIndex}
-          columnIndex={columnIndex}
-          value={data[rowIndex][columnName].name}
-          onConfirm={this.onCellConfirm}
-        />
+          intent={Intent.DANGER}>
+          {data[rowIndex][columnName].name}</Cell>
       );
     } else {
       return (
-        <EditableCell
-          key={data[rowIndex].id}
-          rowIndex={rowIndex}
-          columnIndex={columnIndex}
-          value={data[rowIndex][columnName].name}
-          onConfirm={this.onCellConfirm}
-        />
+        <Cell
+          key={data[rowIndex].id}>
+          {data[rowIndex][columnName].name}
+          </Cell>
       );
     }
   }
@@ -100,7 +86,14 @@ export class NoticeTable extends Component {
       </Cell>
     )
   }
-  render() {
+  
+  onCellConfirm = (value, rowIndex, columnIndex) => {
+    const { data, onUpdate } = this.props
+    const columnName = dataKey(data, columnIndex);
+    data[rowIndex][columnName] = value;
+    onUpdate(data[rowIndex]);
+  }
+  render () {
     const { data } = this.props
     return (
       <div>
@@ -108,9 +101,12 @@ export class NoticeTable extends Component {
           enableGhostCells='true'
           enableRowHeader='false'>
           <Column name='id' cellRenderer={this.cellRenderer} />
+          <Column name='제목' cellRenderer={this.cellRenderer} />
+          <Column name='시인' cellRenderer={this.joinedCellRenderer} />
           <Column name='내용' cellRenderer={this.editableCellRenderer} />
-          <Column name='날짜' cellRenderer={this.cellRenderer} />
-          <Column name='작성자' cellRenderer={this.joinedCellRenderer} />
+          <Column name='봉사시간' cellRenderer={this.editableCellRenderer} />
+          <Column name='길이' cellRenderer={this.editableCellRenderer} />
+          <Column name='인증 횟수' cellRenderer={this.cellRenderer} />
           <Column name='관리' cellRenderer={this.managementCellRenderer} />
         </Table>
       </div>

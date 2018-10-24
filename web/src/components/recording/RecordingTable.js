@@ -5,7 +5,7 @@ import { Intent } from '@blueprintjs/core';
 import { dataKey, dateFormatter } from '../../common/Tools';
 import Remover from '../../common/Remover';
 
-export class NoticeTable extends Component {
+export class RecordingTable extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -17,6 +17,9 @@ export class NoticeTable extends Component {
   }
 
   cellRenderer = (rowIndex, columnIndex) => {
+    if (columnIndex === 7) {
+      columnIndex--;
+    }
     const { data, toDeleteDataList } = this.props;
     const columnName = dataKey(data, columnIndex);
     if (columnName === 'date') {
@@ -29,63 +32,44 @@ export class NoticeTable extends Component {
     }
   }
 
-  onCellConfirm = (value, rowIndex, columnIndex) => {
-    const { data, onUpdate } = this.props
-    const columnName = dataKey(data, columnIndex);
-    data[rowIndex][columnName] = value;
-    onUpdate(data[rowIndex]);
-  }
-
-  editableCellRenderer = (rowIndex, columnIndex) => {
-    const { data, toDeleteDataList } = this.props;
-    const columnName = dataKey(data, columnIndex);
-    if (toDeleteDataList.includes(data[rowIndex].id)) {
-      return (
-        <EditableCell
-          key={data[rowIndex].id}
-          intent={Intent.DANGER}
-          rowIndex={rowIndex}
-          columnIndex={columnIndex}
-          value={data[rowIndex][columnName]}
-          onConfirm={this.onCellConfirm}
-        />
-      );
-    } else {
-      return (
-        <EditableCell
-          key={data[rowIndex].id}
-          rowIndex={rowIndex}
-          columnIndex={columnIndex}
-          value={data[rowIndex][columnName]}
-          onConfirm={this.onCellConfirm}
-        />
-      );
-    }
-  }
-
   joinedCellRenderer = (rowIndex, columnIndex) => {
     const { data, toDeleteDataList } = this.props;
     const columnName = dataKey(data, columnIndex);
     if (toDeleteDataList.includes(data[rowIndex].id)) {
       return (
-        <EditableCell
+        <Cell
           key={data[rowIndex].id}
-          intent={Intent.DANGER}
-          rowIndex={rowIndex}
-          columnIndex={columnIndex}
-          value={data[rowIndex][columnName].name}
-          onConfirm={this.onCellConfirm}
-        />
+          intent={Intent.DANGER}>
+          {data[rowIndex][columnName].name}
+        </Cell>
       );
     } else {
       return (
-        <EditableCell
+        <Cell
+          key={data[rowIndex].id}>
+          {data[rowIndex][columnName].name}
+        </Cell>
+      );
+    }
+  }
+
+  joinedJoinedCellRenderer = (rowIndex, columnIndex) => {
+    const { data, toDeleteDataList } = this.props;
+    const columnName = dataKey(data, columnIndex);
+    if (toDeleteDataList.includes(data[rowIndex].id)) {
+      return (
+        <Cell
           key={data[rowIndex].id}
-          rowIndex={rowIndex}
-          columnIndex={columnIndex}
-          value={data[rowIndex][columnName].name}
-          onConfirm={this.onCellConfirm}
-        />
+          intent={Intent.DANGER}>
+          {data[rowIndex].poem.poet.name}
+        </Cell>
+      );
+    } else {
+      return (
+        <Cell
+          key={data[rowIndex].id}>
+          {data[rowIndex].poem.poet.name}
+        </Cell>
       );
     }
   }
@@ -108,9 +92,13 @@ export class NoticeTable extends Component {
           enableGhostCells='true'
           enableRowHeader='false'>
           <Column name='id' cellRenderer={this.cellRenderer} />
-          <Column name='내용' cellRenderer={this.editableCellRenderer} />
-          <Column name='날짜' cellRenderer={this.cellRenderer} />
+          <Column name='파일정보' cellRenderer={this.cellRenderer} />
+          <Column name='생성날짜' cellRenderer={this.cellRenderer} />
+          <Column name='허가여부' cellRenderer={this.cellRenderer} />
           <Column name='작성자' cellRenderer={this.joinedCellRenderer} />
+          <Column name='시제목' cellRenderer={this.joinedCellRenderer} />
+          <Column name='시인' cellRenderer={this.joinedJoinedCellRenderer} />
+          <Column name='녹음길이' cellRenderer={this.cellRenderer} />
           <Column name='관리' cellRenderer={this.managementCellRenderer} />
         </Table>
       </div>
