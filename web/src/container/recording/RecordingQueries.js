@@ -20,7 +20,7 @@ const getAllRecording = async () => {
       duration
     }
   }`;
-  const result = await axios.post(serverInfo.urlDev, { query });
+  const result = await axios.post(serverInfo.serverURL, { query });
   return result.data.data.getAllRecording;
 }
 
@@ -30,7 +30,7 @@ const deleteRecording = async (id_list) => {
       isSuccess
     }
   }`
-  const result = await axios.post(serverInfo.urlDev,
+  const result = await axios.post(serverInfo.serverURL,
     {
       query,
       variables: {
@@ -47,7 +47,7 @@ const createRecording = async (input) => {
       isSuccess
     }
   }`
-  const result = await axios.post(serverInfo.urlDev,
+  const result = await axios.post(serverInfo.serverURL,
     {
       query,
       variables: {

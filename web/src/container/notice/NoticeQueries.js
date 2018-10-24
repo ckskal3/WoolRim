@@ -12,7 +12,7 @@ const getAllNotice = async () => {
       }
     }
   }`;
-  const result = await axios.post(serverInfo.urlDev, { query });
+  const result = await axios.post(serverInfo.serverURL, { query });
   return result.data.data.getAllNotice;
 }
 
@@ -23,7 +23,7 @@ const updateNotice = async (input_list) => {
       isSuccess
     }
   }`
-  const result = await axios.post(serverInfo.urlDev,
+  const result = await axios.post(serverInfo.serverURL,
     {
       query,
       variables: {
@@ -40,7 +40,7 @@ const deleteNotice = async (id_list) => {
       isSuccess
     }
   }`
-  const result = await axios.post(serverInfo.urlDev,
+  const result = await axios.post(serverInfo.serverURL,
     {
       query,
       variables: {
@@ -57,7 +57,7 @@ const createNotice = async (input_list) => {
       isSuccess
     }
   }`
-  const result = await axios.post(serverInfo.urlDev,
+  const result = await axios.post(serverInfo.serverURL,
     {
       query,
       variables: {

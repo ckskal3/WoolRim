@@ -8,7 +8,7 @@ const getAllPoet = async () => {
       name
     }
   }`;
-  const result = await axios.post(serverInfo.urlDev, { query });
+  const result = await axios.post(serverInfo.serverURL, { query });
   return result.data.data.getAllPoet;
 }
 
@@ -18,7 +18,7 @@ const updatePoet = async (input_list) => {
       isSuccess
     }
   }`
-  const result = await axios.post(serverInfo.urlDev,
+  const result = await axios.post(serverInfo.serverURL,
     {
       query,
       variables: {
@@ -35,7 +35,7 @@ const deletePoet = async (id_list) => {
       isSuccess
     }
   }`
-  const result = await axios.post(serverInfo.urlDev,
+  const result = await axios.post(serverInfo.serverURL,
     {
       query,
       variables: {
@@ -52,7 +52,7 @@ const createPoet = async (input) => {
       isSuccess
     }
   }`
-  const result = await axios.post(serverInfo.urlDev,
+  const result = await axios.post(serverInfo.serverURL,
     {
       query,
       variables: {

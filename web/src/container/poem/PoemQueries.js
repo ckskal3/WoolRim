@@ -15,7 +15,7 @@ const getAllPoem = async () => {
       auth_count
     }
   }`;
-  const result = await axios.post(serverInfo.urlDev, { query });
+  const result = await axios.post(serverInfo.serverURL, { query });
   return result.data.data.getAllPoem;
 }
 
@@ -25,7 +25,7 @@ const updatePoem = async (input_list) => {
       isSuccess
     }
   }`
-  const result = await axios.post(serverInfo.urlDev,
+  const result = await axios.post(serverInfo.serverURL,
     {
       query,
       variables: {
@@ -43,7 +43,7 @@ const deletePoem = async (id_list) => {
       msg
     }
   }`
-  const result = await axios.post(serverInfo.urlDev,
+  const result = await axios.post(serverInfo.serverURL,
     {
       query,
       variables: {
@@ -60,7 +60,7 @@ const createPoem = async (input) => {
       isSuccess
     }
   }`
-  const result = await axios.post(serverInfo.urlDev,
+  const result = await axios.post(serverInfo.serverURL,
     {
       query,
       variables: {
