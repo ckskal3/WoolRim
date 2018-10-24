@@ -1,5 +1,6 @@
 type Recording {
   id: ID!
+  created: String!
   path: String!
   auth_flag: Status!
   duration: Float!
@@ -39,4 +40,5 @@ type Query {
 type Mutation {
   createRecording(input: CreateRecordingInput!): RecordingResult!
   deleteRecording(input: deleteRecordingInput!): RecordingResult!
+  deleteRecordingById(id_list: [ID]!): RecordingResult!
 }
