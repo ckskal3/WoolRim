@@ -18,10 +18,18 @@ import com.android.volley.Response;
 import com.android.volley.error.AuthFailureError;
 import com.android.volley.error.VolleyError;
 import com.android.volley.request.StringRequest;
+import com.apollographql.apollo.ApolloCall;
+import com.apollographql.apollo.exception.ApolloException;
 import com.google.gson.Gson;
 
 import java.util.HashMap;
 import java.util.Map;
+import com.apollographql.apollo.ApolloClient;
+
+import javax.annotation.Nonnull;
+
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
 
 public class LoginFragment extends Fragment {
     private Button loginBtn, registBtn;
@@ -78,13 +86,13 @@ public class LoginFragment extends Fragment {
         loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                request();
 
-
-                PoemListFragment poemListFragment = PoemListFragment.newInstance(bundle);
-                getActivity().getSupportFragmentManager()
-                        .beginTransaction()
-                        .addToBackStack("LoginFagment")
-                        .replace(R.id.container, poemListFragment).commit();
+//                PoemListFragment poemListFragment = PoemListFragment.newInstance(bundle);
+//                getActivity().getSupportFragmentManager()
+//                        .beginTransaction()
+//                        .addToBackStack("LoginFagment")
+//                        .replace(R.id.container, poemListFragment).commit();
 
             }
         });
@@ -101,6 +109,24 @@ public class LoginFragment extends Fragment {
         });
     }
 
+    private void request () {
+        HttpLoggingInterceptor htlll = new HttpLoggingInterceptor();
+        htlll.setLevel(HttpLoggingInterceptor.Level.BODY);
+        OkHttpClient okh = new OkHttpClient.Builder().addInterceptor(htlll).build();
+        ApolloClient ap = ApolloClient.builder().serverUrl("http://192.168.1.252:3000/graphql").okHttpClient(okh).build();
+        ap.query(GetAllNotice.builder().build()).enqueue(new ApolloCall.Callback<GetAllNotice.Data>() {
+            @Override
+            public void onResponse(@Nonnull com.apollographql.apollo.api.Response<GetAllNotice.Data> response) {
+                String str = response.data().allNotice().get(0).content();
+                Log.d(str,str);
+            }
+
+            @Override
+            public void onFailure(@Nonnull ApolloException e) {
+
+            }
+        });
+    }
 
     public void request(String urlString) {
         /*

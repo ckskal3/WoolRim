@@ -1,0 +1,9 @@
+query getAllNotice {
+  allNotice: getAllNotice {
+    id
+    content
+    user {
+      name
+    }
+  }
+}
