@@ -1,6 +1,8 @@
 import express from 'express';
 import graphqlHTTP from 'express-graphql';
 import schema from './graphql/index';
+import path from 'path';
+
 const multer = require('multer'); // express에 multer모듈 적용 (for 파일업로드)
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -16,9 +18,15 @@ const bodyParser = require('body-parser')
 const upload = multer({ storage: storage })
 
 const app = express();
+const webApp = express();
+
+webApp.listen(80, () => {
+  console.log('웹 서버용 80 포트 개방!');
+})
+
+webApp.use(express.static(path.join(__dirname,'/../../web/build')));
 
 app.set('view engine', 'jade')
-
 app.set('views', __dirname + '/templates')
 app.use( bodyParser.json() );       // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
