@@ -28,6 +28,7 @@ import org.woolrim.woolrim.SQLiteDAO.RecordDAO;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import io.feeeei.circleseekbar.CircleSeekBar;
@@ -164,6 +165,8 @@ public class PlaybackFragment extends BottomSheetDialogFragment implements View.
 
     private void requestServerForFileUpload(){
         String url = "http://stou2.cafe24.com/Woolrim/FileUpload.php";
+
+//        String url = "http://192.168.1.252:3000/upload";
         SimpleMultiPartRequest simpleMultiPartRequest = new SimpleMultiPartRequest(
                 Request.Method.POST,
                 url,
