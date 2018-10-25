@@ -2,6 +2,7 @@ import express from 'express';
 import graphqlHTTP from 'express-graphql';
 import schema from './graphql/index';
 import path from 'path';
+import cors from 'cors';
 
 const multer = require('multer'); // express에 multer모듈 적용 (for 파일업로드)
 const storage = multer.diskStorage({
@@ -26,6 +27,7 @@ webApp.listen(8080, () => {
 
 webApp.use(express.static(path.join(__dirname,'/../../web/build')));
 
+app.use(cors());
 app.set('view engine', 'jade')
 app.set('views', __dirname + '/templates')
 app.use( bodyParser.json() );       // to support JSON-encoded bodies
