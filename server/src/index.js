@@ -20,8 +20,8 @@ const upload = multer({ storage: storage })
 const app = express();
 const webApp = express();
 
-webApp.listen(80, () => {
-  console.log('웹 서버용 80 포트 개방!');
+webApp.listen(8080, () => {
+  console.log('웹 서버용 8080 포트 개방!');
 })
 
 webApp.use(express.static(path.join(__dirname,'/../../web/build')));
