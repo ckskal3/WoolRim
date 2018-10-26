@@ -27,6 +27,10 @@ webApp.listen(8080, () => {
 
 webApp.use(express.static(path.join(__dirname,'/../../web/build')));
 
+webApp.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, '/../../web/build', 'index.html'));
+});
+
 app.use(cors());
 app.set('view engine', 'jade')
 app.set('views', __dirname + '/templates')
@@ -34,6 +38,7 @@ app.use( bodyParser.json() );       // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
   extended: true
 })); 
+
 // app.get('/graphql', graphqlHTTP({
 //   schema,
 //   graphiql:true
