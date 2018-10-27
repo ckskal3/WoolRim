@@ -6,7 +6,8 @@
   "scripts": {
     "start": "nodemon --exec babel-node src/index.js",
     "drop": "babel-node src/dropDB.js",
-    "product": "pm2 start --interpreter babel-node src/index.js"
+    "product": "pm2 start --interpreter babel-node src/index.js",
+    "admin": "babel-node src/tools/createAdmin.js"
   },
   "keywords": [],
   "author": "",

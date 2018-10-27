@@ -1,7 +1,8 @@
-import React from 'react'
+import React, { Component } from 'react'
 import { NavLink } from 'react-router-dom';
 import './header.css'
-import { Navbar, NavbarGroup, NavbarHeading, NavbarDivider, Button, Classes } from '@blueprintjs/core';
+import { Navbar, NavbarGroup, NavbarHeading, NavbarDivider, Button, Classes, Toaster, Intent } from '@blueprintjs/core';
+
 const headerTitleContent = [
   {
     key: 1,
@@ -34,9 +35,21 @@ const headerTitleContent = [
     icon: 'volume-off'
   }
 ]
-const Header = () => {
-  return (
-    <Navbar>
+
+class Header extends Component {
+  toastRef = null;
+  componentDidMount () {
+    const user_name = this.props.user.name;
+    this.toastRef.show({
+      icon: 'crown',
+      intent: Intent.SUCCESS,
+      message: '안녕하세요, ' + user_name + ' 님',
+      timeout: 3000,
+    })
+  }
+  render () {
+    return (
+      <Navbar>
       <NavbarGroup>
         <NavbarHeading>울림 관리자</NavbarHeading>
         <NavbarDivider />
@@ -48,8 +61,10 @@ const Header = () => {
           );
         })}
         </NavbarGroup>
+        <Toaster ref={ref => { this.toastRef = ref }} />
     </Navbar>
-  )
+    )
+  }
 }
 
 export default Header

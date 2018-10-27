@@ -46,5 +46,6 @@ type Mutation {
   updateUser(id: ID!, input: UpdateUserInput): UserResult!
   deleteUser(id: ID!): UserResult!
   login(stu_id: Int!, passwd: String!): LoginResult!
+  adminLogin(name: String!, passwd: String!): LoginResult!
   modifyUser(input: UpdateUserInput): UserResult!
 }
