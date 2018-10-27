@@ -1,12 +1,12 @@
 import React, { Component } from 'react';
-import { User } from '../../components';
-import axios from 'axios';
+import { UserTable } from '../../components';
+import { getAllUser } from './UserQueries';
 
 export class UserContainer extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      data: null,
+      data: [],
     }
   }
 
@@ -15,16 +15,7 @@ export class UserContainer extends Component {
   }
 
   getData = async () => {
-    const query = `query {
-      getAllUser {
-        id
-        name
-        stu_id
-        gender
-        bongsa_time
-      }
-    }`;
-    const result = await axios.post('http://localhost:3000/graphql', { query });
+    const result = await getAllUser();
     this.setState({
       data: result,
     })
@@ -33,7 +24,7 @@ export class UserContainer extends Component {
   render() {
     const { data } = this.state;
     return (
-      <User data={data}/>
+      <UserTable data={data}/>
     );
   }
 }
