@@ -11,6 +11,7 @@ export class UserTable extends Component {
       admin_list: [],
     }
   };
+  
   static getDerivedStateFromProps(props, state) {
     const { data } = props;
     if (data) {

@@ -24,23 +24,11 @@ class LoginView extends Component {
 
   onLogin = async () => {
     const { id, passwd } = this.state;
-    const query = `mutation($name: String!, $passwd: String!) {
-      adminLogin(name: $name, passwd: $passwd){
-        isSuccess
-        user {
-          name
-        }
-      }
-    }`
-    const result = (await axios.post(serverInfo.serverURL,
-      {
-        query,
-        variables: {
-          name: id,
-          passwd,
-        }
-      }
-    )).data.data.adminLogin;
+    const result = (await axios.post(serverInfo.webServerURL + '/login', {
+      id,
+      passwd,
+    })).data;
+    
     if (!result.isSuccess) {
       this.toastRef.show({
         icon: 'warning-sign',
@@ -77,10 +65,10 @@ class LoginView extends Component {
   }
 
   handleKeyPress = (e) => {
-    if(e.charCode==13) {
+    if (e.charCode == 13) {
       this.onLogin();
     }
-  }       
+  }
 
 
   render() {
@@ -118,7 +106,7 @@ class LoginView extends Component {
               <InputGroup type='text' value={id} placeholder='아이디를 입력하세요' onChange={this.onInputId} />
             </FormGroup>
             <FormGroup label='비밀번호'>
-              <InputGroup type={showPassword ? "text" : "password"} value={passwd} placeholder='비밀번호를 입력하세요' rightElement={lockButton} onChange={this.onInputPasswd} onKeyPress={this.handleKeyPress}/>
+              <InputGroup type={showPassword ? "text" : "password"} value={passwd} placeholder='비밀번호를 입력하세요' rightElement={lockButton} onChange={this.onInputPasswd} onKeyPress={this.handleKeyPress} />
             </FormGroup>
             <div className='login_btn'>
               <Button text='로그인' intent='primary' onClick={this.onLogin} />
