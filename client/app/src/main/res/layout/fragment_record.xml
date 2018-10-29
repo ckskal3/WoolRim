@@ -51,20 +51,14 @@
         app:layout_constraintTop_toBottomOf="@+id/scrollView"
         app:layout_constraintVertical_weight="2">
 
-        <LinearLayout
+        <jaygoo.widget.wlv.WaveLineView
+            android:id="@+id/wave_line_view"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:gravity="center_vertical"
-            android:orientation="horizontal">
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="2dp"
-                android:layout_marginTop="20dp"
-                android:background="@color/app_main_color" />
-        </LinearLayout>
-
+            app:wlvBackgroundColor="@android:color/transparent"
+            app:wlvLineColor="#ff4c7d"
+            />
 
         <Chronometer
             android:id="@+id/recordingduration_chronometer"
