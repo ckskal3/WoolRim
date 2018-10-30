@@ -1,7 +1,10 @@
 package org.woolrim.woolrim;
 
 import android.content.Context;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.SystemClock;
+import android.provider.MediaStore;
 import android.support.v4.app.FragmentTransaction;
 import android.media.AudioFormat;
 import android.media.MediaRecorder;
@@ -42,6 +45,8 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
 
     private boolean isRecording = false;
     private boolean isPaused = false;
+
+    private File recordFile;
 
 
     public static RecordFragment newInstance(Bundle bundle) {
@@ -110,8 +115,9 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
     }
 
     private void setupRecorder() {
+        recordFile = file();
         recorder = OmRecorder.wav(
-                new PullTransport.Default(mic()), file());
+                new PullTransport.Default(mic()), recordFile);
 
     }
 
@@ -120,7 +126,7 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
         return new PullableSource.Default(
                 new AudioRecordConfig.Default(
                         MediaRecorder.AudioSource.MIC, AudioFormat.ENCODING_PCM_16BIT,
-                        AudioFormat.CHANNEL_IN_MONO, 44100
+                        AudioFormat.CHANNEL_IN_STEREO, 44100
                 )
         );
     }
@@ -228,12 +234,35 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
                         chronometer.setTextColor(getResources().getColor(R.color.timer_default_text_color,null));
                         chronometer.stop();
                         chronometer.setBase(SystemClock.elapsedRealtime());
+
                         Toast.makeText(getContext(), "Record Stop!", Toast.LENGTH_SHORT).show();
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
                     isRecording = false;
                     isPaused = false;
+
+
+                    Uri uri = Uri.fromFile(new File(Environment.getExternalStorageDirectory()+"/WoolrimTemp/"));
+                    Log.d("Title",uri.toString());
+                    Cursor cursor = getContext().getContentResolver().query(
+                            uri,
+                            new String[] { MediaStore.Audio.Media._ID,
+                                    MediaStore.Audio.Media.DISPLAY_NAME,
+                                    MediaStore.Audio.Media.TITLE,
+                                    MediaStore.Audio.Media.DURATION,
+                                    MediaStore.Audio.Media.ARTIST,
+                                    MediaStore.Audio.Media.ALBUM,
+                                    MediaStore.Audio.Media.YEAR,
+                                    MediaStore.Audio.Media.MIME_TYPE,
+                                    MediaStore.Audio.Media.SIZE,
+                                    MediaStore.Audio.Media.DATA },
+                            null,
+                            null, null);
+
+                    if(cursor != null){
+                        Log.d("Title",String.valueOf(cursor.getCount()));
+                    }
                 }
 
                 break;

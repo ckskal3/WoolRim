@@ -127,7 +127,7 @@ public class MainFragment extends Fragment implements View.OnClickListener {
         }
     }
 
-    private void requestServerForPoemList(final int where) {
+    public  void requestServerForPoemList(final int where) {
         String url = "http://stou2.cafe24.com/Woolrim/DataSelect.php";
         StringRequest stringRequest = new StringRequest(
                 Request.Method.GET,
@@ -157,6 +157,7 @@ public class MainFragment extends Fragment implements View.OnClickListener {
                             bundle.putParcelableArrayList("DataItems",poetItems);
 
                             if(where == SHOW_LIST_LAYOUT_CODE) {
+//                                bundle.putString("SearchKey","먼 후일");
                                 bundle.putInt("RequestPageCode",SHOW_LIST_LAYOUT_CODE);
                                 PoemListFragment poemListFragment = PoemListFragment.newInstance(bundle);
                                 getActivity().getSupportFragmentManager().beginTransaction().
@@ -188,6 +189,7 @@ public class MainFragment extends Fragment implements View.OnClickListener {
         stringRequest.setShouldCache(false);
         WoolrimApplication.requestQueue.add(stringRequest);
     }
+
     private ArrayList<TempDataItem> processServerRespose(String response){
         Gson gson = new Gson();
         RequestData requestData = gson.fromJson(response,RequestData.class);

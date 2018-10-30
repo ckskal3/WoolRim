@@ -39,6 +39,7 @@ public class PoemListFragment extends Fragment{
     private ArrayList<PoetItem> poetDataArrayList = new ArrayList<>();
 
     private int pageCode;
+    private String searchKey = null;
 
     public static PoemListFragment newInstance(Bundle bundle) {
         PoemListFragment poemListFragment = new PoemListFragment();
@@ -53,6 +54,9 @@ public class PoemListFragment extends Fragment{
         assert bundle != null;
         poetDataArrayList = bundle.getParcelableArrayList("DataItems");
         pageCode = bundle.getInt("RequestPageCode");
+        if(pageCode == MainFragment.SHOW_LIST_LAYOUT_CODE){
+            searchKey = bundle.getString("SearchKey");
+        }
         return inflater.inflate(R.layout.frament_poemlist, container, false);
     }
 
@@ -128,6 +132,10 @@ public class PoemListFragment extends Fragment{
                 search(searchKey);
             }
         });
+
+        if(searchKey != null){
+            searchPoemEditText.setText(searchKey);
+        }
 
     }
 

@@ -16,7 +16,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.woolrim.woolrim.Temp.EmptyRecyclerView;
+import org.woolrim.woolrim.Utils.EmptyRecyclerView;
 
 import java.io.File;
 import java.util.ArrayList;

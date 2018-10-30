@@ -193,7 +193,10 @@ public class MainActivity extends AppCompatActivity implements FragmentInteracti
                     }
                     break;
                 case R.id.navi_favorite:
-
+                    Intent intent = new Intent(Intent.ACTION_PICK);
+                    intent.setType("audio/*");
+                    intent.setType(MediaStore.Audio.Media.CONTENT_TYPE);
+                    startActivityForResult(intent, 1111);
                     break;
                 case R.id.navi_my_page:
                     if (!(getSupportFragmentManager().findFragmentById(R.id.container) instanceof MyMenuFragment)) { //마이 메뉴인경우 다시 안띄움
