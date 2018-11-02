@@ -80,7 +80,7 @@ class LoginView extends Component {
           <Route path="/user" component={UserContainer} />
           <Route path="/poet" component={PoetContainer} />
           <Route path="/poem" component={PoemContainer} />
-          <Route path="/notice" component={NoticeContainer} />
+          <Route path="/notice" render={props => <NoticeContainer {...props} current_account={userInfo}/>} />
           <Route path="/recording" component={RecordingContainer} />
         </div>
       )

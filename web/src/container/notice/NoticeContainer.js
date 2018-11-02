@@ -24,19 +24,20 @@ export class NoticeContainer extends Component {
       return;
     }
     const { data, toCreateDataList } = this.state;
+    const { current_account } = this.props;
     const date = new Date();
     const inputData = {
       id: 'NEW',
       content,
       date: dateFormatter(date),
-      user: { name: '현재 로그인 계정의 이름' },
+      user: { name: current_account.name },
       key: date,
     }
     
     this.setState({
       toCreateDataList: toCreateDataList.concat({
         content: inputData.content,
-        user_id: 1, // 현재 계정의 id 값
+        user_id: current_account.id,
         key: date,
       }),
       data: data.concat(inputData),

@@ -26,6 +26,7 @@ app.post('/login', async (req, res) => {
     adminLogin(name: $name, passwd: $passwd){
       isSuccess
       user {
+        id
         name
       }
     }
