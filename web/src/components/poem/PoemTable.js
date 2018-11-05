@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { Column, Table, Cell, EditableCell } from "@blueprintjs/table";
-import { Intent } from '@blueprintjs/core';
+import { Intent, EditableText, Button } from '@blueprintjs/core';
 
 import { dataKey, dateFormatter } from '../../common/Tools';
 import Remover from '../../common/Remover';
@@ -9,6 +9,9 @@ export class PoemTable extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      contents: null,
+      modifyisActive: false,
+      current_row: null,
     }
   }
 
@@ -71,7 +74,7 @@ export class PoemTable extends Component {
         <Cell
           key={data[rowIndex].id}>
           {data[rowIndex][columnName].name}
-          </Cell>
+        </Cell>
       );
     }
   }
@@ -86,26 +89,64 @@ export class PoemTable extends Component {
       </Cell>
     )
   }
-  
+
+  poemContentsCellRenderer = (rowIndex, columnIndex) => {
+    const { data } = this.props;
+    return (
+      <Cell
+        key={data[rowIndex].id}>
+        <Button small={true} minimal={true} onClick={() =>
+          this.showContentsModifier(rowIndex, columnIndex)} intent={Intent.SUCCESS}> 내용 보기 </Button>
+      </Cell>
+    )
+  }
+
+  showContentsModifier = (rowIndex, columnIndex) => {
+    const { data } = this.props;
+    const { modifyisActive } = this.state;
+    this.setState({
+      contents: data[rowIndex].content,
+      modifyisActive: !modifyisActive,
+      current_row: rowIndex,
+    })
+  }
+
   onCellConfirm = (value, rowIndex, columnIndex) => {
     const { data, onUpdate } = this.props
     const columnName = dataKey(data, columnIndex);
     data[rowIndex][columnName] = value;
     onUpdate(data[rowIndex]);
   }
-  render () {
-    const { data } = this.props
+
+  render() {
+    const { data } = this.props;
+    const { modifyisActive, contents, current_row } = this.state;
     return (
       <div>
+        {modifyisActive ?[
+          <EditableText value={contents}
+            multiline={true}
+            onChange={(value) => {
+              this.setState({
+                contents: value,
+              })
+            }} />, 
+            <Button fill={true} intent={Intent.PRIMARY} onClick={()=> {
+              this.setState({
+                modifyisActive: false,
+              })
+              this.onCellConfirm(contents,current_row,3)
+            }}>수정하기</Button>]
+          : null}
         <Table numRows={data.length}
           enableGhostCells='true'
           enableRowHeader='false'>
           <Column name='id' cellRenderer={this.cellRenderer} />
           <Column name='제목' cellRenderer={this.cellRenderer} />
           <Column name='시인' cellRenderer={this.joinedCellRenderer} />
-          <Column name='내용' cellRenderer={this.editableCellRenderer} />
+          <Column name='내용' cellRenderer={this.poemContentsCellRenderer} />
           <Column name='봉사시간' cellRenderer={this.editableCellRenderer} />
-          <Column name='길이' cellRenderer={this.editableCellRenderer} />
+          <Column name='길이 (분)' cellRenderer={this.editableCellRenderer} />
           <Column name='인증 횟수' cellRenderer={this.cellRenderer} />
           <Column name='관리' cellRenderer={this.managementCellRenderer} />
         </Table>
