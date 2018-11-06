@@ -4,6 +4,7 @@ import { Intent, EditableText, Button } from '@blueprintjs/core';
 
 import { dataKey, dateFormatter } from '../../common/Tools';
 import Remover from '../../common/Remover';
+import { getAllPoet } from '../../container/poet/PoetQueries';
 
 export class PoemTable extends Component {
   constructor(props) {
@@ -19,6 +20,16 @@ export class PoemTable extends Component {
     this.props.onDelete(data)
   }
 
+  componentDidMount() {
+    this.getPoetData()
+  }
+
+  getPoetData = async () => {
+    const result = await getAllPoet();
+    this.setState({
+      poet_list: result,
+    })
+  }
   cellRenderer = (rowIndex, columnIndex) => {
     const { data, toDeleteDataList } = this.props;
     const columnName = dataKey(data, columnIndex);
@@ -64,21 +75,38 @@ export class PoemTable extends Component {
     const columnName = dataKey(data, columnIndex);
     if (toDeleteDataList.includes(data[rowIndex].id)) {
       return (
-        <Cell
+        <EditableCell
           key={data[rowIndex].id}
-          intent={Intent.DANGER}>
-          {data[rowIndex][columnName].name}</Cell>
+          intent={Intent.DANGER}
+          rowIndex={rowIndex}
+          columnIndex={columnIndex}
+          value={data[rowIndex][columnName].name}
+          onConfirm={this.onJoinCellConfirm}/>
       );
     } else {
       return (
-        <Cell
-          key={data[rowIndex].id}>
-          {data[rowIndex][columnName].name}
-        </Cell>
+        <EditableCell
+          key={data[rowIndex].id}
+          rowIndex={rowIndex}
+          columnIndex={columnIndex}
+          value={data[rowIndex][columnName].name}
+          onConfirm={this.onJoinCellConfirm}/>
       );
     }
   }
-
+  onJoinCellConfirm = (value, rowIndex, columnIndex) => {
+    const { poet_list } = this.state;
+    const { data, onUpdate } = this.props
+    const poet = poet_list.filter((poet) => {
+      return poet.name === value;
+    })
+    const columnName = dataKey(data, columnIndex);
+    if(poet.length === 0){
+      alert('없는 시인 입니다!')
+    }
+    data[rowIndex][columnName] = value;
+    onUpdate(data[rowIndex]);
+  }
   managementCellRenderer = (rowIndex, columnIndex) => {
     const { data } = this.props;
     return (

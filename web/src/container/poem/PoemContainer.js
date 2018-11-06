@@ -67,6 +67,7 @@ export class PoemContainer extends Component {
           name: v.name,
           content: v.content,
           point: v.point,
+          length: v.length,
         };
       }));
     }

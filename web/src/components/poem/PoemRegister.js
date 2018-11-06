@@ -125,14 +125,12 @@ class PoemRegister extends Component {
             onValueChange={this.onPointChange} />
         </FormGroup>
         <FormGroup label='시 길이 (분)'>
-          <Slider
-            min={0}
-            max={30}
-            stepSize={0.1}
-            labelStepSize={5}
-            labelRenderer={this.labelRenderer}
-            onChange={this.onLengthChange}
+          <NumericInput
+            min={1}
+            selectAllOnFocus='true'
             value={this.state.length}
+            onValueChange={this.onLengthChange}
+            stepSize='0.5'
           />
         </FormGroup>
         <Button text='등록하기'
