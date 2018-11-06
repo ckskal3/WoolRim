@@ -72,7 +72,12 @@ class LoginView extends Component {
 
 
   render() {
-    const { auth, userInfo } = this.state;
+    // const { auth, userInfo } = this.state;
+    const auth = true;
+    const userInfo = {
+      name: '관리자',
+      id: 6,
+    }
     if (auth) {
       return (
         <div>
