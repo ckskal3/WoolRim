@@ -69,6 +69,9 @@ const updatePoem = async (poem_list) => { // 효율성 떨어짐 추후 수정�
       if (poem.point) {
         await Poem.find(poem.id).update({ point: poem.point });
       }
+      if (poem.length) {
+        await Poem.find(poem.id).update({ length: poem.length });
+      }
     })
     return {
       isSuccess: true,
