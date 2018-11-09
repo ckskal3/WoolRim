@@ -5,7 +5,7 @@ import { Poet } from './Poet';
 import { Recording } from './Recording';
 import { Notice } from './Notice';
 import { Notification } from './Notification';
-import { Bookmark } from './bookmark';
+import { Bookmark } from './Bookmark';
 
 
 User.hasMany(Recording, { integrity: 'delete' });
@@ -41,4 +41,4 @@ export * from './Poem';
 export * from './Notice';
 export * from './Recording';
 export * from './Notification';
-export * from './bookmark';
+export * from './Bookmark';
