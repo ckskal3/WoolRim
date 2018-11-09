@@ -77,6 +77,11 @@ const createRecording = async (input) => {
     }
   }
   const user = await User.where({ stu_id: input.stu_id }).one()
+  if(user.gender ==='남자'){
+    await Poem.where({name: input.poem_name}).update({auth_count_man: poem_result[0].auth_count_man + 1});
+  }else{
+    await Poem.where({name: input.poem_name}).update({auth_count_woman: poem_result[0].auth_count_woman + 1});
+  }
   const recording = new Recording({
     path: input.path,
     user_id: user.id,
