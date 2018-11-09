@@ -40,7 +40,7 @@ type getAllRecordingResult {
 type Query {
   getAllRecording(stu_id: Int): getAllRecordingResult
   getAllRecordingByLogin(stu_id: Int): [Recording!]!
-  getRecordingForPlay(poem_id: ID!): [Recording!]!
+  getRecordingForPlay(poem_id: ID!, user_id: ID): [Recording!]!
 }
 
 type Mutation {

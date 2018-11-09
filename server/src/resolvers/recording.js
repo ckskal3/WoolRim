@@ -55,9 +55,10 @@ export const getAllRecordingByLogin = async (stu_id) => {
   }
 }
 
-export const getRecordingForPlay = async (poem_id) => {
+export const getRecordingForPlay = async (poem_id, user_id) => {
   try {
-    return await Recording.where({ poem_id, });
+    const result = await Recording.where({ poem_id, user_id });
+    return result;
   } catch (err){
     return [];
   }
@@ -150,7 +151,7 @@ const recordingResolver = {
   },
   Query: {
     getAllRecording: (obj, { stu_id }) => getAllRecording(stu_id),
-    getRecordingForPlay: (obj, { poem_id }) => getRecordingForPlay(poem_id),
+    getRecordingForPlay: (obj, { poem_id, user_id }) => getRecordingForPlay(poem_id, user_id),
   },
   Mutation: {
     createRecording: (obj, { input }) => createRecording(input),
