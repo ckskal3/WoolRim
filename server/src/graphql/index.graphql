@@ -15,3 +15,6 @@
 
 # import Query.* from 'notification.graphql'
 # import Mutation.* from 'notification.graphql'
+
+# import Query.* from 'bookmark.graphql'
+# import Mutation.* from 'bookmark.graphql'

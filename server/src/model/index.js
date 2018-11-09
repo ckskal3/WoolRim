@@ -4,7 +4,8 @@ import { Poem } from './Poem';
 import { Poet } from './Poet';
 import { Recording } from './Recording';
 import { Notice } from './Notice';
-import { Notification } from './Notification'
+import { Notification } from './Notification';
+import { Bookmark } from './bookmark';
 
 
 User.hasMany(Recording, { integrity: 'delete' });
@@ -16,11 +17,20 @@ Notice.belongsTo(User, { required: true });
 User.hasMany(Notification, { integrity: 'delete' });
 Notification.belongsTo(User, { required: true });
 
+User.hasMany(Bookmark, { integrity: 'delete' });
+Bookmark.belongsTo(User, { required: true });
+
 Poem.hasMany(Recording, { integrity: 'delete' });
 Recording.belongsTo(Poem, { required: true });
 
+Poem.hasMany(Bookmark, { integrity: 'delete' });
+Bookmark.belongsTo(Poem, { required: true });
+
 Poet.hasMany(Poem, { integrity: 'delete' });
 Poem.belongsTo(Poet, { required: true });
+
+Poet.hasMany(Bookmark, { integrity: 'delete' });
+Bookmark.belongsTo(Poet, { required: true });
 
 Conn.applySchemas({ verbose: true });
 
@@ -31,3 +41,4 @@ export * from './Poem';
 export * from './Notice';
 export * from './Recording';
 export * from './Notification';
+export * from './bookmark';

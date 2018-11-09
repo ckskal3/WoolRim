@@ -7,6 +7,7 @@ import {
   noticeResolver,
   recordingResolver,
   notificationResolver,
+  bookmarkResolver,
 } from '../resolvers';
 
 const schema = makeExecutableSchema({
@@ -18,6 +19,7 @@ const schema = makeExecutableSchema({
     noticeResolver,
     recordingResolver,
     notificationResolver,
+    bookmarkResolver,
   ],
 });
 

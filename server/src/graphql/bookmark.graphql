@@ -1,0 +1,29 @@
+type Bookmark {
+  id: ID!
+  user: User!
+  poem: Poem!
+  poet: Poet!
+  created: String!
+}
+
+input createBookmarkInput {
+  user_id: ID!
+  poem_id: ID!
+  poet_id: ID!
+}
+type createBookmarkResult {
+  isSuccess: Boolean!
+}
+
+type deleteBookmarkResult {
+  isSuccess: Boolean!
+}
+
+type Mutation {
+  createBookmark(input: createBookmarkInput!): createBookmarkResult!
+  deleteBookmark(id_list: [ID!]!): deleteBookmarkResult!
+}
+
+type Query {
+  getBookmarkList(stu_id: Int!): [Bookmark!]!
+}
