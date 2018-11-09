@@ -19,13 +19,24 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.apollographql.apollo.ApolloCall;
+import com.apollographql.apollo.ApolloClient;
+import com.apollographql.apollo.api.Response;
+import com.apollographql.apollo.exception.ApolloException;
 import com.google.gson.Gson;
 
-import org.woolrim.woolrim.Temp.TempDataItem;
+import org.woolrim.woolrim.DataItems.PoetItem;
+import org.woolrim.woolrim.DataItems.PoemAndPoetItem;
+import org.woolrim.woolrim.SectionRecyclerView.SectionAddItem;
+import org.woolrim.woolrim.SectionRecyclerView.SectionItemViewHolder;
 
 import java.util.ArrayList;
 
+import javax.annotation.Nonnull;
+
 import io.github.luizgrp.sectionedrecyclerviewadapter.SectionedRecyclerViewAdapter;
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
 
 public class PoemListFragment extends Fragment{
 
@@ -53,8 +64,8 @@ public class PoemListFragment extends Fragment{
         Bundle bundle = getArguments();
         assert bundle != null;
         poetDataArrayList = bundle.getParcelableArrayList("DataItems");
-        pageCode = bundle.getInt("RequestPageCode");
-        if(pageCode == MainFragment.SHOW_LIST_LAYOUT_CODE){
+        pageCode = bundle.getInt(getString(R.string.request_code));
+        if(pageCode == WoolrimApplication.REQUSET_POEM_LIST_FRAGMENT){
             searchKey = bundle.getString("SearchKey");
         }
         return inflater.inflate(R.layout.frament_poemlist, container, false);
@@ -75,7 +86,7 @@ public class PoemListFragment extends Fragment{
             if (poetItem.poemName.size() > 0) {
 
                 String poetName = poetItem.poetName;
-                ArrayList<TempDataItem> dataItems = poetItem.poemName;
+                ArrayList<PoemAndPoetItem> dataItems = poetItem.poemName;
 
                 setHeaderAndItems(poetName, dataItems);
             }
@@ -159,7 +170,7 @@ public class PoemListFragment extends Fragment{
             for (PoetItem poetItem : poetDataArrayList) {
                 if (poetItem.poemName.size() > 0) {
                     String poetName = poetItem.poetName;
-                    ArrayList<TempDataItem> dataItems = poetItem.poemName;
+                    ArrayList<PoemAndPoetItem> dataItems = poetItem.poemName;
 
                     setHeaderAndItems(poetName, dataItems);
                 }
@@ -167,15 +178,15 @@ public class PoemListFragment extends Fragment{
             }
         } else { //검색어 존재함
             for (PoetItem poetItem : poetDataArrayList) {
-                ArrayList<TempDataItem> tempDataItems = new ArrayList<>();
-                for(TempDataItem dataItem : poetItem.poemName){
+                ArrayList<PoemAndPoetItem> poemAndPoetItems = new ArrayList<>();
+                for(PoemAndPoetItem dataItem : poetItem.poemName){
                     if (dataItem.poem.toLowerCase().contains(searchKey)) {
-                        tempDataItems.add(dataItem);
+                        poemAndPoetItems.add(dataItem);
                     }
                 }
-                if(tempDataItems.size()>0){ // 무언가 들어가있다.
+                if(poemAndPoetItems.size()>0){ // 무언가 들어가있다.
                     String poetName = poetItem.poetName;
-                    ArrayList<TempDataItem> dataItems = tempDataItems;
+                    ArrayList<PoemAndPoetItem> dataItems = poemAndPoetItems;
 
                     setHeaderAndItems(poetName, dataItems);
 
@@ -184,7 +195,7 @@ public class PoemListFragment extends Fragment{
         }
     }
 
-    private void setHeaderAndItems(final String poetName, final ArrayList<TempDataItem> poemNames){
+    private void setHeaderAndItems(final String poetName, final ArrayList<PoemAndPoetItem> poemNames){
         SectionAddItem sectionAddItem = new SectionAddItem(poetName, poemNames, pageCode);
         sectionAddItem.setOnItemClickListener(new SectionAddItem.OnItemClickListenr() {
             @Override
@@ -199,6 +210,40 @@ public class PoemListFragment extends Fragment{
         Toast.makeText(getContext(),
                 poetName+" "+poemName,
                 Toast.LENGTH_SHORT).show();
+
+        HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor();
+        httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        OkHttpClient okHttpClient = new OkHttpClient.Builder().addInterceptor(httpLoggingInterceptor).build();
+
+        ApolloClient apolloClient = ApolloClient.builder().serverUrl(WoolrimApplication.BASE_URL).okHttpClient(okHttpClient)
+                .build();
+
+        final Bundle bundle = new Bundle();
+        bundle.putString("PoetName",poetName);
+        bundle.putString("PoemName",poemName);
+
+        if(pageCode == WoolrimApplication.REQUSET_POEM_LIST_FRAGMENT){
+            PlayerFrameFragment playerFrameFragment = PlayerFrameFragment.newInstance(new Bundle());
+            getActivity().getSupportFragmentManager().beginTransaction().addToBackStack("RecordListFragment")
+                    .replace(R.id.container, playerFrameFragment).commit();
+        }else{
+            apolloClient.query(GetPoemByName.builder().poem_name(poemName).poet_name(poetName).build())
+                    .enqueue(new ApolloCall.Callback<GetPoemByName.Data>() {
+                        @Override
+                        public void onResponse(@Nonnull Response<GetPoemByName.Data> response) {
+                            bundle.putString("PoemContent",response.data().getPoemByNames().content());
+                            RecordFragment recordFragment = RecordFragment.newInstance(bundle);
+                            getActivity().getSupportFragmentManager().beginTransaction().addToBackStack("RecordListFragment")
+                                    .replace(R.id.container, recordFragment).commit();
+                        }
+
+                        @Override
+                        public void onFailure(@Nonnull ApolloException e) {
+
+                        }
+                    });
+        }
+
 
         /*
            ///////////서버 요청 부분 짜야함/////////////////////////
@@ -230,18 +275,18 @@ public class PoemListFragment extends Fragment{
             WoolrimApplication.requestQueue.add(stringRequest);
         //////////////////////////////////////////////////////////////////
         */
-        if(pageCode == MainFragment.SHOW_LIST_LAYOUT_CODE) {
-            PlayerFrameFragment playerFrameFragment = PlayerFrameFragment.newInstance(new Bundle());
-            getActivity().getSupportFragmentManager().beginTransaction().addToBackStack("RecordListFragment")
-                    .replace(R.id.container, playerFrameFragment).commit();
-        }else{
-            Bundle bundle = new Bundle();
-            bundle.putString("PoetName",poetName);
-            bundle.putString("PoemName",poemName);
-            RecordFragment recordFragment = RecordFragment.newInstance(bundle);
-            getActivity().getSupportFragmentManager().beginTransaction().addToBackStack("RecordListFragment")
-                    .replace(R.id.container, recordFragment).commit();
-        }
+//        if(pageCode == WoolrimApplication.REQUSET_POEM_LIST_FRAGMENT) {
+//            PlayerFrameFragment playerFrameFragment = PlayerFrameFragment.newInstance(new Bundle());
+//            getActivity().getSupportFragmentManager().beginTransaction().addToBackStack("RecordListFragment")
+//                    .replace(R.id.container, playerFrameFragment).commit();
+//        }else{
+//            Bundle bundle = new Bundle();
+//            bundle.putString("PoetName",poetName);
+//            bundle.putString("PoemName",poemName);
+//            RecordFragment recordFragment = RecordFragment.newInstance(bundle);
+//            getActivity().getSupportFragmentManager().beginTransaction().addToBackStack("RecordListFragment")
+//                    .replace(R.id.container, recordFragment).commit();
+//        }
     }
 
     private void processServerResponse(String response){

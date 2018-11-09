@@ -1,8 +1,10 @@
 package org.woolrim.woolrim.Utils;
 
 import android.content.Context;
+import android.content.res.Resources;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.support.annotation.Nullable;
 import android.support.design.widget.TabLayout;
 import android.util.AttributeSet;
@@ -188,7 +190,7 @@ public class BadgeTabLayout extends TabLayout{
         @Nullable
         Drawable drawable = null;
         try{
-            drawable = context.getResources().getDrawable(drawableRes,context.getTheme());
+            drawable = getDrawable(context, drawableRes, context.getTheme());
         }catch (NullPointerException e){
             e.printStackTrace();
         }
@@ -203,6 +205,15 @@ public class BadgeTabLayout extends TabLayout{
             return Integer.toString(value);
         }else {
             return "10+";
+        }
+    }
+
+    public static final Drawable getDrawable(Context context, int id, @Nullable Resources.Theme theme) {
+        final int version = Build.VERSION.SDK_INT;
+        if (version >= 21) {
+            return context.getResources().getDrawable(id,theme);
+        } else {
+            return context.getResources().getDrawable(id);
         }
     }
 

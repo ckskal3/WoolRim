@@ -81,7 +81,8 @@
                 android:text="울림"
                 android:textColor="@android:color/white"
                 android:textSize="18sp"
-                android:textStyle="bold" />
+                android:textStyle="bold"
+                />
 
             <TextView
                 android:id="@+id/voice_recognition_textview2"

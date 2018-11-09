@@ -74,6 +74,8 @@ public class GallerySelectFragment extends DialogFragment implements View.OnClic
 
     @Override
     public void onPause() {
+        fragmentInteraction = null;
+        dismiss();
         super.onPause();
     }
 

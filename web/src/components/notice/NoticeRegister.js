@@ -1,18 +1,41 @@
 import React, { Component } from 'react';
-import { FormGroup, InputGroup } from "@blueprintjs/core";
+import { Button, FormGroup, InputGroup, Intent, TextArea } from "@blueprintjs/core";
 
 class NoticeRegister extends Component {
-  constructor(props){
+  constructor(props) {
     super(props);
-    console.log(props.match);
+    this.state = {
+      content: '',
+    }
   }
-  render () {
+
+  onSubmit = () => {
+    const { content } = this.state;
+    this.props.onRegister(content);
+    this.setState({
+      content: '',
+    })
+  }
+
+  onContentChange = (event) => {
+    this.setState({
+      content: event.target.value,
+    });
+  }
+
+  render() {
     return (
       <div>
         <FormGroup label='공지 내용'>
-          <InputGroup/>
+          <TextArea
+            value={this.state.content}
+            onChange={this.onContentChange} 
+            fill='true'/>
         </FormGroup>
-        <hr/>
+        <Button text='등록하기'
+          intent={Intent.PRIMARY}
+          onClick={this.onSubmit} />
+        <hr />
       </div>
     )
   }

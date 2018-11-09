@@ -1,14 +1,17 @@
 package org.woolrim.woolrim;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -18,15 +21,31 @@ import com.android.volley.Response;
 import com.android.volley.error.AuthFailureError;
 import com.android.volley.error.VolleyError;
 import com.android.volley.request.StringRequest;
+import com.apollographql.apollo.ApolloCall;
+import com.apollographql.apollo.exception.ApolloException;
 import com.google.gson.Gson;
 
 import java.util.HashMap;
 import java.util.Map;
 
+import com.apollographql.apollo.ApolloClient;
+
+import org.woolrim.woolrim.Utils.NetworkStatus;
+
+import javax.annotation.Nonnull;
+
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
+
 public class LoginFragment extends Fragment {
+    private ConstraintLayout backgroundLayout;
     private Button loginBtn, registBtn;
     private EditText idEditText, passEditText;
     private Bundle bundle;
+
+    private int requestCode;
+
+    private InputMethodManager inputMethodManager;
 
     public static LoginFragment newInstance(Bundle bundle) {
         LoginFragment loginFragment = new LoginFragment();
@@ -38,6 +57,7 @@ public class LoginFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         bundle = getArguments();
+        requestCode = bundle.getInt(getString(R.string.request_code));
         return inflater.inflate(R.layout.fragment_login, container, false);
     }
 
@@ -53,52 +73,154 @@ public class LoginFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        MainActivity.toolbarLabelTv.setText("로그인");
+        MainActivity.toolbarLabelTv.setText(R.string.login_kr);
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case android.R.id.home: {
-                onDetach();
-                return true;
-            }
-        }
-        return super.onOptionsItemSelected(item);
-    }
 
     private void init(View view) {
+        backgroundLayout = view.findViewById(R.id.login_background_layout);
         loginBtn = view.findViewById(R.id.login_btn);
         registBtn = view.findViewById(R.id.regist_btn);
         idEditText = view.findViewById(R.id.id_edittext);
         passEditText = view.findViewById(R.id.password_edittext);
+
+        inputMethodManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
     }
 
     private void setOnClick() {
+
         loginBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                keyPadHide();
 
+                String id = idEditText.getText().toString().trim();
+                String pass = passEditText.getText().toString().trim();
 
-                PoemListFragment poemListFragment = PoemListFragment.newInstance(bundle);
-                getActivity().getSupportFragmentManager()
-                        .beginTransaction()
-                        .addToBackStack("LoginFagment")
-                        .replace(R.id.container, poemListFragment).commit();
+//                request();
+                if (id.length() == 0 && pass.length() == 0) { //나중에 삭제해야함 테스트용으로 남겨둠
+                    WoolrimApplication.isLogin = true;
+                    MainActivity.signInAndOutTv.setText(R.string.logout_kr);
+                    MainActivity.profileChangeImageView.setVisibility(View.VISIBLE);
+                    MainActivity.userNameTv.setText(R.string.user);
 
+                    if (requestCode == WoolrimApplication.REQUSET_RECORD_LIST_FRAGMENT) {
+                        PoemListFragment poemListFragment = PoemListFragment.newInstance(bundle);
+                        getActivity().getSupportFragmentManager()
+                                .beginTransaction()
+                                .replace(R.id.container, poemListFragment)
+                                .commit();
+                        //                       .addToBackStack("LoginFagment")
+                    } else if (requestCode == WoolrimApplication.REQUSET_MY_MENU) {
+                        Bundle bundle = new Bundle();
+                        bundle.putString("UserName", getString(R.string.user));
+                        MyMenuFragment myMenuFragment = MyMenuFragment.newInstance(bundle);
+                        getActivity().getSupportFragmentManager()
+                                .beginTransaction()
+                                .replace(R.id.container, myMenuFragment)
+                                .commit();
+                    } else {
+                        getActivity().getSupportFragmentManager()
+                                .popBackStack();
+                    }
+                } else {
+                    if (NetworkStatus.getConnectivityStatus(getContext()) != NetworkStatus.TYPE_NOT_CONNECTED) { // 인터넷 연결되어있다.
+                        if (id.length() == 0) {
+                            id = "0";
+                        }
+                        if (pass.length() == 0) {
+                            pass = "0";
+                        }
+                        HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor();
+                        httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+                        OkHttpClient okHttpClient = new OkHttpClient.Builder().addInterceptor(httpLoggingInterceptor).build();
+                        ApolloClient apolloClient = ApolloClient.builder().okHttpClient(okHttpClient).serverUrl(WoolrimApplication.BASE_URL).build();
+                        apolloClient.mutate(GetLogin.builder().stu_id(Integer.parseInt(id)).passwd(pass).build()).enqueue(new ApolloCall.Callback<GetLogin.Data>() {
+                            @Override
+                            public void onResponse(@Nonnull com.apollographql.apollo.api.Response<GetLogin.Data> response) {
+                                if (response.data().login().isSuccess()) { //로그인 성공시
+                                    final String[] userData = new String[2];
+                                    userData[0] = response.data().login().user().profile();
+                                    userData[1] = response.data().login().user().name();
+                                    WoolrimApplication.isLogin = true;
+
+                                    getActivity().runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            MainActivity.signInAndOutTv.setText(R.string.logout_kr);
+                                            MainActivity.profileChangeImageView.setVisibility(View.VISIBLE);
+                                            MainActivity.userNameTv.setText(userData[1]);
+                                            Toast.makeText(getContext(), userData[0], Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+
+                                    if (requestCode == WoolrimApplication.REQUSET_RECORD_LIST_FRAGMENT) {
+                                        PoemListFragment poemListFragment = PoemListFragment.newInstance(bundle);
+                                        getActivity().getSupportFragmentManager()
+                                                .beginTransaction()
+                                                .replace(R.id.container, poemListFragment)
+                                                .commit();
+                                        //                       .addToBackStack("LoginFagment")
+                                    } else if (requestCode == WoolrimApplication.REQUSET_MY_MENU) {
+                                        Bundle bundle = new Bundle();
+                                        bundle.putString("UserName", userData[1]);
+                                        MyMenuFragment myMenuFragment = MyMenuFragment.newInstance(bundle);
+                                        getActivity().getSupportFragmentManager()
+                                                .beginTransaction()
+                                                .replace(R.id.container, myMenuFragment)
+                                                .commit();
+                                    } else {
+                                        getActivity().getSupportFragmentManager()
+                                                .popBackStack();
+                                    }
+                                } else { // 로그인 실패시
+                                    getActivity().runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Toast.makeText(getContext(), "아이디와 비밀번호를 확인해주세요", Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
+                                }
+
+                            }
+
+                            @Override
+                            public void onFailure(@Nonnull ApolloException e) {
+
+                            }
+                        });
+
+                    } else { //인터넷 연결 안되어있다.
+                        Toast.makeText(getContext(), "인터넷 연결을 해주세요", Toast.LENGTH_SHORT).show();
+                    }
+                }
             }
         });
         registBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+
+                keyPadHide();
+
                 SignUpFragment signUpFragment = SignUpFragment.newInstance(new Bundle());
                 getActivity().getSupportFragmentManager()
                         .beginTransaction()
                         .addToBackStack("LoginFagment")
                         .replace(R.id.container, signUpFragment).commit();
-//                request("http://54.180.81.190:9788/graphql");
             }
         });
+
+        backgroundLayout.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                keyPadHide();
+            }
+        });
+    }
+
+    private void keyPadHide() {
+        inputMethodManager.hideSoftInputFromWindow(idEditText.getWindowToken(), 0);
+        inputMethodManager.hideSoftInputFromWindow(passEditText.getWindowToken(), 0);
     }
 
 
@@ -151,7 +273,7 @@ public class LoginFragment extends Fragment {
 
         String tempID = idEditText.getText().toString();
         String insertPass = passEditText.getText().toString();
-        if (tempID.length() ==0 || insertPass.length() == 0) {
+        if (tempID.length() == 0 || insertPass.length() == 0) {
             Toast.makeText(getContext(), "입력하세요.", Toast.LENGTH_SHORT).show();
         } else {
 
@@ -159,7 +281,7 @@ public class LoginFragment extends Fragment {
 
             if (insertPass.equals(udd.passwd) && insertID == udd.stuId) {
                 Toast.makeText(getContext(), "일치합니다.", Toast.LENGTH_SHORT).show();
-            }else{
+            } else {
                 Toast.makeText(getContext(), "불일치합니다.", Toast.LENGTH_SHORT).show();
             }
         }
@@ -168,5 +290,6 @@ public class LoginFragment extends Fragment {
         Log.d("Result", String.valueOf(udd.stuId) + " " + udd.passwd);
 
     }
+
 
 }

@@ -9,6 +9,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
+import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
 import android.util.DisplayMetrics;
 import android.util.Log;
@@ -20,32 +21,19 @@ import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
-import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.error.AuthFailureError;
-import com.android.volley.error.VolleyError;
-import com.android.volley.request.StringRequest;
-import com.google.gson.Gson;
 import com.naver.speech.clientapi.SpeechRecognitionResult;
 
-import org.woolrim.woolrim.Temp.TempDataItem;
 import org.woolrim.woolrim.Utils.AudioWriterPcm;
 import org.woolrim.woolrim.Utils.NaverSpeechRecognizer;
 
 import java.lang.ref.WeakReference;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
-
-import static org.woolrim.woolrim.MainFragment.SHOW_LIST_LAYOUT_CODE;
-import static org.woolrim.woolrim.MainFragment.SHOW_RECORD_LAYOUT_CODE;
 
 public class VoiceRecognitionFragment extends DialogFragment {
 
     private ImageView voiceRecognitionBgIv, voiceRecognitionIconIv;
-    private MainFragment.DialogDismissListener mResultListener;
+    private DialogDismissListener mResultListener;
 
     private Animation itemRotate;
 
@@ -60,13 +48,19 @@ public class VoiceRecognitionFragment extends DialogFragment {
     private String mResult;
 
 
-    public static VoiceRecognitionFragment newInstance(Bundle bundle){
+    public static VoiceRecognitionFragment newInstance(Bundle bundle) {
         VoiceRecognitionFragment testDialogFragment = new VoiceRecognitionFragment();
         testDialogFragment.setArguments(bundle);
         return testDialogFragment;
     }
 
+    public abstract static class DialogDismissListener implements DialogInterface.OnDismissListener {
+        public String key;
 
+        public void findSearchKey(@Nullable String key) {
+            this.key = key;
+        }
+    }
 
     @Override
     public void onAttach(Context context) {
@@ -78,11 +72,11 @@ public class VoiceRecognitionFragment extends DialogFragment {
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
 
-        Dialog dialog =  super.onCreateDialog(savedInstanceState);
+        Dialog dialog = super.onCreateDialog(savedInstanceState);
 
         AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-        View view  = getActivity().getLayoutInflater().inflate(R.layout.fragment_voice_recognition
-                ,null);
+        View view = getActivity().getLayoutInflater().inflate(R.layout.fragment_voice_recognition
+                , null);
 
         init(view);
 
@@ -100,7 +94,7 @@ public class VoiceRecognitionFragment extends DialogFragment {
     public void onStart() {
         super.onStart();
 
-        Window window  = getDialog().getWindow();
+        Window window = getDialog().getWindow();
 
         assert window != null;
         window.setGravity(Gravity.TOP);
@@ -123,10 +117,20 @@ public class VoiceRecognitionFragment extends DialogFragment {
 
         alertDialog.setOnDismissListener(mResultListener);
 
-        if(!MainFragment.isRecognitioning){
+        if (!MainFragment.isRecognitioning) {
             voiceRecognitionBgIv.startAnimation(itemRotate);
             MainFragment.isRecognitioning = true;
         }
+
+        voiceRecognitionIconIv.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+//                PoemListFragment poemListFragment = PoemListFragment.newInstance(new Bundle());
+//                getActivity().getSupportFragmentManager()
+//                        .beginTransaction()
+//                        .replace(R.id.container, poemListFragment).commit();
+            }
+        });
 
 
     }
@@ -139,26 +143,26 @@ public class VoiceRecognitionFragment extends DialogFragment {
     }
 
 
-
     @Override
     public void onCancel(DialogInterface dialog) {
-        Log.d("Time","onCancel");
+        Log.d("Time", "onCancel");
+        mResultListener.findSearchKey("별 헤는 밤");
         super.onCancel(dialog);
         dismiss();
     }
 
     @Override
     public void onPause() {
-        Log.d("Time","onPause");
+        Log.d("Time", "onPause");
         super.onPause();
         dismiss();
     }
 
     @Override
     public void onDestroyView() {
-        Log.d("Time","onDestroyView");
+        Log.d("Time", "onDestroyView");
         voiceRecognitionBgIv.clearAnimation();
-        MainFragment.isRecognitioning =false;
+        MainFragment.isRecognitioning = false;
 //        naverRecognizer.getSpeechRecognizer().release();
 
         super.onDestroyView();
@@ -170,10 +174,10 @@ public class VoiceRecognitionFragment extends DialogFragment {
 //        super.onDismiss(dialog);
 //    }
 
-    private void init(View view){
+    private void init(View view) {
         voiceRecognitionBgIv = view.findViewById(R.id.voice_recognition_icon_background);
         voiceRecognitionIconIv = view.findViewById(R.id.voice_recognition_icon);
-        itemRotate = AnimationUtils.loadAnimation(getContext(),R.anim.item_rotate);
+        itemRotate = AnimationUtils.loadAnimation(getContext(), R.anim.item_rotate);
     }
 
     public int dpToPx(float valueInDp) {
@@ -181,8 +185,9 @@ public class VoiceRecognitionFragment extends DialogFragment {
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, valueInDp, metrics);
     }
 
-    public void setDismissListener(MainFragment.DialogDismissListener listener) {
+    public void setDismissListener(DialogDismissListener listener) {
         mResultListener = listener;
+
     }
 
     private void handleMessage(Message msg) {
@@ -211,7 +216,7 @@ public class VoiceRecognitionFragment extends DialogFragment {
                 SpeechRecognitionResult speechRecognitionResult = (SpeechRecognitionResult) msg.obj;
                 List<String> results = speechRecognitionResult.getResults();
                 StringBuilder strBuf = new StringBuilder();
-                for(String result : results) {
+                for (String result : results) {
                     strBuf.append(result);
                     strBuf.append("\n");
                 }
@@ -256,7 +261,5 @@ public class VoiceRecognitionFragment extends DialogFragment {
             }
         }
     }
-
-
 
 }

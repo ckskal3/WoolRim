@@ -2,7 +2,7 @@ package org.woolrim.woolrim;
 
 import com.google.gson.annotations.SerializedName;
 
-import org.woolrim.woolrim.Temp.TempDataItem;
+import org.woolrim.woolrim.DataItems.PoemAndPoetItem;
 
 import java.util.ArrayList;
 
@@ -16,5 +16,5 @@ public class RequestData {
     @SerializedName("message")
     public String message;
     @SerializedName("result")
-    public ArrayList<TempDataItem> result;
+    public ArrayList<PoemAndPoetItem> result;
 }

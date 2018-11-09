@@ -1,10 +1,11 @@
 package org.woolrim.woolrim;
 
 import android.content.Context;
-import android.database.Cursor;
-import android.net.Uri;
+
+import android.media.AudioRecord;
+import android.os.Build;
+import android.os.Handler;
 import android.os.SystemClock;
-import android.provider.MediaStore;
 import android.support.v4.app.FragmentTransaction;
 import android.media.AudioFormat;
 import android.media.MediaRecorder;
@@ -23,9 +24,14 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import org.woolrim.woolrim.AudioMixUtils.AudioEncoder;
+import org.woolrim.woolrim.DataItems.RecordItem;
+
 import java.io.File;
 import java.io.IOException;
 
+import jaygoo.widget.wlv.WaveLineView;
+import omrecorder.AudioChunk;
 import omrecorder.AudioRecordConfig;
 import omrecorder.OmRecorder;
 import omrecorder.PullTransport;
@@ -38,16 +44,23 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
     private Button startBtn, stopBtn, replayBtn;
     private Chronometer chronometer;
 
-    private long totalDuration, tempDuration , startTime, pausedTime;
+    private long totalDuration, tempDuration, startTime, pausedTime;
 
-    private String mFileName = null, mFilePath = null;
-    private String poetName, poemName;
+    private String mFileName = null, mFilePath = null, mFileNameAAC = null;
+    private String poetName, poemName, poemContent;
 
     private boolean isRecording = false;
     private boolean isPaused = false;
 
+
     private File recordFile;
 
+
+    private WaveLineView waveLineView;
+    private AudioRecord audioRecord;
+    private short[] buffer = new short[100];
+    private Handler handler;
+    private Runnable runnable;
 
     public static RecordFragment newInstance(Bundle bundle) {
         RecordFragment recordFragment = new RecordFragment();
@@ -62,6 +75,8 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
         assert bundle != null;
         poemName = bundle.getString("PoemName");
         poetName = bundle.getString("PoetName");
+        poemContent = bundle.getString("PoemContent");
+//        handler = new Handler();
         return inflater.inflate(R.layout.fragment_record, container, false);
     }
 
@@ -70,6 +85,8 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
         super.onViewCreated(view, savedInstanceState);
 
         init(view);
+
+        poemTv.setText(poemContent);
 
         setListener();
 
@@ -87,8 +104,8 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
         if (isPaused) {
             //해당 녹음 파일 삭제 해야됨
             File file = new File(mFilePath);
-            if(file.delete()){
-                Log.d("OnDetach","FileDelete");
+            if (file.delete()) {
+                Log.d("OnDetach", "FileDelete");
             }
         }
         recorder = null;
@@ -103,11 +120,12 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
     @Override
     public void onResume() {
         super.onResume();
-        MainActivity.toolbarLabelTv.setText(poetName+" - "+poemName);
+        MainActivity.toolbarLabelTv.setText(poetName + " - " + poemName);
     }
 
     private void init(View view) {
-        poemTv = view.findViewById(R.id.poemtv);
+        waveLineView = view.findViewById(R.id.wave_line_view);
+        poemTv = view.findViewById(R.id.poem_content_tv);
         startBtn = view.findViewById(R.id.record_btn);
         stopBtn = view.findViewById(R.id.stop_btn);
         replayBtn = view.findViewById(R.id.replay_btn);
@@ -116,19 +134,26 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
 
     private void setupRecorder() {
         recordFile = file();
-        recorder = OmRecorder.wav(
-                new PullTransport.Default(mic()), recordFile);
+        recorder = OmRecorder.pcm(
+                new PullTransport.Default(mic(), new PullTransport.OnAudioChunkPulledListener() {
+                    @Override
+                    public void onAudioChunkPulled(AudioChunk audioChunk) {
+                        animateVoice((float) (audioChunk.maxAmplitude()));
+                    }
+                }), recordFile);
 
     }
 
 
     private PullableSource mic() {
-        return new PullableSource.Default(
+        PullableSource ps = new PullableSource.Default(
                 new AudioRecordConfig.Default(
                         MediaRecorder.AudioSource.MIC, AudioFormat.ENCODING_PCM_16BIT,
                         AudioFormat.CHANNEL_IN_STEREO, 44100
                 )
         );
+//        audioRecord = ps.audioRecord();
+        return ps;
     }
 
     @NonNull
@@ -146,9 +171,13 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
             count++;
 
             mFileName = getString(R.string.app_name)
-                    + "_" + +count + ".wav";//count부분 갯수 받아와서 수정해야됨
+                    + "_" + +count + ".pcm";//count부분 갯수 받아와서 수정해야됨
+            mFileNameAAC = getString(R.string.app_name)
+                    + "_" + +count + ".aac";
             mFilePath = Environment.getExternalStorageDirectory().getAbsolutePath();
-            mFilePath +=  getString(R.string.temp_folder_name) + mFileName;
+            mFileNameAAC = Environment.getExternalStorageDirectory().getAbsolutePath() + getString(R.string.temp_folder_name) + mFileNameAAC;
+            mFilePath += getString(R.string.temp_folder_name) + mFileName;
+
 
             f = new File(mFilePath);
         } while (f.exists() && !f.isDirectory());
@@ -166,25 +195,47 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.record_btn:
-
                 if (!isRecording && !isPaused) { //최초 실행 녹음
-                    if(mFilePath != null){ //이전 녹음 존재시 삭제
+                    if (mFilePath != null) { //이전 녹음 존재시 삭제
                         File file = new File(mFilePath);
-                        if(file.delete()){
-                            Log.d("삭제","됨");
-                        }else{
-                            Log.d("삭제","안됨");
+                        if (file.delete()) {
+                            Log.d("삭제", "됨");
+                        } else {
+                            Log.d("삭제", "안됨");
                         }
                         mFilePath = null;
                     }
-
+                    ///////////이부분 수정함
+                    waveLineView.startAnim();
                     setupRecorder();
 
                     startTime = System.currentTimeMillis();
 
                     recorder.startRecording();
 
-                    chronometer.setTextColor(getResources().getColor(R.color.app_sub_color,null));
+//                    runnable = new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            double sum = 0;
+//                            int readSize = audioRecord.read(buffer, 0, buffer.length);
+//                            for (int i = 0; i < readSize; i++) {
+//                                sum += buffer[i] * buffer[i];
+//                            }
+//                            if (readSize > 0) {
+//                                int amplitude = (int)(sum / readSize);
+//                                amplitude/=100;
+//                                if (amplitude > 100) {
+//                                    amplitude = 100;
+//                                }
+//                                Log.d("amplitude", String.valueOf(amplitude));
+//                                waveLineView.setVolume(amplitude);
+//                            }
+//                            handler.postDelayed(this,2000);
+//                        }
+//                    };
+//                    handler.post(runnable);
+
+                    chronometer.setTextColor(getColor(R.color.app_sub_color));
                     chronometer.setBase(SystemClock.elapsedRealtime());
                     chronometer.start();
 
@@ -196,8 +247,9 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
                     startTime = System.currentTimeMillis();
 
                     recorder.resumeRecording();
+                    waveLineView.startAnim();
 
-                    chronometer.setTextColor(getResources().getColor(R.color.app_sub_color,null));
+                    chronometer.setTextColor(getColor(R.color.app_sub_color));
                     chronometer.setBase(SystemClock.elapsedRealtime() + pausedTime);
                     chronometer.start();
 
@@ -211,8 +263,9 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
                     totalDuration = tempDuration;
 
                     recorder.pauseRecording();
+                    waveLineView.stopAnim();
 
-                    chronometer.setTextColor(getResources().getColor(R.color.timer_default_text_color,null));
+                    chronometer.setTextColor(getColor(R.color.timer_default_text_color));
                     pausedTime = chronometer.getBase() - SystemClock.elapsedRealtime();
                     chronometer.stop();
 
@@ -224,14 +277,21 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
                 break;
 
             case R.id.stop_btn:
-                if(mFilePath != null && isRecording) {
+                if (mFilePath != null && isRecording) {
                     try {
-                        if(!isPaused)
+                        if (!isPaused)
                             totalDuration = totalDuration + System.currentTimeMillis() - startTime;
                         startBtn.setText("녹음하기");
                         recorder.stopRecording();
 
-                        chronometer.setTextColor(getResources().getColor(R.color.timer_default_text_color,null));
+                        recorder = null;
+
+                        waveLineView.stopAnim();
+                        waveLineView.release();
+
+//                        handler.removeMessages(0);
+
+                        chronometer.setTextColor(getColor(R.color.timer_default_text_color));
                         chronometer.stop();
                         chronometer.setBase(SystemClock.elapsedRealtime());
 
@@ -239,37 +299,23 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
+
+                    AudioEncoder accEncoder = AudioEncoder.createAccEncoder(mFilePath);
+                    String finalMixPath = mFileNameAAC;
+                    accEncoder.encodeToFile(finalMixPath);
+                    mFilePath = mFileNameAAC;
+
+
                     isRecording = false;
                     isPaused = false;
 
-
-                    Uri uri = Uri.fromFile(new File(Environment.getExternalStorageDirectory()+"/WoolrimTemp/"));
-                    Log.d("Title",uri.toString());
-                    Cursor cursor = getContext().getContentResolver().query(
-                            uri,
-                            new String[] { MediaStore.Audio.Media._ID,
-                                    MediaStore.Audio.Media.DISPLAY_NAME,
-                                    MediaStore.Audio.Media.TITLE,
-                                    MediaStore.Audio.Media.DURATION,
-                                    MediaStore.Audio.Media.ARTIST,
-                                    MediaStore.Audio.Media.ALBUM,
-                                    MediaStore.Audio.Media.YEAR,
-                                    MediaStore.Audio.Media.MIME_TYPE,
-                                    MediaStore.Audio.Media.SIZE,
-                                    MediaStore.Audio.Media.DATA },
-                            null,
-                            null, null);
-
-                    if(cursor != null){
-                        Log.d("Title",String.valueOf(cursor.getCount()));
-                    }
                 }
 
                 break;
             case R.id.replay_btn:
-                if(mFilePath != null && !isPaused && !isRecording) {
+                if (mFilePath != null && !isPaused && !isRecording) {
                     Bundle bundle = new Bundle();
-                    bundle.putParcelable("RecordItem", new RecordItem(mFileName,mFilePath,0,"null"));
+                    bundle.putParcelable("RecordItem", new RecordItem(mFileName, mFilePath, 0, "null"));
                     PlaybackFragment playbackFragment = PlaybackFragment.newInstance(bundle);
                     FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
                     playbackFragment.show(fragmentTransaction, "playback");
@@ -277,14 +323,31 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
                 break;
         }
     }
-
+///////////////이부분 수정함///////////////////////
+    private void animateVoice(final float maxPeak) {
+        waveLineView.setVolume((int)(maxPeak-40));
+        Log.d("Volume",String.valueOf(maxPeak));
+//        recordButton.animate().scaleX(1 + maxPeak).scaleY(1 + maxPeak).setDuration(10).start();
+    }
+/////////////////////////////////////////////////////
     @Override
-    public void onBack() {
-            Bundle bundle = new Bundle();
-            bundle.putInt("FragmentRequestCode", CheckBottomFragment.RECORDING_BACK_REQUEST);
-            bundle.putString("FilePath",mFilePath);
-            CheckBottomFragment checkBottomFragment = CheckBottomFragment.newInstance(bundle);
-            FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
-            checkBottomFragment.show(fragmentTransaction, "check");
+    public void onBack(int requestCode) {
+        Bundle bundle = new Bundle();
+//        if(requestCode == 0)Log.d("RequestCode",String.valueOf(requestCode));
+        bundle.putInt("FragmentRequestCode", CheckBottomFragment.RECORDING_BACK_REQUEST);
+        bundle.putInt("RequestCode",requestCode);
+        bundle.putString("FilePath", mFilePath);
+        CheckBottomFragment checkBottomFragment = CheckBottomFragment.newInstance(bundle);
+        FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+        checkBottomFragment.show(fragmentTransaction, "check");
+    }
+
+    private int getColor(int colorId){
+        final int version = Build.VERSION.SDK_INT;
+        if (version >= 23) {
+            return getResources().getColor(colorId, null);
+        } else {
+            return getResources().getColor(colorId);
+        }
     }
 }

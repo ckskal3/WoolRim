@@ -3,102 +3,123 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content">
+    android:layout_height="match_parent">
 
-        <android.support.v7.widget.CardView
+    <android.support.v7.widget.CardView
+        android:id="@+id/cardView2"
+        android:layout_width="match_parent"
+        android:layout_height="234dp"
+        android:layout_marginStart="20dp"
+        android:layout_marginTop="26.5dp"
+        android:layout_marginEnd="15dp"
+        app:cardCornerRadius="20dp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.0">
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="234dp"
-            android:layout_marginEnd="15dp"
-            android:layout_marginStart="20dp"
-            android:layout_marginTop="26.5dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.0"
-            app:cardCornerRadius="20dp">
+            android:layout_height="match_parent"
+            android:orientation="vertical">
 
             <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="vertical">
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
+                <ImageView
+                    android:id="@+id/my_menu_icon_iv"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:gravity="center_vertical"
-                    android:orientation="horizontal">
+                    android:layout_marginStart="16dp"
+                    android:layout_marginTop="20dp"
+                    android:layout_marginBottom="7.5dp"
+                    app:srcCompat="@drawable/my_record_icon" />
 
-                    <ImageView
-                        android:id="@+id/my_menu_icon_iv"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="7.5dp"
-                        android:layout_marginStart="16dp"
-                        android:layout_marginTop="20dp"
-                        app:srcCompat="@drawable/my_record_icon" />
+                <TextView
+                    android:id="@+id/my_menu_tv"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10.5dp"
+                    android:layout_marginTop="21dp"
+                    android:layout_marginBottom="7dp"
+                    android:text="@string/myrecord"
+                    android:textColor="#000000"
+                    android:textSize="18sp"
+                    android:textStyle="bold"
+                    app:layout_constraintVertical_bias="0.0" />
+            </LinearLayout>
 
-                    <TextView
-                        android:id="@+id/my_menu_tv"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginBottom="7dp"
-                        android:layout_marginStart="10.5dp"
-                        android:layout_marginTop="21dp"
-                        android:text="@string/myrecord"
-                        android:textColor="#000000"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        app:layout_constraintVertical_bias="0.0" />
-                </LinearLayout>
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1.5dp"
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginEnd="15dp"
+                android:background="#33000000" />
+
+            <org.woolrim.woolrim.Utils.EmptyRecyclerView
+                android:id="@+id/my_list_recycler"
+                android:layout_width="match_parent"
+                android:layout_height="0dp"
+                android:layout_marginStart="15dp"
+                android:layout_marginTop="8dp"
+                android:layout_marginEnd="15dp"
+                android:layout_weight="1"
+                android:fadeScrollbars="false"
+                android:scrollbarSize="3dp"
+                android:scrollbarStyle="insideOverlay"
+                android:scrollbarThumbVertical="@color/app_sub_color"
+                android:scrollbars="vertical"
+                tools:listitem="@layout/my_record_recycler_item" />
+
+            <LinearLayout
+                android:id="@+id/my_no_item_view"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:orientation="vertical">
 
                 <View
                     android:layout_width="match_parent"
-                    android:layout_height="1.5dp"
-                    android:layout_marginEnd="15dp"
-                    android:layout_marginStart="15dp"
-                    android:layout_marginTop="10dp"
-                    android:background="#33000000" />
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
 
-                <org.woolrim.woolrim.Utils.EmptyRecyclerView
-                    android:id="@+id/my_list_recycler"
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="0dp"
+                    android:layout_gravity="center"
+                    android:layout_weight="2"
+                    android:text="No Item"
+                    android:textSize="25sp"
+                    android:textStyle="bold" />
+
+                <View
                     android:layout_width="match_parent"
                     android:layout_height="0dp"
-                    android:layout_weight="1"
-                    android:layout_marginEnd="15dp"
-                    android:layout_marginStart="15dp"
-                    android:layout_marginTop="8dp"
-                    android:fadeScrollbars="false"
-                    android:scrollbarSize="3dp"
-                    android:scrollbarStyle="insideOverlay"
-                    android:scrollbarThumbVertical="@color/app_sub_color"
-                    android:scrollbars="vertical"
-                    tools:listitem="@layout/myrecord_recycler_item" />
-                <LinearLayout
-                    android:id="@+id/my_no_item_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="200dp"
-                    android:orientation="vertical">
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="1"/>
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="0dp"
-                        android:layout_gravity="center"
-                        android:layout_weight="2"
-                        android:textSize="25sp"
-                        android:textStyle="bold"
-                        android:text="No Item"/>
-                    <View
-                        android:layout_width="match_parent"
-                        android:layout_height="0dp"
-                        android:layout_weight="1"/>
-                </LinearLayout>
-
-
+                    android:layout_weight="1" />
             </LinearLayout>
-        </android.support.v7.widget.CardView>
+
+
+        </LinearLayout>
+    </android.support.v7.widget.CardView>
+
+    <Button
+        android:id="@+id/my_bongsa_get_button"
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:layout_marginTop="46dp"
+        android:background="@color/app_main_color"
+        android:text="@string/get_bongsa_time_kr"
+        android:textColor="@android:color/white"
+        android:textSize="18sp"
+        android:textStyle="normal"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/cardView2"
+        app:layout_constraintVertical_bias="1.0" />
 
 </android.support.constraint.ConstraintLayout>

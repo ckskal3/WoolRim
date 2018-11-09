@@ -21,7 +21,7 @@ const getNotice = async (id) => {
 
 const createNotice = async (input_list) => {
   input_list.map(item => {
-    item.date_created = new Date();
+    item.created = new Date();
   });
   try {
     await Notice.createBulk(input_list);

@@ -44,6 +44,7 @@ const createRecording = async (input) => {
     user_id: user.id,
     duration: input.duration,
     poem_id: poem_result[0].id,
+    created: new Date(),
   });
   try {
     await recording.save();
@@ -87,6 +88,19 @@ const deleteRecording = async (input) => {
   }
 }
 
+const deleteRecordingById = async (id_list) => {
+  try {
+    await Recording.delete({id: id_list});
+    return {
+      isSuccess: true,
+    }
+  } catch (e) {
+    return {
+      isSuccess: false,
+    }
+  }
+}
+
 const recordingResolver = {
   Recording: {
     user: (obj) => getUser(obj.user_id),
@@ -104,6 +118,7 @@ const recordingResolver = {
   Mutation: {
     createRecording: (obj, { input }) => createRecording(input),
     deleteRecording: (obj, { input }) => deleteRecording(input),
+    deleteRecordingById: (obj, {id_list}) => deleteRecordingById(id_list),
   }
 }
 

@@ -60,6 +60,7 @@
         android:layout_height="160dp"
         android:layout_marginBottom="6dp"
         android:translationZ="1dp"
+        android:padding="10dp"
         app:layout_constraintBottom_toBottomOf="@+id/playback_button_background_imageview"
         app:layout_constraintEnd_toEndOf="@+id/playback_button_background_imageview"
         app:layout_constraintStart_toStartOf="@+id/playback_button_background_imageview"

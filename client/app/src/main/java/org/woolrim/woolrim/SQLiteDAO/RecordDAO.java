@@ -4,8 +4,8 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
-import org.woolrim.woolrim.DBManagerHelper;
-import org.woolrim.woolrim.RecordItem;
+import org.woolrim.woolrim.Utils.DBManagerHelper;
+import org.woolrim.woolrim.DataItems.RecordItem;
 
 import java.util.ArrayList;
 

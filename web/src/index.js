@@ -10,18 +10,12 @@ import 'bootstrap/dist/css/bootstrap.min.css';
 import '@blueprintjs/core/lib/css/blueprint.css';
 import '@blueprintjs/table/lib/css/table.css';
 
-import Header from './common/Header'
-import { UserContainer, PoetContainer, PoemContainer, NoticeContainer, RecordingContainer } from './container'
+import LoginView from './LoginView';
 
 ReactDOM.render(
   <Router>
     <div>
-      <Header />
-      <Route path="/user" component={UserContainer} />
-      <Route path="/poet" component={PoetContainer} />
-      <Route path="/poem" component={PoemContainer} />
-      <Route path="/notice" component={NoticeContainer} />
-      <Route path="/recording" component={RecordingContainer} />
+      <Route path="/" component={LoginView} />
     </div>
   </Router>
   , document.getElementById('root')

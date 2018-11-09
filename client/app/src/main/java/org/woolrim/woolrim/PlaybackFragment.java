@@ -1,7 +1,5 @@
 package org.woolrim.woolrim;
 
-import android.annotation.SuppressLint;
-import android.app.Dialog;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
@@ -14,7 +12,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.ImageView;
-import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -24,11 +21,11 @@ import com.android.volley.error.VolleyError;
 import com.android.volley.request.SimpleMultiPartRequest;
 import com.google.gson.Gson;
 
-import org.woolrim.woolrim.SQLiteDAO.RecordDAO;
+import org.woolrim.woolrim.DataItems.RecordItem;
+import org.woolrim.woolrim.Utils.DBManagerHelper;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import io.feeeei.circleseekbar.CircleSeekBar;

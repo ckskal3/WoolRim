@@ -3,9 +3,8 @@ package org.woolrim.woolrim.SQLiteDAO;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
-import android.util.Log;
 
-import org.woolrim.woolrim.DBManagerHelper;
+import org.woolrim.woolrim.Utils.DBManagerHelper;
 import org.woolrim.woolrim.UserDetail;
 
 

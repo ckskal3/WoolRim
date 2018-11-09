@@ -1,5 +1,6 @@
 package org.woolrim.woolrim;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -13,6 +14,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -25,27 +27,41 @@ import com.android.volley.Response;
 import com.android.volley.error.AuthFailureError;
 import com.android.volley.error.VolleyError;
 import com.android.volley.request.StringRequest;
+import com.apollographql.apollo.ApolloCall;
+import com.apollographql.apollo.ApolloClient;
+import com.apollographql.apollo.exception.ApolloException;
 import com.google.gson.Gson;
+
+import org.woolrim.woolrim.Utils.NetworkStatus;
+import org.woolrim.woolrim.type.CreateUserInput;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
-public class SignUpFragment extends Fragment implements View.OnClickListener, TextWatcher {
+import javax.annotation.Nonnull;
+
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
+
+public class SignUpFragment extends Fragment implements View.OnClickListener, TextWatcher, View.OnFocusChangeListener {
     private EditText userIdEditText, userPassEditText, userNameEditText;
     private TextView userUniversityTextView;
     private Button manButton, womanButton, completeButton, selectCompleteButton;
     private ImageView checkImageView1, checkImageView2, checkImageView3, checkImageView4;
     private Animation translateUp, translateDown;
-    private ConstraintLayout selectLayout, userUniversityInputLayout;
+    private ConstraintLayout backgroudLayout, selectLayout, userUniversityInputLayout;
     private NumberPicker universityListPicker;
-    private UniversityRecyclerViewAdapter universityRecyclerViewAdapter;
+//    private UniversityRecyclerViewAdapter universityRecyclerViewAdapter;
+
+    private InputMethodManager inputMethodManager;
 
 
-    private String userId, userName, userPass , userUnversity, userGender;
+    private String userId, userName, userPass, userUnversity, userGender;
 
     private boolean schoolSelectLayoutIsOpen = false;
     private boolean manSelectFlag = false, womanSelectFlag = false, userIdOkFlag = false, userNameOkFlag = false, userPassOkFlag = false, userUniversityOkFlag = false;
-    private boolean serverResonseFlag = false;
+    private boolean serverResponseFlag = false;
 
     public static SignUpFragment newInstance(Bundle bundle) {
         SignUpFragment signUpFragment = new SignUpFragment();
@@ -65,12 +81,12 @@ public class SignUpFragment extends Fragment implements View.OnClickListener, Te
         init(view);
 
 
-        UniversityItem[] universityItems = new UniversityItem[3];
+        UniversityItem[] universityItems = new UniversityItem[1];
         universityItems[0] = new UniversityItem("인천대학교");
-        universityItems[1] = new UniversityItem("인하대학교");
-        universityItems[2] = new UniversityItem("재능대학교");
+//        universityItems[1] = new UniversityItem("인하대학교");
+//        universityItems[2] = new UniversityItem("재능대학교");
 
-        String[] data = new String[]{universityItems[0].universityName, universityItems[1].universityName, universityItems[2].universityName};
+        String[] data = new String[]{universityItems[0].universityName};
 
 
         universityListPicker.setMinValue(0);
@@ -83,6 +99,8 @@ public class SignUpFragment extends Fragment implements View.OnClickListener, Te
     }
 
     private void init(View view) {
+        backgroudLayout = view.findViewById(R.id.signup_background_layout);
+
         userIdEditText = view.findViewById(R.id.signup_stuid_edittext);
         userPassEditText = view.findViewById(R.id.signup_pass_edittext);
         userNameEditText = view.findViewById(R.id.signup_username_edittext);
@@ -104,9 +122,13 @@ public class SignUpFragment extends Fragment implements View.OnClickListener, Te
         translateDown = AnimationUtils.loadAnimation(getContext(), R.anim.translate_down);
         translateUp = AnimationUtils.loadAnimation(getContext(), R.anim.translate_up);
 
+        inputMethodManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+
     }
 
     private void setItemListener() {
+        backgroudLayout.setOnClickListener(this);
+
         selectCompleteButton.setOnClickListener(this);
         userUniversityTextView.setOnClickListener(this);
         manButton.setOnClickListener(this);
@@ -117,11 +139,20 @@ public class SignUpFragment extends Fragment implements View.OnClickListener, Te
         userIdEditText.addTextChangedListener(this);
         userNameEditText.addTextChangedListener(this);
         userPassEditText.addTextChangedListener(this);
+
+        userIdEditText.setOnFocusChangeListener(this);
+        userNameEditText.setOnFocusChangeListener(this);
+        userPassEditText.setOnFocusChangeListener(this);
+
     }
+
 
     @Override
     public void onClick(View view) {
+        keyPadHide();
         switch (view.getId()) {
+            case R.id.signup_university_edittext:
+
             case R.id.signup_university_input_layout: //대학 선택 창 띄우는 레이아웃
                 if (!schoolSelectLayoutIsOpen) {
                     selectLayout.setVisibility(View.VISIBLE);
@@ -161,19 +192,20 @@ public class SignUpFragment extends Fragment implements View.OnClickListener, Te
                 if (userPassOkFlag && userIdOkFlag && userNameOkFlag && userUniversityOkFlag && (womanSelectFlag || manSelectFlag)) {
 
                     //중복 검사 해봐야 함
-                    UserDetail userDetail = DBManagerHelper.userDAO.selectUserDetail(userId);
-                    if(userDetail.error.equals("ERROR")) {
-                        int userIdInteger = Integer.parseInt(userId);
-                        DBManagerHelper.userDAO.insertUserDetail(new UserDetail(
-                                userIdInteger,
-                                userPass,
-                                userName,
-                                userUnversity,
-                                userGender));
-                        requestServerForUserData();
+//                    UserDetail userDetail = DBManagerHelper.userDAO.selectUserDetail(userId);
+//                    if(userDetail.error.equals("ERROR")) {
+//                        int userIdInteger = Integer.parseInt(userId);
+//                        DBManagerHelper.userDAO.insertUserDetail(new UserDetail(
+//                                userIdInteger,
+//                                userPass,
+//                                userName,
+//                                userUnversity,
+//                                userGender));
 
-                    }else{
-                        Toast.makeText(getContext(), "이미 가입하셨습니다.", Toast.LENGTH_SHORT).show();
+                    if (NetworkStatus.getConnectivityStatus(getContext()) == NetworkStatus.TYPE_NOT_CONNECTED) {
+                        Toast.makeText(getContext(), "인터넷 연결을 해주세요", Toast.LENGTH_SHORT).show();
+                    } else {
+                        requestServerForSignup();
 
                     }
                 } else {
@@ -222,7 +254,88 @@ public class SignUpFragment extends Fragment implements View.OnClickListener, Te
         }
     }
 
-    private void requestServerForUserData(){
+    @Override
+    public void onFocusChange(View view, boolean b) {
+        univPickerHide();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        MainActivity.toolbarLabelTv.setText(R.string.sign_up_kr);
+    }
+
+    private void requestServerForSignup() {
+        HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor();
+        httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        OkHttpClient okHttpClient = new OkHttpClient.Builder().addInterceptor(httpLoggingInterceptor).build();
+
+        ApolloClient apolloClient = ApolloClient.builder().serverUrl(WoolrimApplication.BASE_URL)
+                .okHttpClient(okHttpClient).build();
+
+        apolloClient.mutate(
+                CreateUserMutation
+                        .builder()
+                        .input(CreateUserInput
+                                .builder()
+                                .name(userName)
+                                .univ(userUnversity)
+                                .stu_id(Integer.parseInt(userId))
+                                .passwd(userPass)
+                                .gender(userGender)
+                                .build())
+                        .build())
+                .enqueue(new ApolloCall.Callback<CreateUserMutation.Data>() {
+                    @Override
+                    public void onResponse(@Nonnull com.apollographql.apollo.api.Response<CreateUserMutation.Data> response) {
+                        if (response.data().createUser().isSuccess()) {
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(getContext(), "축하합니다. 회원가입이 완료되었습니다.", Toast.LENGTH_SHORT).show();
+                                }
+                            });
+                            Objects.requireNonNull(getActivity()).getSupportFragmentManager().popBackStack();
+                        } else {
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(getContext(), "오류가 발생하였습니다. 아이디를 다시 확인해주세요.", Toast.LENGTH_SHORT).show();
+
+                                }
+                            });
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(@Nonnull ApolloException e) {
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(getContext(), "오류가 발생하였습니다. 다시 시도해주세요", Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+                });
+
+    }
+
+    private void keyPadHide() {
+        inputMethodManager.hideSoftInputFromWindow(userIdEditText.getWindowToken(), 0);
+        inputMethodManager.hideSoftInputFromWindow(userNameEditText.getWindowToken(), 0);
+        inputMethodManager.hideSoftInputFromWindow(userPassEditText.getWindowToken(), 0);
+        univPickerHide();
+    }
+
+    private void univPickerHide(){
+        if (schoolSelectLayoutIsOpen) {
+            selectLayout.startAnimation(translateDown);
+            selectLayout.setVisibility(View.INVISIBLE);
+            schoolSelectLayoutIsOpen = false;
+        }
+    }
+
+    private void requestServerForUserData() {
         String url1 = "http://stou2.cafe24.com/Woolrim/UserSelect.php";
         String url2 = "http://stou2.cafe24.com/Woolrim/UserInsert.php";
 
@@ -232,12 +345,12 @@ public class SignUpFragment extends Fragment implements View.OnClickListener, Te
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        if(processServerResponse(response)){
+                        if (processServerResponse(response)) {
                             Toast.makeText(getContext(), "회원가입 완료 되었습니다.", Toast.LENGTH_SHORT).show();
                             assert getFragmentManager() != null;
                             getFragmentManager().popBackStack();
-                        }else{
-                            Toast.makeText(getContext(),"오류가 발생했습니다. 다시 가입해주세요",Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(getContext(), "오류가 발생했습니다. 다시 가입해주세요", Toast.LENGTH_SHORT).show();
                         }
                     }
                 },
@@ -247,23 +360,15 @@ public class SignUpFragment extends Fragment implements View.OnClickListener, Te
 
                     }
                 }
-        ){
+        ) {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
-                Map<String,String> params = new HashMap<>();
-
-                /*
-                 $name = $_POST['name'];
-                 $password = $_POST['password'];
-                 $student_id = $_POST['student_id'];
-                 $gender = $_POST['gender'];
-                 $university = $_POST['university'];
-                 */
-                params.put("name",userName);
+                Map<String, String> params = new HashMap<>();
+                params.put("name", userName);
                 params.put("password", userPass);
-                params.put("student_id",userId);
-                params.put("gender",userGender);
-                params.put("university",userUnversity);
+                params.put("student_id", userId);
+                params.put("gender", userGender);
+                params.put("university", userUnversity);
                 return params;
             }
         };
@@ -272,11 +377,14 @@ public class SignUpFragment extends Fragment implements View.OnClickListener, Te
         WoolrimApplication.requestQueue.add(stringRequest);
     }
 
-    private boolean processServerResponse(String response){
+    private boolean processServerResponse(String response) {
         Gson gson = new Gson();
-        RequestData result = gson.fromJson(response,RequestData.class);
-        Log.d("Code",String.valueOf(result.code));
-        if(result.code == 200) return true;
+        RequestData result = gson.fromJson(response, RequestData.class);
+        Log.d("Code", String.valueOf(result.code));
+        if (result.code == 200) return true;
         else return false;
     }
+
+
+
 }

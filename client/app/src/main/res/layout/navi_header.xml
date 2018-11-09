@@ -69,6 +69,6 @@
         android:textColor="@android:color/white"
         android:textSize="15sp"
         android:textStyle="bold"
-        tools:text="@string/ex_navi_header_user_name" />
+        tools:text="@string/guest" />
 
 </LinearLayout>

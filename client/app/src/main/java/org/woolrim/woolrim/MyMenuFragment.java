@@ -1,11 +1,9 @@
 package org.woolrim.woolrim;
 
-import android.content.Context;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
@@ -30,6 +28,7 @@ public class MyMenuFragment extends Fragment {
     public static MyRecordFragment myRecordFragment1;
     public MyRecordFragment myRecordFragment2;
 
+    private String userName;
 
     public static MyMenuFragment newInstance(Bundle bundle) {
         MyMenuFragment myMenuFragment = new MyMenuFragment();
@@ -40,7 +39,11 @@ public class MyMenuFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_mymenu, container, false);
+        Bundle bundle = getArguments();
+        assert bundle != null;
+        userName = bundle.getString("UserName");
+        Log.d("Title",userName);
+        return inflater.inflate(R.layout.fragment_my_menu, container, false);
     }
 
     @Override
@@ -48,6 +51,8 @@ public class MyMenuFragment extends Fragment {
         super.onViewCreated(view, savedInstanceState);
 
         init(view);
+
+        setView();
 
         ViewPagerAdapter adapterTemp = new ViewPagerAdapter(getChildFragmentManager());
 
@@ -85,11 +90,11 @@ public class MyMenuFragment extends Fragment {
                 if (state == 0) {
                     if (Objects.requireNonNull(myTabLayout.getTabAt(0)).isSelected()) {
                         Log.d("state",String.valueOf(state));
-                        myTabLayout.getTabBuilderItem(0).setTabTitleColor(getResources().getColor(R.color.app_main_color,null)).build();
-                        myTabLayout.getTabBuilderItem(1).setTabTitleColor(getResources().getColor(android.R.color.black,null)).build();
+                        myTabLayout.getTabBuilderItem(0).setTabTitleColor(getColor(R.color.app_main_color)).build();
+                        myTabLayout.getTabBuilderItem(1).setTabTitleColor(getColor(android.R.color.black)).build();
                     } else {
-                        myTabLayout.getTabBuilderItem(1).setTabTitleColor(getResources().getColor(R.color.app_main_color,null)).build();
-                        myTabLayout.getTabBuilderItem(0).setTabTitleColor(getResources().getColor(android.R.color.black,null)).build();
+                        myTabLayout.getTabBuilderItem(1).setTabTitleColor(getColor(R.color.app_main_color)).build();
+                        myTabLayout.getTabBuilderItem(0).setTabTitleColor(getColor(android.R.color.black)).build();
                     }
                 }
             }
@@ -99,7 +104,7 @@ public class MyMenuFragment extends Fragment {
         myTabLayout.with(0).init();
         myTabLayout.getTabBuilderItem(0)
                 .setTabTitle("나의울림")
-                .setTabTitleColor(getResources().getColor(R.color.app_main_color, null))
+                .setTabTitleColor(getColor(R.color.app_main_color))
                 .noBadge()
                 .build();
 
@@ -107,7 +112,7 @@ public class MyMenuFragment extends Fragment {
         myTabLayout.with(1).init();
         myTabLayout.getTabBuilderItem(1)
                 .setTabTitle("울림알람")
-                .setTabTitleColor(getResources().getColor(android.R.color.black, null))
+                .setTabTitleColor(getColor(android.R.color.black))
                 .badge(true)
                 .badgeCount(5)
                 .build();
@@ -133,49 +138,19 @@ public class MyMenuFragment extends Fragment {
 
     }
 
-    public void wrapTabIndicatorToTitle(TabLayout tabLayout, int externalMargin, int internalMargin) {
-        View tabStrip = tabLayout.getChildAt(0);
-        if (tabStrip instanceof ViewGroup) {
-            ViewGroup tabStripGroup = (ViewGroup) tabStrip;
-            int childCount = ((ViewGroup) tabStrip).getChildCount();
-            for (int i = 0; i < childCount; i++) {
-                View tabView = tabStripGroup.getChildAt(i);
-                //set minimum width to 0 for instead for small texts, indicator is not wrapped as expected
-                tabView.setMinimumWidth(0);
-                // set padding to 0 for wrapping indicator as title
-                tabView.setPadding(0, tabView.getPaddingTop(), 0, tabView.getPaddingBottom());
-                // setting custom margin between tabs
-                if (tabView.getLayoutParams() instanceof ViewGroup.MarginLayoutParams) {
-                    ViewGroup.MarginLayoutParams layoutParams = (ViewGroup.MarginLayoutParams) tabView.getLayoutParams();
-                    if (i == 0) {
-                        // left
-                        settingMargin(layoutParams, externalMargin, internalMargin);
-                    } else if (i == childCount - 1) {
-                        // right
-                        settingMargin(layoutParams, internalMargin, externalMargin);
-                    } else {
-                        // internal
-                        settingMargin(layoutParams, internalMargin, internalMargin);
-                    }
-                }
-            }
+    private void setView(){
+        userNameTv.setText(userName);
 
-            tabLayout.requestLayout();
-        }
     }
 
-    private void settingMargin(ViewGroup.MarginLayoutParams layoutParams, int start, int end) {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR1) {
-            layoutParams.setMarginStart(start);
-            layoutParams.setMarginEnd(end);
-            layoutParams.leftMargin = start;
-            layoutParams.rightMargin = end;
+    private int getColor(int colorId){
+        final int version = Build.VERSION.SDK_INT;
+        if (version >= 23) {
+            return getResources().getColor(colorId, null);
         } else {
-            layoutParams.leftMargin = start;
-            layoutParams.rightMargin = end;
+            return getResources().getColor(colorId);
         }
     }
-
 
 }
 

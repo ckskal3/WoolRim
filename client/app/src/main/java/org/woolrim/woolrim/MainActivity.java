@@ -1,5 +1,6 @@
 package org.woolrim.woolrim;
 
+import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -13,6 +14,7 @@ import android.support.design.widget.NavigationView;
 import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.AppCompatActivity;
@@ -33,6 +35,10 @@ import com.android.volley.request.StringRequest;
 import com.blankj.utilcode.constant.PermissionConstants;
 import com.blankj.utilcode.util.LogUtils;
 import com.blankj.utilcode.util.PermissionUtils;
+import com.tsengvn.typekit.Typekit;
+import com.tsengvn.typekit.TypekitContextWrapper;
+
+import org.woolrim.woolrim.Utils.PermissionDialog;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
@@ -49,11 +55,11 @@ public class MainActivity extends AppCompatActivity implements FragmentInteracti
     private LinearLayout homeLayout, favoritesLayout, myPageLayout, signInAndOutLayout;
     private Toolbar toolbar;
 
-    private TextView userNameTv, signInAndOutTv, toolbarRightTv;
-    public static TextView toolbarLabelTv;
-    private ImageView drawableControlImageView, profileChangeImageView;
+    private TextView toolbarRightTv;
+    public static TextView toolbarLabelTv, signInAndOutTv, userNameTv;
 
-    public static ImageView profileImageView;
+    private ImageView drawableControlImageView, drawableCloseImageView;
+    public static ImageView profileImageView, profileChangeImageView;
 
     public static String userName;
 
@@ -63,8 +69,10 @@ public class MainActivity extends AppCompatActivity implements FragmentInteracti
 
     private Uri photoUri;
 
+    public static int requestCode = 0;
+
     public interface OnKeyBackPressedListener { //녹음프래그먼트에서 뒤로가기 눌렀을시 다이올로그 띄우기 위한 Listener
-        void onBack();
+        void onBack(int requestCode);
     }
 
 
@@ -86,11 +94,17 @@ public class MainActivity extends AppCompatActivity implements FragmentInteracti
         startActivityForResult(intent, 1111);
     }
 
+    @Override
+    protected void attachBaseContext(Context newBase) {
+        super.attachBaseContext(TypekitContextWrapper.wrap(newBase));
+    }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Log.d("state", "OnCreate");
+
+
         setContentView(R.layout.activity_main);
 
         //////////퍼미션 다이얼로그 띄우는 부분////////////////
@@ -126,9 +140,15 @@ public class MainActivity extends AppCompatActivity implements FragmentInteracti
 
         setSupportActionBar(toolbar);
 
+        if(!WoolrimApplication.isLogin) {
+            userNameTv.setText(R.string.guest);
+            userName = userNameTv.getText().toString();
 
-        userNameTv.setText(R.string.ex_navi_header_user_name);
-        userName = userNameTv.getText().toString();
+            profileImageView.setImageResource(R.drawable.profile_icon);
+            profileChangeImageView.setVisibility(View.INVISIBLE);
+        }
+
+
 
 
         MainFragment mainFragment = MainFragment.newInstance(new Bundle());
@@ -136,6 +156,12 @@ public class MainActivity extends AppCompatActivity implements FragmentInteracti
                 .beginTransaction()
                 .add(R.id.container, mainFragment)
                 .commitAllowingStateLoss();
+    }
+
+    @Override
+    protected void onDestroy() {
+        WoolrimApplication.isLogin = false;
+        super.onDestroy();
     }
 
     private void init() {
@@ -156,6 +182,7 @@ public class MainActivity extends AppCompatActivity implements FragmentInteracti
         myPageLayout = findViewById(R.id.navi_my_page);
         signInAndOutLayout = findViewById(R.id.navi_sign_in_out);
         signInAndOutTv = findViewById(R.id.navi_item_sign_in_out_textview);
+        drawableCloseImageView = findViewById(R.id.navi_x_imageview);
 
 
     }
@@ -167,6 +194,7 @@ public class MainActivity extends AppCompatActivity implements FragmentInteracti
         myPageLayout.setOnClickListener(this);
         signInAndOutLayout.setOnClickListener(this);
         profileChangeImageView.setOnClickListener(this);
+        drawableCloseImageView.setOnClickListener(this);
     }
 
 
@@ -182,26 +210,61 @@ public class MainActivity extends AppCompatActivity implements FragmentInteracti
         } else {
             switch (view.getId()) {
                 case R.id.profile_modify_iv:
-
                     GallerySelectFragment gallerySelectFragment = GallerySelectFragment.newInstance(new Bundle());
                     gallerySelectFragment.show(getSupportFragmentManager(), "Main");
                     return;
-
                 case R.id.navi_home:
-                    if (getSupportFragmentManager().getBackStackEntryCount() != 0) {
+                    if ((getSupportFragmentManager().findFragmentById(R.id.container) instanceof RecordFragment)) {
+                        requestCode = WoolrimApplication.REQUSET_HOME;
+                        onBackPressed();
+                    } else if (getSupportFragmentManager().getBackStackEntryCount() != 0) {
                         getSupportFragmentManager().popBackStack("MainFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
                     }
                     break;
                 case R.id.navi_favorite:
-                    Intent intent = new Intent(Intent.ACTION_PICK);
-                    intent.setType("audio/*");
-                    intent.setType(MediaStore.Audio.Media.CONTENT_TYPE);
-                    startActivityForResult(intent, 1111);
+                    Fragment fragment = getSupportFragmentManager().findFragmentById(R.id.container);
+                    if (fragment instanceof RecordFragment) {
+                        requestCode = WoolrimApplication.REQUSET_FAVORITE;
+                        onBackPressed();
+                    }else if (!(fragment instanceof  MyFavoritesFragment)) {
+                        if (WoolrimApplication.isLogin) { // 서버 가져오기
+
+                        }else{ // 내부디비
+
+                        }
+
+                        if(fragment instanceof MyMenuFragment || fragment instanceof LoginFragment){
+                            Log.d("Title","here");
+                            MyFavoritesFragment myFavoritesFragment = MyFavoritesFragment.newInstance(new Bundle());
+                            getSupportFragmentManager().beginTransaction().replace(R.id.container, myFavoritesFragment).commit();
+                        }else{
+                            MyFavoritesFragment myFavoritesFragment = MyFavoritesFragment.newInstance(new Bundle());
+                            getSupportFragmentManager().beginTransaction().addToBackStack("MainFragment").replace(R.id.container, myFavoritesFragment).commit();
+                        }
+                    }
                     break;
                 case R.id.navi_my_page:
-                    if (!(getSupportFragmentManager().findFragmentById(R.id.container) instanceof MyMenuFragment)) { //마이 메뉴인경우 다시 안띄움
+                    if ((getSupportFragmentManager().findFragmentById(R.id.container) instanceof RecordFragment)) { // 레코드 프레그먼트일 경우 다이얼로그 띄움
+                        requestCode = WoolrimApplication.REQUSET_MY_MENU;
+                        onBackPressed();
+                    }
+                    else if (!WoolrimApplication.isLogin) { // 로그인 안되어있을 경우 로그인 프래그먼트로
+                        Bundle bundle = new Bundle();
+                        bundle.putInt(getString(R.string.request_code), WoolrimApplication.REQUSET_MY_MENU);
+                        LoginFragment loginFragment = LoginFragment.newInstance(bundle);
+                        FragmentManager fm = getSupportFragmentManager();
+                        FragmentTransaction ft = fm.beginTransaction().replace(R.id.container,loginFragment);
+                        if(fm.findFragmentById(R.id.container) instanceof  LoginFragment || fm.findFragmentById(R.id.container) instanceof  MyFavoritesFragment){
+                            ft.commit();
+                        }else{
+                            ft.addToBackStack("MainFragment").commit();
+                        }
+                    } else if (!(getSupportFragmentManager().findFragmentById(R.id.container) instanceof MyMenuFragment)) { //마이 메뉴인경우 다시 안띄움
                         //서버로 부터 알람내역이랑 자신이 올린 녹음파일에 대한 데이터 가져와야함
-                        MyMenuFragment myMenuFragment = MyMenuFragment.newInstance(new Bundle());
+//                        getSupportFragmentManager().popBackStack("MainFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                        Bundle bundle = new Bundle();
+                        bundle.putString("UserName",userNameTv.getText().toString().trim());
+                        MyMenuFragment myMenuFragment = MyMenuFragment.newInstance(bundle);
                         getSupportFragmentManager().beginTransaction().replace(R.id.container, myMenuFragment)
                                 .addToBackStack("MainFragment")
                                 .commit();
@@ -209,15 +272,34 @@ public class MainActivity extends AppCompatActivity implements FragmentInteracti
                     break;
                 case R.id.navi_sign_in_out:
                     if (!(getSupportFragmentManager().findFragmentById(R.id.container) instanceof LoginFragment)) { //로그인 프래그먼트가 아닐경우
-                        if (isLogined) { //로그인 상태인 경우 -> 로그아웃해야됨
-
+                        if(getSupportFragmentManager().findFragmentById(R.id.container) instanceof RecordFragment){
+                            requestCode = WoolrimApplication.REQUSET_RECORD_LOGOUT;
+                            onBackPressed();
+                        }
+                        else if (WoolrimApplication.isLogin) { //로그인 상태인 경우 -> 로그아웃해야됨 홈으로 보냄
+                            signInAndOutTv.setText(R.string.login_kr);
+                            profileImageView.setImageResource(R.drawable.profile_icon);
+                            userNameTv.setText(R.string.guest);
+                            profileChangeImageView.setVisibility(View.INVISIBLE);
+                            getSupportFragmentManager().popBackStack("MainFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                            WoolrimApplication.isLogin = false;
                         } else { //로그아웃 상태인경우
-                            LoginFragment loginFragment = LoginFragment.newInstance(new Bundle());
-                            getSupportFragmentManager().beginTransaction().replace(R.id.container, loginFragment)
-                                    .addToBackStack("MainFragment")
-                                    .commit();
+                            Bundle bundle = new Bundle();
+                            bundle.putInt(getString(R.string.request_code), WoolrimApplication.REQUSET_MAIN_ACTIVITY);
+                            LoginFragment loginFragment = LoginFragment.newInstance(bundle);
+                            if(getSupportFragmentManager().findFragmentById(R.id.container) instanceof SignUpFragment){
+                                getSupportFragmentManager().popBackStack();
+                            }else{
+                                getSupportFragmentManager().beginTransaction().replace(R.id.container, loginFragment)
+                                        .addToBackStack("MainFragment")
+                                        .commit();
+                            }
+
                         }
                     }
+                    break;
+
+                case R.id.navi_x_imageview:
                     break;
             }
             DrawerLayout drawer = findViewById(R.id.drawer_layout);
@@ -240,8 +322,9 @@ public class MainActivity extends AppCompatActivity implements FragmentInteracti
                         Uri tempUri = Uri.fromFile(tempFile);
 
                         Log.d("photoUri : " + photoUri.toString(), " tempUri : " + tempUri.toString());
-                        //미리보기 화면 보여줘야 함
+                        //미리보기 화면/////
                         previewPicture(photoUri);
+                        ////////////////////
                     }
                 }
                 break;
@@ -253,7 +336,7 @@ public class MainActivity extends AppCompatActivity implements FragmentInteracti
                         bitmap = Bitmap.createScaledBitmap(bitmap, 300, 300, true);
                     }
                     MainActivity.profileImageView.setImageBitmap(bitmap);
-                }else{
+                } else {
                     onIntentAction();
                 }
                 break;
@@ -292,23 +375,21 @@ public class MainActivity extends AppCompatActivity implements FragmentInteracti
         return tempFile;
     }
 
-    private void galleryAddPicture() {
-        Intent tempIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-        File f = new File(imageFilePath);
-        Uri contentUri = Uri.fromFile(f);
-        tempIntent.setData(contentUri);
-        sendBroadcast(tempIntent);
-    }
 
 
     @Override
     public void onBackPressed() {
         DrawerLayout drawer = findViewById(R.id.drawer_layout);
         Fragment checkRecordFragment = getSupportFragmentManager().findFragmentById(R.id.container);
-        if (drawer.isDrawerOpen(GravityCompat.START)) {
+        boolean flag1 = checkRecordFragment instanceof RecordFragment;
+        boolean flag2 = drawer.isDrawerOpen(GravityCompat.START);
+        if (flag1 && flag2) {
             drawer.closeDrawer(GravityCompat.START);
-        } else if (checkRecordFragment instanceof RecordFragment) {
-            ((RecordFragment) checkRecordFragment).onBack();
+            ((RecordFragment) checkRecordFragment).onBack(requestCode);
+        } else if (flag1) {
+            ((RecordFragment) checkRecordFragment).onBack(requestCode);
+        } else if (flag2) {
+            drawer.closeDrawer(GravityCompat.START);
         } else {
             super.onBackPressed();
         }

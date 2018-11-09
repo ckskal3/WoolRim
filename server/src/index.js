@@ -1,6 +1,8 @@
 import express from 'express';
 import graphqlHTTP from 'express-graphql';
 import schema from './graphql/index';
+import cors from 'cors';
+
 const multer = require('multer'); // express에 multer모듈 적용 (for 파일업로드)
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -17,17 +19,18 @@ const upload = multer({ storage: storage })
 
 const app = express();
 
+app.use(cors());
 app.set('view engine', 'jade')
-
 app.set('views', __dirname + '/templates')
 app.use( bodyParser.json() );       // to support JSON-encoded bodies
 app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
   extended: true
 })); 
-app.get('/graphql', graphqlHTTP({
-  schema,
-  graphiql:true
-}));
+
+// app.get('/graphql', graphqlHTTP({
+//   schema,
+//   graphiql:true
+// }));
 
 app.post('/graphql', graphqlHTTP({
   schema,

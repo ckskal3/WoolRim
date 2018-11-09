@@ -6,10 +6,9 @@
     <string name="play">재생</string>
     <string name="pause">일시정지</string>
     <string name="stop">정지</string>
-    <string name="regist">회원가입</string>
-    <string name="login">로그인</string>
+    <string name="sign_up_kr">회원가입</string>
     <string name="want_poem">원하는 시를 입력해주세요.</string>
-    <string name="poetry">계절이 지나가는 하늘에는\n
+    <string name="poetry">  계절이 지나가는 하늘에는\n
                             가을로 가득 차 있습니다.\n\n
 
                             나는 아무 걱정도 없이\n
@@ -69,12 +68,12 @@
     <string name="pleasepoem">낭송하고 싶은 시를 입력하세요</string>
     <string name="search">검색</string>
     <string name="login_kr">로그인</string>
+    <string name= "logout_kr">로그아웃</string>
     <string name="mypage_kr">마이페이지</string>
     <string name="menu_kr">메뉴</string>
     <string name="bgmselect_kr">BGM 선택하기</string>
     <string name="complete_kr">완료</string>
     <string name="record_complete_kr">울림 업로드 신청하기</string>
-
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_title">Android Studio</string>
@@ -93,5 +92,10 @@
     <string name="woman_kr">여자</string>
     <string name="man_kr">남자</string>
     <string name="temp_folder_name">/WoolrimTemp/</string>
+    <string name="request_code">RequestCode</string>
+    <string name="guest">Guest</string>
+    <string name="user">User</string>
+    <string name="internet_connect_warning">인터넷 연결을 확인해주세요.</string>
+    <string name="get_bongsa_time_kr">봉사점수 받기</string>
 
 </resources>

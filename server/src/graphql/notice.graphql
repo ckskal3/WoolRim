@@ -1,7 +1,7 @@
 type Notice {
   id: ID!
   content: String!
-  date_created: String!
+  created: String!
   user: User!
 }
 

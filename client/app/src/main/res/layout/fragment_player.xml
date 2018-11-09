@@ -39,23 +39,6 @@
     </LinearLayout>
 
 
-    <!--<com.jesusm.holocircleseekbar.lib.HoloCircleSeekBar-->
-    <!--android:id="@+id/circle_seek_bar"-->
-    <!--android:layout_width="150dp"-->
-    <!--android:layout_height="150dp"-->
-    <!--android:layout_marginBottom="6dp"-->
-    <!--app:layout_constraintBottom_toBottomOf="@+id/play_button_background_imageview"-->
-    <!--app:layout_constraintEnd_toEndOf="@+id/play_button_background_imageview"-->
-    <!--app:layout_constraintStart_toStartOf="@+id/play_button_background_imageview"-->
-    <!--app:layout_constraintTop_toTopOf="@+id/play_button_background_imageview"-->
-    <!--app:pointer_color="@color/gender_selected_color"-->
-    <!--app:pointer_halo_color="@color/gender_selected_color"-->
-    <!--app:pointer_size="3dp"-->
-    <!--app:text_color="#00000000"-->
-    <!--app:text_size="0sp"-->
-    <!--app:wheel_active_color="@color/gender_selected_color"-->
-    <!--app:wheel_unactive_color="#00000000" />-->
-
     <ImageView
         android:id="@+id/play_button_background_imageview"
         android:layout_width="wrap_content"
@@ -87,6 +70,7 @@
         android:layout_height="160dp"
         android:layout_marginBottom="6dp"
         android:translationZ="1dp"
+        android:padding="10dp"
         app:layout_constraintBottom_toBottomOf="@+id/play_button_background_imageview"
         app:layout_constraintEnd_toEndOf="@+id/play_button_background_imageview"
         app:layout_constraintStart_toStartOf="@+id/play_button_background_imageview"
@@ -124,6 +108,20 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/player_playing_time_textview"
+        app:layout_constraintVertical_bias="0.0" />
+
+    <ImageView
+        android:id="@+id/player_favorite_icon_iv"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="84.2dp"
+        android:layout_marginTop="70dp"
+        android:src="@drawable/favorite_middle_empty_color_icon"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/player_profile_layout"
         app:layout_constraintVertical_bias="0.0" />
 
 

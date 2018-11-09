@@ -99,6 +99,25 @@ const login = async (stu_id, passwd) => {
   }
 }
 
+const adminlogin = async(name, passwd) => {
+  const user = await User.where({name,}).where({admin: true}).one();
+  if(!user){
+    return {
+      isSuccess: false,
+    }
+  }
+  const encryption = await pbkdf2.pbkdf2Sync(passwd, name, 30, 32, 'sha512');
+  if(user.passwd !== encryption.toString()){
+    return {
+      isSuccess: false,
+    }
+  }
+  return {
+    isSuccess: true,
+    user,
+  }
+}
+
 const userResolver = {
   Query: {
     getAllUser: () => getAllUser(),
@@ -109,6 +128,7 @@ const userResolver = {
     updateUser: (obj, { id, input }) => updateUser(id, input),
     deleteUser: (obj, { id }) => deleteUser(id),
     login: (obj, {stu_id, passwd}) => login(stu_id, passwd),
+    adminLogin: (obj, {name, passwd}) => adminlogin(name, passwd),
   }
 }
 

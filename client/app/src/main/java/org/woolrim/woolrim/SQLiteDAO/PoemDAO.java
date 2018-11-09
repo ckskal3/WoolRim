@@ -2,7 +2,7 @@ package org.woolrim.woolrim.SQLiteDAO;
 
 import android.database.sqlite.SQLiteDatabase;
 
-import org.woolrim.woolrim.DBManagerHelper;
+import org.woolrim.woolrim.Utils.DBManagerHelper;
 
 public class PoemDAO {
 

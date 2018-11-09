@@ -23,12 +23,22 @@ import com.android.volley.Response;
 import com.android.volley.error.AuthFailureError;
 import com.android.volley.error.VolleyError;
 import com.android.volley.request.StringRequest;
+import com.apollographql.apollo.ApolloCall;
+import com.apollographql.apollo.ApolloClient;
+import com.apollographql.apollo.exception.ApolloException;
 import com.google.gson.Gson;
 
-import org.woolrim.woolrim.Temp.TempDataItem;
+import org.woolrim.woolrim.DataItems.PoetItem;
+import org.woolrim.woolrim.DataItems.PoemAndPoetItem;
+import org.woolrim.woolrim.Utils.NetworkStatus;
 
 import java.util.ArrayList;
 import java.util.Map;
+
+import javax.annotation.Nonnull;
+
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
 
 public class MainFragment extends Fragment implements View.OnClickListener {
 
@@ -47,9 +57,8 @@ public class MainFragment extends Fragment implements View.OnClickListener {
 
     public static boolean isRecognitioning = false;
 
-    public abstract class DialogDismissListener implements DialogInterface.OnDismissListener {
 
-    }
+
 
     public static MainFragment newInstance(Bundle bundle) {
         MainFragment mainFragment = new MainFragment();
@@ -69,6 +78,8 @@ public class MainFragment extends Fragment implements View.OnClickListener {
         init(view);
 
         setOnClick();
+
+
     }
 
     private void setOnClick() {
@@ -101,30 +112,114 @@ public class MainFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onClick(View view) {
-        switch (view.getId()) {
-            case R.id.show_list_layout: // 시 목록 보기
-                requestServerForPoemList(SHOW_LIST_LAYOUT_CODE);
-                break;
-            case R.id.show_record_layout: // 시 녹음 목록 보기
-                requestServerForPoemList(SHOW_RECORD_LAYOUT_CODE);
-                break;
-            case R.id.search_voice_layout: // 음성 인식
+        if(NetworkStatus.getConnectivityStatus(getContext()) != NetworkStatus.TYPE_NOT_CONNECTED) {//인터넷 연결시
+            switch (view.getId()) {
+                case R.id.show_list_layout: // 시 목록 보기
+                    requestServerForPoemListGraphQL(WoolrimApplication.REQUSET_POEM_LIST_FRAGMENT,null);
+//                requestServerForPoemList(WoolrimApplication.REQUSET_POEM_LIST_FRAGMENT);
+                    break;
+                case R.id.show_record_layout: // 시 녹음 목록 보기
+                    requestServerForPoemListGraphQL(WoolrimApplication.REQUSET_RECORD_LIST_FRAGMENT,null);
+//                requestServerForPoemList(WoolrimApplication.REQUSET_RECORD_LIST_FRAGMENT);
+                    break;
+                case R.id.search_voice_layout: // 음성 인식
 
-                VoiceRecognitionFragment testDialogFragment = VoiceRecognitionFragment.newInstance(new Bundle());
-                testDialogFragment.setDismissListener(new DialogDismissListener() {
-                    @Override
-                    public void onDismiss(DialogInterface dialogInterface) {
-                        voiceRecognitionTv1.setVisibility(View.VISIBLE);
-                        voiceRecognitionTv2.setVisibility(View.VISIBLE);
-                    }
-                });
+                    VoiceRecognitionFragment testDialogFragment = VoiceRecognitionFragment.newInstance(new Bundle());
+                    testDialogFragment.setDismissListener(new VoiceRecognitionFragment.DialogDismissListener() {
+                        @Override
+                        public void onDismiss(DialogInterface dialogInterface) {
+                            voiceRecognitionTv1.setVisibility(View.VISIBLE);
+                            voiceRecognitionTv2.setVisibility(View.VISIBLE);
+                            requestServerForPoemListGraphQL(WoolrimApplication.REQUSET_POEM_LIST_FRAGMENT,key);
 
-                FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
-                testDialogFragment.show(fragmentTransaction, "playback");
+                        }
 
-                Toast.makeText(getContext(), "곧 구현될 예정입니다.", Toast.LENGTH_SHORT).show();
-                break;
+                        @Override
+                        public void findSearchKey(String key) {
+                            super.findSearchKey(key);
+                            Log.d("Title", key);
+                        }
+                    });
+
+                    FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+                    testDialogFragment.show(fragmentTransaction, "playback");
+
+                    Toast.makeText(getContext(), "곧 구현될 예정입니다.", Toast.LENGTH_SHORT).show();
+                    break;
+            }
         }
+        else{
+            Toast.makeText(getContext(),getString(R.string.internet_connect_warning),Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    public void requestServerForPoemListGraphQL(final int where, @Nullable final String searchKey){
+        HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor();
+        httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        OkHttpClient okHttpClient = new OkHttpClient.Builder().addInterceptor(httpLoggingInterceptor).build();
+
+        ApolloClient apolloClient = ApolloClient.builder().serverUrl(WoolrimApplication.BASE_URL)
+                .okHttpClient(okHttpClient).build();
+
+        apolloClient.query(GetAllPoem.builder().build()).enqueue(new ApolloCall.Callback<GetAllPoem.Data>() {
+            @Override
+            public void onResponse(@Nonnull com.apollographql.apollo.api.Response<GetAllPoem.Data> response) {
+                ArrayList<PoemAndPoetItem> arrayList = new ArrayList<>();
+                for(GetAllPoem.AllPoem allPoem :response.data().allPoem()){
+                    arrayList.add(new PoemAndPoetItem(allPoem.name(),allPoem.poet().name(),0,0,0));
+                }
+
+                if(arrayList != null){
+                    String oldPoet = null;
+                    ArrayList<PoetItem> poetItems = new ArrayList<>();
+                    int i = -1 ;
+                    for(PoemAndPoetItem poemAndPoetItem : arrayList){
+                        String newPoet = poemAndPoetItem.poet;
+                        if(!newPoet.equals(oldPoet)){
+                            PoetItem poetItem = new PoetItem(newPoet);
+                            poetItem.poemName.add(poemAndPoetItem);
+                            poetItems.add(poetItem);
+                            oldPoet = newPoet;
+                            i++;
+                        }else{
+                            poetItems.get(i).poemName.add(poemAndPoetItem);
+                        }
+                    }
+
+                    Bundle bundle = new Bundle();
+                    bundle.putParcelableArrayList("DataItems",poetItems);
+                    bundle.putInt(getString(R.string.request_code),where);
+                    if(searchKey != null){
+                        bundle.putString("SearchKey",searchKey);
+                    }
+                    if(where == WoolrimApplication.REQUSET_POEM_LIST_FRAGMENT) {
+//                                bundle.putString("SearchKey","먼 후일");
+                        PoemListFragment poemListFragment = PoemListFragment.newInstance(bundle);
+                        getActivity().getSupportFragmentManager().beginTransaction().
+                                replace(R.id.container, poemListFragment).addToBackStack("MainFragment").commit();
+                    }else if(where == WoolrimApplication.REQUSET_RECORD_LIST_FRAGMENT){
+                        if(WoolrimApplication.isLogin){// 로그인 되어있을경우
+                            PoemListFragment poemListFragment = PoemListFragment.newInstance(bundle);
+                            getActivity().getSupportFragmentManager().beginTransaction().
+                                    replace(R.id.container, poemListFragment).addToBackStack("MainFragment").commit();
+                        }else{// 로그인 해야할 경우
+                            LoginFragment loginFragment = LoginFragment.newInstance(bundle);
+                            getActivity().getSupportFragmentManager().beginTransaction().
+                                    replace(R.id.container, loginFragment).addToBackStack("MainFragment").commit();
+                        }
+
+                    }
+                }else{
+                    Toast.makeText(getContext(),"오류가 발생했습니다. 다시 시도해 주세요",Toast.LENGTH_SHORT).show();
+                }
+
+            }
+
+            @Override
+            public void onFailure(@Nonnull ApolloException e) {
+
+            }
+        });
     }
 
     public  void requestServerForPoemList(final int where) {
@@ -135,12 +230,12 @@ public class MainFragment extends Fragment implements View.OnClickListener {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        ArrayList<TempDataItem> result = processServerRespose(response);
+                        ArrayList<PoemAndPoetItem> result = processServerRespose(response);
                         if(result != null){
                             String oldPoet = null;
                             ArrayList<PoetItem> poetItems = new ArrayList<>();
                             int i = -1 ;
-                            for(TempDataItem tempDataItem : result){
+                            for(PoemAndPoetItem tempDataItem : result){
                                 String newPoet = tempDataItem.poet;
                                 if(!newPoet.equals(oldPoet)){
                                     PoetItem poetItem = new PoetItem(newPoet);
@@ -155,18 +250,24 @@ public class MainFragment extends Fragment implements View.OnClickListener {
 
                             Bundle bundle = new Bundle();
                             bundle.putParcelableArrayList("DataItems",poetItems);
+                            bundle.putInt(getString(R.string.request_code),where);
 
-                            if(where == SHOW_LIST_LAYOUT_CODE) {
+                            if(where == WoolrimApplication.REQUSET_POEM_LIST_FRAGMENT) {
 //                                bundle.putString("SearchKey","먼 후일");
-                                bundle.putInt("RequestPageCode",SHOW_LIST_LAYOUT_CODE);
                                 PoemListFragment poemListFragment = PoemListFragment.newInstance(bundle);
                                 getActivity().getSupportFragmentManager().beginTransaction().
                                         replace(R.id.container, poemListFragment).addToBackStack("MainFragment").commit();
-                            }else if(where == SHOW_RECORD_LAYOUT_CODE){
-                                bundle.putInt("RequestPageCode",SHOW_RECORD_LAYOUT_CODE);
-                                LoginFragment loginFragment = LoginFragment.newInstance(bundle);
-                                getActivity().getSupportFragmentManager().beginTransaction().
-                                        replace(R.id.container, loginFragment).addToBackStack("MainFragment").commit();
+                            }else if(where == WoolrimApplication.REQUSET_RECORD_LIST_FRAGMENT){
+                                if(WoolrimApplication.isLogin){// 로그인 되어있을경우
+                                    PoemListFragment poemListFragment = PoemListFragment.newInstance(bundle);
+                                    getActivity().getSupportFragmentManager().beginTransaction().
+                                            replace(R.id.container, poemListFragment).addToBackStack("MainFragment").commit();
+                                }else{// 로그인 해야할 경우
+                                    LoginFragment loginFragment = LoginFragment.newInstance(bundle);
+                                    getActivity().getSupportFragmentManager().beginTransaction().
+                                            replace(R.id.container, loginFragment).addToBackStack("MainFragment").commit();
+                                }
+
                             }
                         }else{
                             Toast.makeText(getContext(),"오류가 발생했습니다. 다시 시도해 주세요",Toast.LENGTH_SHORT).show();
@@ -190,7 +291,7 @@ public class MainFragment extends Fragment implements View.OnClickListener {
         WoolrimApplication.requestQueue.add(stringRequest);
     }
 
-    private ArrayList<TempDataItem> processServerRespose(String response){
+    private ArrayList<PoemAndPoetItem> processServerRespose(String response){
         Gson gson = new Gson();
         RequestData requestData = gson.fromJson(response,RequestData.class);
         if(requestData.code == 200){

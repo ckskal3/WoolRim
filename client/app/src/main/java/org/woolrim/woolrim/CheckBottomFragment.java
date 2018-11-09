@@ -17,7 +17,7 @@ public class CheckBottomFragment extends BottomSheetDialogFragment {
     public static final int RECORDING_BACK_REQUEST = 2;
     public static final int MY_RECORD_SUBMIT_REQUEST = 3;
 
-    private int fragmentRequestCode = 0;
+    private int fragmentRequestCode = 0, requestCode;
     private String filePath,poetName, poemName;
     private int deleteItemPosition;
     private TextView leftTextView, rightTextView, checkTextView1, checkTextView2, waringTextView1, waringTextView2;
@@ -32,9 +32,11 @@ public class CheckBottomFragment extends BottomSheetDialogFragment {
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         Bundle bundle = getArguments();
+        assert bundle != null;
         fragmentRequestCode = bundle.getInt("FragmentRequestCode", 0);
         if(fragmentRequestCode == RECORDING_BACK_REQUEST){
             filePath = bundle.getString("FilePath");
+            requestCode = bundle.getInt("RequestCode");
             if(filePath == null){
                 Log.e("NULL","NULL");
             }
@@ -70,6 +72,7 @@ public class CheckBottomFragment extends BottomSheetDialogFragment {
 
     @Override
     public void onPause() {
+        dismiss();
         super.onPause();
     }
 
@@ -139,7 +142,39 @@ public class CheckBottomFragment extends BottomSheetDialogFragment {
                 rightTextView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        getActivity().getSupportFragmentManager().popBackStack();
+                        if(requestCode != 0){
+                            switch (requestCode){
+                                case WoolrimApplication.REQUSET_HOME:
+                                    MainActivity.requestCode = 0;
+                                    getActivity().getSupportFragmentManager().popBackStack("MainFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                                    break;
+                                case WoolrimApplication.REQUSET_MY_MENU:
+                                    MainActivity.requestCode = 0;
+                                    Bundle bundle = new Bundle();
+                                    bundle.putString("UserName",MainActivity.userNameTv.getText().toString().trim());
+                                    MyMenuFragment myMenuFragment = MyMenuFragment.newInstance(bundle);
+                                    getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.container, myMenuFragment).commit();
+                                    //서버연동 가져오기
+                                    break;
+                                case WoolrimApplication.REQUSET_FAVORITE:
+                                    MainActivity.requestCode = 0;
+                                    MyFavoritesFragment myFavoritesFragment = MyFavoritesFragment.newInstance(new Bundle());
+                                    getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.container,myFavoritesFragment).commit();
+                                    //서버연동  가져오기
+                                    break;
+                                case WoolrimApplication.REQUSET_RECORD_LOGOUT:
+                                    MainActivity.requestCode = 0;
+                                    WoolrimApplication.isLogin = false;
+                                    MainActivity.signInAndOutTv.setText(R.string.login_kr);
+                                    MainActivity.userNameTv.setText(R.string.guest);
+                                    MainActivity.profileChangeImageView.setVisibility(View.INVISIBLE);
+                                    MainActivity.profileImageView.setImageResource(R.drawable.profile_icon);
+                                    getActivity().getSupportFragmentManager().popBackStack("MainFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
+                                    break;
+                            }
+                        }else if (requestCode == 0) {
+                            getActivity().getSupportFragmentManager().popBackStack();
+                        }
                         dismiss();
                     }
                 });
