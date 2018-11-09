@@ -37,6 +37,14 @@ const getNotification = async (stu_id) => {
   }
 }
 
+const getUnreadCount = async (user_id) => {
+  try{
+    return await Notification.where({user_id, read_flag: false}).count();
+  }catch(err){
+    return -1;
+  }
+}
+
 const createNotification = async (input_list) => {
   input_list.map(item => {
     item.created = new Date();
@@ -71,6 +79,7 @@ const deleteNotification = async (id_list) => {
 const notificationResolver = {
   Query: {
     getNotification: (obj, { stu_id }) => getNotification(stu_id),
+    getUnreadCount: (obj, { user_id }) => getUnreadCount(user_id),
   },
   Mutation: {
     createNotification: (obj, { input_list }) => createNotification(input_list),
