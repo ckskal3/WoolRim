@@ -1,0 +1,28 @@
+type Notification {
+  id: ID!
+  content: String!
+  created: String!
+}
+
+input CreateNotificationInput {
+  content: String!
+  user_id: ID!
+}
+
+type Result {
+  isSuccess: Boolean!
+}
+
+type NotificationResult {
+  isSuccess: Boolean!
+  notification_list: [Notification!]!
+}
+
+type Query {
+  getNotification(stu_id: Int!): NotificationResult!
+}
+
+type Mutation {
+  createNotification(input_list: [CreateNotificationInput]!): NotificationResult!
+  deleteNotification(id_list: [ID]!): Result!
+}
