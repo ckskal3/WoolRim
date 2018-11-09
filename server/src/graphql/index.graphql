@@ -12,3 +12,6 @@
 
 # import Query.* from 'recording.graphql'
 # import Mutation.* from 'recording.graphql'
+
+# import Query.* from 'notification.graphql'
+# import Mutation.* from 'notification.graphql'

@@ -2,26 +2,56 @@ import { Recording, User, Poem } from '../model';
 import { getUser } from './user';
 import { getPoem } from './poem';
 
-const getAllRecording = async (stu_id) => {
+export const getAllRecording = async (stu_id) => {
   try {
     if (!stu_id) {
-      return await Recording.query();
+      const result = await Recording.query();
+      return {
+        isSuccess: true,
+        recording_list: result,
+      }
     }
-    const user_id = User.where({ stu_id }).one();
-    console.log(user_id);
-    return Recording.where({ user_id, });
+    const user = await User.where({ stu_id, }).one();
+    if (!user) {
+      return {
+        isSuccess: false,
+        recording_list: [],
+      }
+    }
+    const result = await Recording.where({ user_id: user.id });
+    if (result.length === 0) {
+      return {
+        isSuccess: false,
+        recording_list: [],
+      }
+    }
+    return {
+      isSuccess: true,
+      recording_list: result,
+    }
   } catch (err) {
     console.log('getAllRecording has err : ', err);
-    return null;
+    return {
+      isSuccess: false,
+      recording_list: [],
+    };
   }
 }
 
-const getRecording = async (id) => {
+export const getAllRecordingByLogin = async (stu_id) => {
   try {
-    return await Recording.find(id);
+    const user = await User.where({ stu_id, }).one();
+    if (!user) {
+      return [];
+    }
+    const result = await Recording.where({ user_id: user.id });
+    if (result.length === 0) {
+      return [];
+    }
+    return result;
   } catch (err) {
-    console.log('getRecording has err : ', err);
-    return null;
+    console.log('getAllRecording has err : ', err);
+    return [];
   }
 }
 
@@ -74,7 +104,7 @@ const deleteRecording = async (input) => {
     }
   }
   const recording = await Recording
-    .where({$and: [{ user_id }, { poem_id: poem_result[0].id, }]}).one();
+    .where({ $and: [{ user_id }, { poem_id: poem_result[0].id, }] }).one();
   try {
     await Recording.delete({ id: recording.id });
     return {
@@ -90,7 +120,7 @@ const deleteRecording = async (input) => {
 
 const deleteRecordingById = async (id_list) => {
   try {
-    await Recording.delete({id: id_list});
+    await Recording.delete({ id: id_list });
     return {
       isSuccess: true,
     }
@@ -112,13 +142,12 @@ const recordingResolver = {
     WAITING: 0,
   },
   Query: {
-    getAllRecording: (stu_id) => getAllRecording(stu_id),
-    getRecording: (obj, { id }) => getRecording(id),
+    getAllRecording: (obj, { stu_id }) => getAllRecording(stu_id),
   },
   Mutation: {
     createRecording: (obj, { input }) => createRecording(input),
     deleteRecording: (obj, { input }) => deleteRecording(input),
-    deleteRecordingById: (obj, {id_list}) => deleteRecordingById(id_list),
+    deleteRecordingById: (obj, { id_list }) => deleteRecordingById(id_list),
   }
 }
 

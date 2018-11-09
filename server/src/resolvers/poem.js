@@ -1,11 +1,13 @@
 import { Poem, Poet } from '../model';
 import { getPoet } from './poet';
+import * as _ from 'lodash';
 /* TODO 
     poet id 없는 경우 테스트 해보기 -> err 메세지 클라이언트로 던져주는 방법 알아보기
 */
 const getAllPoem = async () => {
   try {
-    return await Poem.query();
+    const result = await Poem.query().order('name');
+    return result;
   } catch (err) {
     console.log('getAllPoem has err : ', err);
     return null;
@@ -68,6 +70,9 @@ const updatePoem = async (poem_list) => { // 효율성 떨어짐 추후 수정�
       }
       if (poem.point) {
         await Poem.find(poem.id).update({ point: poem.point });
+      }
+      if (poem.length) {
+        await Poem.find(poem.id).update({ length: poem.length });
       }
     })
     return {

@@ -72,7 +72,12 @@ class LoginView extends Component {
 
 
   render() {
-    const { auth, userInfo } = this.state;
+    // const { auth, userInfo } = this.state;
+    const auth = true;
+    const userInfo = {
+      name: '관리자',
+      id: 6,
+    }
     if (auth) {
       return (
         <div>
@@ -80,7 +85,7 @@ class LoginView extends Component {
           <Route path="/user" component={UserContainer} />
           <Route path="/poet" component={PoetContainer} />
           <Route path="/poem" component={PoemContainer} />
-          <Route path="/notice" component={NoticeContainer} />
+          <Route path="/notice" render={props => <NoticeContainer {...props} current_account={userInfo}/>} />
           <Route path="/recording" component={RecordingContainer} />
         </div>
       )

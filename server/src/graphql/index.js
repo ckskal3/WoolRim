@@ -6,7 +6,7 @@ import {
   poemResolver,
   noticeResolver,
   recordingResolver,
-  testResolver
+  notificationResolver,
 } from '../resolvers';
 
 const schema = makeExecutableSchema({
@@ -17,7 +17,7 @@ const schema = makeExecutableSchema({
     poemResolver,
     noticeResolver,
     recordingResolver,
-    testResolver
+    notificationResolver,
   ],
 });
 

@@ -40,7 +40,6 @@ const deletePoem = async (id_list) => {
   const query = `mutation($id_list:[ID]!){
     deletePoem(id_list:$id_list){
       isSuccess
-      msg
     }
   }`
   const result = await axios.post(serverInfo.serverURL,

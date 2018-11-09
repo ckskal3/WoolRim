@@ -116,8 +116,6 @@ export class RecordingContainer extends Component {
             onDelete={this.onDelete}
           />}
         />
-        생성: {toCreateDataList.map(v => JSON.stringify(v))}<br />
-        삭제: {toDeleteDataList}<br />
       </div>
     );
   }

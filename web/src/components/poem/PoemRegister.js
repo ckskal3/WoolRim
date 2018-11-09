@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { MenuItem, Button, FormGroup, InputGroup, Intent, TextArea, NumericInput, Slider } from "@blueprintjs/core";
+import { MenuItem, EditableText, Button, FormGroup, InputGroup, Intent, NumericInput, Slider } from "@blueprintjs/core";
 import { Suggest } from "@blueprintjs/select";
 import { getAllPoet } from '../../container/poet/PoetQueries';
 
@@ -30,7 +30,7 @@ class PoemRegister extends Component {
 
   onSubmit = () => {
     const { poet_id, poet_name, poem_name, content, point, length } = this.state;
-    this.props.onRegister({ name: poem_name, poet: {name:poet_name}, content, point, length, poet_id });
+    this.props.onRegister({ name: poem_name, poet: { name: poet_name }, content, point, length, poet_id });
     this.setState({
       poet_id: '',
       poet_name: '',
@@ -53,9 +53,9 @@ class PoemRegister extends Component {
     });
   }
 
-  onContentChange = (event) => {
+  onContentChange = (value) => {
     this.setState({
-      content: event.target.value,
+      content: value,
     });
   }
 
@@ -79,7 +79,7 @@ class PoemRegister extends Component {
     return item.name;
   }
 
-  suggestListRenderer = (item, {handleClick}) => {
+  suggestListRenderer = (item, { handleClick }) => {
     const content = `${item.id}. ${item.name}`;
     return <MenuItem text={content} onClick={handleClick} />
   }
@@ -109,10 +109,13 @@ class PoemRegister extends Component {
           />
         </FormGroup>
         <FormGroup label='시 내용'>
-          <TextArea
+          <EditableText
             value={this.state.content}
             onChange={this.onContentChange}
-            fill='true' />
+            multiline={true}
+            placeholder='시 내용을 입력하세요'
+            intent={Intent.SUCCESS}
+          />
         </FormGroup>
         <FormGroup inline='true' label='부여될 봉사 점수'>
           <NumericInput
@@ -122,14 +125,12 @@ class PoemRegister extends Component {
             onValueChange={this.onPointChange} />
         </FormGroup>
         <FormGroup label='시 길이 (분)'>
-          <Slider
-            min={0}
-            max={30}
-            stepSize={0.1}
-            labelStepSize={5}
-            labelRenderer={this.labelRenderer}
-            onChange={this.onLengthChange}
+          <NumericInput
+            min={1}
+            selectAllOnFocus='true'
             value={this.state.length}
+            onValueChange={this.onLengthChange}
+            stepSize='0.5'
           />
         </FormGroup>
         <Button text='등록하기'

@@ -67,6 +67,7 @@ export class PoemContainer extends Component {
           name: v.name,
           content: v.content,
           point: v.point,
+          length: v.length,
         };
       }));
     }
@@ -179,9 +180,6 @@ export class PoemContainer extends Component {
             onUpdate={this.onUpdate}
           />}
         />
-        생성: {toCreateDataList.map(v => JSON.stringify(v))}<br />
-        삭제: {toDeleteDataList}<br />
-        업뎃: {toUpdateDataList}<br />
       </div>
     );
   }

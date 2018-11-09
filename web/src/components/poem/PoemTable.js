@@ -1,14 +1,18 @@
 import React, { Component } from 'react'
 import { Column, Table, Cell, EditableCell } from "@blueprintjs/table";
-import { Intent } from '@blueprintjs/core';
+import { Intent, EditableText, Button } from '@blueprintjs/core';
 
 import { dataKey, dateFormatter } from '../../common/Tools';
 import Remover from '../../common/Remover';
+import { getAllPoet } from '../../container/poet/PoetQueries';
 
 export class PoemTable extends Component {
   constructor(props) {
     super(props);
     this.state = {
+      contents: null,
+      modifyisActive: false,
+      current_row: null,
     }
   }
 
@@ -16,6 +20,16 @@ export class PoemTable extends Component {
     this.props.onDelete(data)
   }
 
+  componentDidMount() {
+    this.getPoetData()
+  }
+
+  getPoetData = async () => {
+    const result = await getAllPoet();
+    this.setState({
+      poet_list: result,
+    })
+  }
   cellRenderer = (rowIndex, columnIndex) => {
     const { data, toDeleteDataList } = this.props;
     const columnName = dataKey(data, columnIndex);
@@ -61,21 +75,38 @@ export class PoemTable extends Component {
     const columnName = dataKey(data, columnIndex);
     if (toDeleteDataList.includes(data[rowIndex].id)) {
       return (
-        <Cell
+        <EditableCell
           key={data[rowIndex].id}
-          intent={Intent.DANGER}>
-          {data[rowIndex][columnName].name}</Cell>
+          intent={Intent.DANGER}
+          rowIndex={rowIndex}
+          columnIndex={columnIndex}
+          value={data[rowIndex][columnName].name}
+          onConfirm={this.onJoinCellConfirm}/>
       );
     } else {
       return (
-        <Cell
-          key={data[rowIndex].id}>
-          {data[rowIndex][columnName].name}
-          </Cell>
+        <EditableCell
+          key={data[rowIndex].id}
+          rowIndex={rowIndex}
+          columnIndex={columnIndex}
+          value={data[rowIndex][columnName].name}
+          onConfirm={this.onJoinCellConfirm}/>
       );
     }
   }
-
+  onJoinCellConfirm = (value, rowIndex, columnIndex) => {
+    const { poet_list } = this.state;
+    const { data, onUpdate } = this.props
+    const poet = poet_list.filter((poet) => {
+      return poet.name === value;
+    })
+    const columnName = dataKey(data, columnIndex);
+    if(poet.length === 0){
+      alert('없는 시인 입니다!')
+    }
+    data[rowIndex][columnName] = value;
+    onUpdate(data[rowIndex]);
+  }
   managementCellRenderer = (rowIndex, columnIndex) => {
     const { data } = this.props;
     return (
@@ -86,26 +117,64 @@ export class PoemTable extends Component {
       </Cell>
     )
   }
-  
+
+  poemContentsCellRenderer = (rowIndex, columnIndex) => {
+    const { data } = this.props;
+    return (
+      <Cell
+        key={data[rowIndex].id}>
+        <Button small={true} minimal={true} onClick={() =>
+          this.showContentsModifier(rowIndex, columnIndex)} intent={Intent.SUCCESS}> 내용 보기 </Button>
+      </Cell>
+    )
+  }
+
+  showContentsModifier = (rowIndex, columnIndex) => {
+    const { data } = this.props;
+    const { modifyisActive } = this.state;
+    this.setState({
+      contents: data[rowIndex].content,
+      modifyisActive: !modifyisActive,
+      current_row: rowIndex,
+    })
+  }
+
   onCellConfirm = (value, rowIndex, columnIndex) => {
     const { data, onUpdate } = this.props
     const columnName = dataKey(data, columnIndex);
     data[rowIndex][columnName] = value;
     onUpdate(data[rowIndex]);
   }
-  render () {
-    const { data } = this.props
+
+  render() {
+    const { data } = this.props;
+    const { modifyisActive, contents, current_row } = this.state;
     return (
       <div>
+        {modifyisActive ?[
+          <EditableText value={contents}
+            multiline={true}
+            onChange={(value) => {
+              this.setState({
+                contents: value,
+              })
+            }} />, 
+            <Button fill={true} intent={Intent.PRIMARY} onClick={()=> {
+              this.setState({
+                modifyisActive: false,
+              })
+              this.onCellConfirm(contents,current_row,3)
+            }}>수정하기</Button>]
+          : null}
         <Table numRows={data.length}
           enableGhostCells='true'
           enableRowHeader='false'>
           <Column name='id' cellRenderer={this.cellRenderer} />
           <Column name='제목' cellRenderer={this.cellRenderer} />
           <Column name='시인' cellRenderer={this.joinedCellRenderer} />
-          <Column name='내용' cellRenderer={this.editableCellRenderer} />
+          <Column name='내용' cellRenderer={this.poemContentsCellRenderer} />
           <Column name='봉사시간' cellRenderer={this.editableCellRenderer} />
-          <Column name='길이' cellRenderer={this.editableCellRenderer} />
+          <Column name='길이 (분)' cellRenderer={this.editableCellRenderer} />
           <Column name='인증 횟수' cellRenderer={this.cellRenderer} />
           <Column name='관리' cellRenderer={this.managementCellRenderer} />
         </Table>

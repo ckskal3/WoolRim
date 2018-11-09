@@ -1,4 +1,6 @@
 import { User } from '../model';
+import { getNotificationByLogin } from './notification'
+import { getAllRecordingByLogin, getAllRecording } from './recording'
 import pbkdf2 from 'pbkdf2'
 
 const getAllUser = async () => {
@@ -85,29 +87,29 @@ const deleteUser = async (id) => {
 }
 
 const login = async (stu_id, passwd) => {
-  const user = await User.where({stu_id,}).one();
+  const user = await User.where({ stu_id, }).one();
   const encryption = await pbkdf2.pbkdf2Sync(passwd, user.name, 30, 32, 'sha512');
-  if(user.passwd === encryption.toString()) {
+  if (user.passwd === encryption.toString()) {
     return {
       isSuccess: true,
       user,
     }
-  }else {
+  } else {
     return {
       isSuccess: false,
     }
   }
 }
 
-const adminlogin = async(name, passwd) => {
-  const user = await User.where({name,}).where({admin: true}).one();
-  if(!user){
+const adminlogin = async (name, passwd) => {
+  const user = await User.where({ name, }).where({ admin: true }).one();
+  if (!user) {
     return {
       isSuccess: false,
     }
   }
   const encryption = await pbkdf2.pbkdf2Sync(passwd, name, 30, 32, 'sha512');
-  if(user.passwd !== encryption.toString()){
+  if (user.passwd !== encryption.toString()) {
     return {
       isSuccess: false,
     }
@@ -119,6 +121,10 @@ const adminlogin = async(name, passwd) => {
 }
 
 const userResolver = {
+  LoginResult: {
+    recording_list: (obj) => getAllRecordingByLogin(obj.user.stu_id),
+    notification_list: (obj) => getNotificationByLogin(obj.user.stu_id),
+  },
   Query: {
     getAllUser: () => getAllUser(),
     getUser: (obj, { id }) => getUser(id),
@@ -127,8 +133,8 @@ const userResolver = {
     createUser: (obj, { input }) => createUser(input),
     updateUser: (obj, { id, input }) => updateUser(id, input),
     deleteUser: (obj, { id }) => deleteUser(id),
-    login: (obj, {stu_id, passwd}) => login(stu_id, passwd),
-    adminLogin: (obj, {name, passwd}) => adminlogin(name, passwd),
+    login: (obj, { stu_id, passwd }) => login(stu_id, passwd),
+    adminLogin: (obj, { name, passwd }) => adminlogin(name, passwd),
   }
 }
 

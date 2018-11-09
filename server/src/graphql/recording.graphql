@@ -32,9 +32,14 @@ type RecordingResult {
   isSuccess: Boolean!
 }
 
+type getAllRecordingResult {
+  isSuccess: Boolean!
+  recording_list: [Recording!]!
+}
+
 type Query {
-  getRecording(id: ID!): Recording
-  getAllRecording(stu_id: Int): [Recording!]!
+  getAllRecording(stu_id: Int): getAllRecordingResult
+  getAllRecordingByLogin(stu_id: Int): [Recording!]!
 }
 
 type Mutation {
