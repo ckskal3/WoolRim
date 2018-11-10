@@ -4,19 +4,26 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class PoemAndPoetItem implements Parcelable {
+    public int _id;
     public String poem;
     public String poet;
     public int man_count;
     public int woman_count;
     public int full_count;
 
-    public PoemAndPoetItem(String poem , String poet, int man_count, int woman_count, int full_count){
+    public PoemAndPoetItem( String poem , String poet, int man_count, int woman_count, int full_count){
+        this._id = 0;
         this.poem = poem;
         this.poet = poet;
         this.man_count = man_count;
         this.woman_count = woman_count;
         this.full_count = full_count;
     }
+    public PoemAndPoetItem(int _id, String poem , String poet, int man_count, int woman_count, int full_count){
+        this(poem,poet,man_count,woman_count,full_count);
+        this._id = _id;
+    }
+
 
     protected PoemAndPoetItem(Parcel in) {
         poem = in.readString();

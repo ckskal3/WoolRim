@@ -13,9 +13,12 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import org.woolrim.woolrim.DataItems.MyRecordItem;
+import org.woolrim.woolrim.DataItems.PoemAndPoetItem;
 import org.woolrim.woolrim.Utils.BadgeTabLayout;
 import org.woolrim.woolrim.Utils.SetTabIndicatorWidth;
 
+import java.util.ArrayList;
 import java.util.Objects;
 
 
@@ -29,6 +32,7 @@ public class MyMenuFragment extends Fragment {
     public MyRecordFragment myRecordFragment2;
 
     private String userName;
+    private ArrayList<MyRecordItem> poemLists;
 
     public static MyMenuFragment newInstance(Bundle bundle) {
         MyMenuFragment myMenuFragment = new MyMenuFragment();
@@ -42,7 +46,9 @@ public class MyMenuFragment extends Fragment {
         Bundle bundle = getArguments();
         assert bundle != null;
         userName = bundle.getString("UserName");
-        Log.d("Title",userName);
+        poemLists = bundle.getParcelableArrayList("PoemList");
+
+        Log.d("Title",userName+" "+ String.valueOf(poemLists.size()));
         return inflater.inflate(R.layout.fragment_my_menu, container, false);
     }
 
@@ -60,7 +66,7 @@ public class MyMenuFragment extends Fragment {
         //Fragment 객체 생성 -> Bundle 객체 생성 -> Fragment 에 Bundle 실어서 Adapter 에 추가가
         Bundle bundle = new Bundle();
         bundle.putInt("RequestCode", 101);
-
+        bundle.putParcelableArrayList("PoemList",poemLists);
         myRecordFragment1 = MyRecordFragment.newInstance(bundle);
 
         bundle = new Bundle();

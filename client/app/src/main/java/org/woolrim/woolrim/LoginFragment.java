@@ -25,11 +25,14 @@ import com.apollographql.apollo.ApolloCall;
 import com.apollographql.apollo.exception.ApolloException;
 import com.google.gson.Gson;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 import com.apollographql.apollo.ApolloClient;
 
+import org.woolrim.woolrim.DataItems.MyRecordItem;
+import org.woolrim.woolrim.DataItems.PoemAndPoetItem;
 import org.woolrim.woolrim.Utils.NetworkStatus;
 
 import javax.annotation.Nonnull;
@@ -142,6 +145,8 @@ public class LoginFragment extends Fragment {
                                     final String[] userData = new String[2];
                                     userData[0] = response.data().login().user().profile();
                                     userData[1] = response.data().login().user().name();
+                                    int size = response.data().login().recording_list().size();
+                                    Log.d("Title",String.valueOf(size));
                                     WoolrimApplication.isLogin = true;
 
                                     getActivity().runOnUiThread(new Runnable() {
@@ -162,8 +167,13 @@ public class LoginFragment extends Fragment {
                                                 .commit();
                                         //                       .addToBackStack("LoginFagment")
                                     } else if (requestCode == WoolrimApplication.REQUSET_MY_MENU) {
+                                        ArrayList<MyRecordItem>  items = new ArrayList<>();
+                                        for (GetLogin.Recording_list list:response.data().login().recording_list()){
+                                            items.add(new MyRecordItem(list.id(),list.poem().poet().name(),list.poem().name(),false));
+                                        }
                                         Bundle bundle = new Bundle();
                                         bundle.putString("UserName", userData[1]);
+                                        bundle.putParcelableArrayList("PoemList",items);
                                         MyMenuFragment myMenuFragment = MyMenuFragment.newInstance(bundle);
                                         getActivity().getSupportFragmentManager()
                                                 .beginTransaction()

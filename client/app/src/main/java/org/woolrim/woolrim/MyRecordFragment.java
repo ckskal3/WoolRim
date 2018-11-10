@@ -18,6 +18,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import org.woolrim.woolrim.DataItems.MyRecordItem;
+import org.woolrim.woolrim.DataItems.PoemAndPoetItem;
 import org.woolrim.woolrim.Utils.EmptyRecyclerView;
 
 import java.io.File;
@@ -32,7 +33,9 @@ public class MyRecordFragment extends Fragment {
     private Button myBongsaButton;
 
     private int fragmentRequestCode = 0;
+    private ArrayList<MyRecordItem> poemLists;
     public MyRecordAdapter adapter;
+
 
     public static MyRecordFragment newInstance(Bundle bundle) {
         MyRecordFragment myRecordFragment = new MyRecordFragment();
@@ -44,8 +47,9 @@ public class MyRecordFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Bundle bundle = getArguments();
+        assert bundle != null;
         fragmentRequestCode = bundle.getInt("RequestCode");
-
+        poemLists = bundle.getParcelableArrayList("PoemList");
         return inflater.inflate(R.layout.fragment_my_records, container, false);
     }
 
@@ -81,14 +85,17 @@ public class MyRecordFragment extends Fragment {
 
         adapter = new MyRecordAdapter(fragmentRequestCode);
         if (fragmentRequestCode == 101) {
-            adapter.addItem(new MyRecordItem("김소월", "시1", false));
-            adapter.addItem(new MyRecordItem("김소월", "시2", false));
-            adapter.addItem(new MyRecordItem("김소월", "시3", false));
-            adapter.addItem(new MyRecordItem("김소월", "시4", true));
-            adapter.addItem(new MyRecordItem("김소월", "시5", false));
+            for(MyRecordItem myRecordItem : poemLists){
+                adapter.addItem(myRecordItem);
+            }
+//            adapter.addItem(new MyRecordItem(null,"김소월", "시1", false));
+//            adapter.addItem(new MyRecordItem(null,"김소월", "시2", false));
+//            adapter.addItem(new MyRecordItem(null,"김소월", "시3", false));
+//            adapter.addItem(new MyRecordItem(null,"김소월", "시4", true));
+//            adapter.addItem(new MyRecordItem(null,"김소월", "시5", false));
         } else {
-            adapter.addItem(new MyRecordItem("이런 알람이 있습니다.", null, true));
-            adapter.addItem(new MyRecordItem("저런 알람도 있습니다.", null, true));
+            adapter.addItem(new MyRecordItem(null,"이런 알람이 있습니다.", null, true));
+            adapter.addItem(new MyRecordItem(null,"저런 알람도 있습니다.", null, true));
         }
 
         Log.d("Size", "" + adapter.items.size());
