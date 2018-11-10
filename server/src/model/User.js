@@ -10,5 +10,5 @@ export const User = Conn.model('user', {
   passwd: { type: String, required: true },
   created: { type: Date, required: true },
   bongsa_time: { type: types.Integer, default_value: 0 }, // 기본 값 : 0
-  profile: {type: String, default_value: null },
+  profile: {type: String, default_value: '/default' },
 });

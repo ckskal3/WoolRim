@@ -1,6 +1,5 @@
 import { Poem, Poet } from '../model';
 import { getPoet } from './poet';
-import * as _ from 'lodash';
 /* TODO 
     poet id 없는 경우 테스트 해보기 -> err 메세지 클라이언트로 던져주는 방법 알아보기
 */
@@ -86,6 +85,18 @@ const updatePoem = async (poem_list) => { // 효율성 떨어짐 추후 수정�
   }
 }
 
+const updateAuthCount = async (poem_id, gender, count) => {
+  if(!(gender === '남자' || gender === '여자')){
+    return false;
+  }
+  if(gender === '남자'){
+    await Poem.where({id: poem_id}).update({auth_count_man: count});
+  }else{
+    await Poem.where({id: poem_id}).update({auth_count_woman: count});
+  }
+  return true;
+}
+
 const deletePoem = async (id_list) => {
   try {
     await Poem.delete({ id: id_list });
@@ -111,6 +122,7 @@ const poemResolver = {
   },
   Mutation: {
     createPoem: (obj, { input_list }) => createPoem(input_list),
+    updateAuthCount: (obj, { poem_id, gender, count }) => updateAuthCount(poem_id, gender, count),
     updatePoem: (obj, { input_list }) => updatePoem(input_list),
     deletePoem: (obj, { id_list }) => deletePoem(id_list),
   }
