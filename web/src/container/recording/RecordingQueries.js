@@ -23,7 +23,7 @@ const getAllRecording = async () => {
     }
   }`;
   const result = await axios.post(serverInfo.serverURL, { query });
-  return result.data.data.getAllRecording;
+  return result.data.data.getAllRecording.recording_list;
 }
 
 const deleteRecording = async (id_list) => {

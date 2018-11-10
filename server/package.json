@@ -7,7 +7,8 @@
     "start": "nodemon --exec babel-node src/index.js",
     "drop": "babel-node src/dropDB.js",
     "product": "pm2 start server.yml",
-    "admin": "babel-node src/tools/createAdmin.js"
+    "admin": "babel-node src/tools/createAdmin.js",
+    "console": "babel-node src/tools/console.js"
   },
   "keywords": [],
   "author": "",
