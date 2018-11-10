@@ -16,7 +16,7 @@ input CreateRecordingInput {
   poet_name: String!
 }
 
-input deleteRecordingInput {
+input DeleteRecordingInput {
   stu_id: Int!
   poet_name: String!
   poem_name: String!
@@ -40,10 +40,11 @@ type getAllRecordingResult {
 type Query {
   getAllRecording(stu_id: Int): getAllRecordingResult
   getAllRecordingByLogin(stu_id: Int): [Recording!]!
+  getRecordingForPlay(poem_id: ID!, user_id: ID): [Recording!]!
 }
 
 type Mutation {
   createRecording(input: CreateRecordingInput!): RecordingResult!
-  deleteRecording(input: deleteRecordingInput!): RecordingResult!
+  deleteRecording(input: DeleteRecordingInput!): RecordingResult!
   deleteRecordingById(id_list: [ID]!): RecordingResult!
 }

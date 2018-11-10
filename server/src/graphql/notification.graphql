@@ -12,7 +12,9 @@ input CreateNotificationInput {
 type Result {
   isSuccess: Boolean!
 }
-
+type createNotificationResult {
+  isSuccess: Boolean!
+}
 type NotificationResult {
   isSuccess: Boolean!
   notification_list: [Notification!]!
@@ -20,9 +22,11 @@ type NotificationResult {
 
 type Query {
   getNotification(stu_id: Int!): NotificationResult!
+  getUnreadCount(user_id: ID!): Int!
 }
 
 type Mutation {
-  createNotification(input_list: [CreateNotificationInput]!): NotificationResult!
+  readAllNotification(user_id: ID!): Boolean!
+  createNotification(input_list: [CreateNotificationInput]!): createNotificationResult!
   deleteNotification(id_list: [ID]!): Result!
 }
