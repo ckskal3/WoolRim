@@ -8,10 +8,10 @@ import { Notification } from './Notification';
 import { Bookmark } from './Bookmark';
 
 
-User.hasMany(Recording, { integrity: 'delete' });
+User.hasMany(Recording, { integrity: 'nullify' });
 Recording.belongsTo(User, { required: true });
 
-User.hasMany(Notice, { integrity: 'delete' });
+User.hasMany(Notice, { integrity: 'nullify' });
 Notice.belongsTo(User, { required: true });
 
 User.hasMany(Notification, { integrity: 'delete' });
@@ -20,17 +20,14 @@ Notification.belongsTo(User, { required: true });
 User.hasMany(Bookmark, { integrity: 'delete' });
 Bookmark.belongsTo(User, { required: true });
 
-Poem.hasMany(Recording, { integrity: 'delete' });
+Poem.hasMany(Recording, { integrity: 'nullify' });
 Recording.belongsTo(Poem, { required: true });
-
-Poem.hasMany(Bookmark, { integrity: 'delete' });
-Bookmark.belongsTo(Poem, { required: true });
 
 Poet.hasMany(Poem, { integrity: 'delete' });
 Poem.belongsTo(Poet, { required: true });
 
-Poet.hasMany(Bookmark, { integrity: 'delete' });
-Bookmark.belongsTo(Poet, { required: true });
+Recording.hasMany(Bookmark, { integrity: 'delete' });
+Bookmark.belongsTo(Recording);
 
 Conn.applySchemas({ verbose: true });
 

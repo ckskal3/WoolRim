@@ -1,15 +1,11 @@
 type Bookmark {
   id: ID!
-  user: User!
-  poem: Poem!
-  poet: Poet!
+  recording: Recording!
   created: String!
 }
 
 input createBookmarkInput {
-  user_id: ID!
-  poem_id: ID!
-  poet_id: ID!
+  recording_id: ID!
 }
 type createBookmarkResult {
   isSuccess: Boolean!
