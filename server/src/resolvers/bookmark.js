@@ -1,7 +1,6 @@
 import { Bookmark, User } from '../model';
 import { getUser } from './user';
-import { getPoem } from './poem';
-import { getPoet } from './poet';
+import { getRecording } from './recording';
 
 const getBookmarkList = async (stu_id) => {
   try {
@@ -46,8 +45,7 @@ const deleteBookmark = async (id_list) => {
 const bookmarkResolver = {
   Bookmark: {
     user: (obj) => getUser(obj.user_id),
-    poem: (obj) => getPoem(obj.poem_id),
-    poet: (obj) => getPoet(obj.poet_id),
+    recording: (obj) => getRecording(obj.recording_id),
   },
   Query: {
     getBookmarkList: (obj, {stu_id}) => getBookmarkList(stu_id),

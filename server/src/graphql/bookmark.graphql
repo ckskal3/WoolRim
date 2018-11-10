@@ -1,6 +1,7 @@
 type Bookmark {
   id: ID!
   recording: Recording!
+  user: User!
   created: String!
 }
 

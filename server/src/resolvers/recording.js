@@ -38,6 +38,14 @@ export const getAllRecording = async (stu_id) => {
   }
 }
 
+export const getRecording = async (recording_id) => {
+  try {
+    return await Recording.find(recording_id);
+  } catch (err) {
+    return null;
+  }
+}
+
 export const getAllRecordingByLogin = async (stu_id) => {
   try {
     const user = await User.where({ stu_id, }).one();
@@ -59,7 +67,7 @@ export const getRecordingForPlay = async (poem_id, user_id) => {
   try {
     const result = await Recording.where({ poem_id, user_id });
     return result;
-  } catch (err){
+  } catch (err) {
     return [];
   }
 }
@@ -77,10 +85,10 @@ const createRecording = async (input) => {
     }
   }
   const user = await User.where({ stu_id: input.stu_id }).one()
-  if(user.gender ==='남자'){
-    await Poem.where({name: input.poem_name}).update({auth_count_man: poem_result[0].auth_count_man + 1});
-  }else{
-    await Poem.where({name: input.poem_name}).update({auth_count_woman: poem_result[0].auth_count_woman + 1});
+  if (user.gender === '남자') {
+    await Poem.where({ name: input.poem_name }).update({ auth_count_man: poem_result[0].auth_count_man + 1 });
+  } else {
+    await Poem.where({ name: input.poem_name }).update({ auth_count_woman: poem_result[0].auth_count_woman + 1 });
   }
   const recording = new Recording({
     path: input.path,
