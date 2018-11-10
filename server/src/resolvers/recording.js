@@ -65,8 +65,11 @@ export const getAllRecordingByLogin = async (stu_id) => {
 
 export const getRecordingForPlay = async (poem_id, user_id) => {
   try {
-    const result = await Recording.where({ poem_id, user_id });
-    return result;
+    if(user_id){
+      return await Recording.where({ poem_id, user_id });
+    }else{
+      return await Recording.where({ poem_id });
+    }
   } catch (err) {
     return [];
   }

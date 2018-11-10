@@ -4,20 +4,22 @@ import serverInfo from '../../serverInfo';
 const getAllRecording = async () => {
   const query = `query {
     getAllRecording{
-      id
-      path
-      created
-      auth_flag
-      user{
-        name
-      }
-      poem{
-        name
-        poet {
+      recording_list{
+        id
+        path
+        created
+        auth_flag
+        user{
           name
         }
+        poem{
+          name
+          poet {
+            name
+          }
+        }
+        duration
       }
-      duration
     }
   }`;
   const result = await axios.post(serverInfo.serverURL, { query });
