@@ -151,6 +151,18 @@ const deleteRecordingById = async (id_list) => {
     }
   }
 }
+const deleteAllRecording = async () => {
+  await Recording.delete();
+}
+
+const applyRecording = async (id_list) => {
+  id_list.map(async (id) => {
+    const recording = await Recording.find(id).include('user').include('poem');
+    const sum_point = recording.user.bongsa_time + recording.poem.point;
+    await User.find(recording.user.id).update({ bongsa_time: sum_point });
+  })
+  return true;
+}
 
 const recordingResolver = {
   Recording: {
@@ -167,6 +179,8 @@ const recordingResolver = {
     getRecordingForPlay: (obj, { poem_id, user_id }) => getRecordingForPlay(poem_id, user_id),
   },
   Mutation: {
+    deleteAllRecording: () => deleteAllRecording(),
+    applyRecording: (obj, { id_list }) => applyRecording(id_list),
     createRecording: (obj, { input }) => createRecording(input),
     deleteRecording: (obj, { input }) => deleteRecording(input),
     deleteRecordingById: (obj, { id_list }) => deleteRecordingById(id_list),
