@@ -10,7 +10,9 @@ query getAllNotice {
 
 query getAllPoem{
   allPoem: getAllPoem{
-  	name
+  	id,
+  	name,
+  	auth_count_man,
     poet{
       name
     }
@@ -23,5 +25,38 @@ query GetPoemByName($poet_name: String!, $poem_name: String!){
   }
 }
 
+query GetNotification($stu_id: Int!){
+  getNotification(stu_id: $stu_id){
+    isSuccess,
+    notification_list{
+      id,
+      content
+    }
+  }
+}
+
+query GetUnReadCount($user_id: ID!){
+    getUnreadCount(user_id:$user_id)
+}
 
 
+query GetRecordingForPlay($poem_id:ID!){
+  getRecordingForPlay(poem_id:$poem_id){
+    id,
+    path,
+    user{
+      id,
+      name,
+      gender,
+      profile
+    },
+    poem{
+      id,
+      name,
+      poet{
+        id,
+        name
+      }
+    }
+  }
+}

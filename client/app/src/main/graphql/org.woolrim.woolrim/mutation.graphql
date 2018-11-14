@@ -34,3 +34,7 @@ mutation GetLogin($stu_id: Int!, $passwd: String!){
     }
 	}
 }
+
+mutation ReadAllNotification($user_id:ID!){
+  readAllNotification(user_id:$user_id)
+}

@@ -12,6 +12,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+
+import com.apollographql.apollo.ApolloCall;
+import com.apollographql.apollo.ApolloClient;
+import com.apollographql.apollo.api.Response;
+import com.apollographql.apollo.exception.ApolloException;
 
 import org.woolrim.woolrim.DataItems.MyRecordItem;
 import org.woolrim.woolrim.DataItems.PoemAndPoetItem;
@@ -20,6 +26,11 @@ import org.woolrim.woolrim.Utils.SetTabIndicatorWidth;
 
 import java.util.ArrayList;
 import java.util.Objects;
+
+import javax.annotation.Nonnull;
+
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
 
 
 public class MyMenuFragment extends Fragment {
@@ -31,8 +42,10 @@ public class MyMenuFragment extends Fragment {
     public static MyRecordFragment myRecordFragment1;
     public MyRecordFragment myRecordFragment2;
 
-    private String userName;
-    private ArrayList<MyRecordItem> poemLists;
+    private String userName, userPK;
+    private int badgeCount = 0;
+    private boolean notificationReadFlag = false;
+    private ArrayList<MyRecordItem> poemLists, notificationLists;
 
     public static MyMenuFragment newInstance(Bundle bundle) {
         MyMenuFragment myMenuFragment = new MyMenuFragment();
@@ -47,8 +60,10 @@ public class MyMenuFragment extends Fragment {
         assert bundle != null;
         userName = bundle.getString("UserName");
         poemLists = bundle.getParcelableArrayList("PoemList");
+        userPK = bundle.getString("UserPK");
+        notificationLists = bundle.getParcelableArrayList("NotificationList");
 
-        Log.d("Title",userName+" "+ String.valueOf(poemLists.size()));
+        Log.d("Title",userName+" "+ String.valueOf(poemLists.size())+" "+String.valueOf(notificationLists.size()));
         return inflater.inflate(R.layout.fragment_my_menu, container, false);
     }
 
@@ -59,6 +74,23 @@ public class MyMenuFragment extends Fragment {
         init(view);
 
         setView();
+
+        HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor();
+        httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        OkHttpClient okHttpClient = new OkHttpClient.Builder().addInterceptor(httpLoggingInterceptor).build();
+
+        ApolloClient apolloClient = ApolloClient.builder().serverUrl(WoolrimApplication.BASE_URL).okHttpClient(okHttpClient).build();
+        apolloClient.query(GetUnReadCount.builder().user_id(userPK).build()).enqueue(new ApolloCall.Callback<GetUnReadCount.Data>() {
+            @Override
+            public void onResponse(@Nonnull Response<GetUnReadCount.Data> response) {
+                badgeCount = response.data().getUnreadCount();
+            }
+
+            @Override
+            public void onFailure(@Nonnull ApolloException e) {
+
+            }
+        });
 
         ViewPagerAdapter adapterTemp = new ViewPagerAdapter(getChildFragmentManager());
 
@@ -71,6 +103,7 @@ public class MyMenuFragment extends Fragment {
 
         bundle = new Bundle();
         bundle.putInt("RequestCode", 102);
+        bundle.putParcelableArrayList("NotificationList",notificationLists);
         myRecordFragment2 = MyRecordFragment.newInstance(bundle);
 
         adapterTemp.addItem(myRecordFragment1);
@@ -88,7 +121,33 @@ public class MyMenuFragment extends Fragment {
 
             @Override
             public void onPageSelected(int position) {
-//                myTabLayout.getTabBuilderItem(position).noBadge().build();
+                if(position == 1 && !notificationReadFlag) {
+                    myTabLayout.getTabBuilderItem(position).noBadge().build();
+                    //서버 연동
+                    HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor();
+                    httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+                    OkHttpClient okHttpClient = new OkHttpClient.Builder().addInterceptor(httpLoggingInterceptor).build();
+                    ApolloClient apolloClient = ApolloClient.builder().serverUrl(WoolrimApplication.BASE_URL).okHttpClient(okHttpClient).build();
+
+                    apolloClient.mutate(ReadAllNotification.builder().user_id(userPK).build()).enqueue(new ApolloCall.Callback<ReadAllNotification.Data>() {
+                        @Override
+                        public void onResponse(@Nonnull Response<ReadAllNotification.Data> response) {
+                            if(response.data().readAllNotification()){
+                                getActivity().runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        Toast.makeText(getContext(), "다 읽음", Toast.LENGTH_SHORT).show();
+                                    }
+                                });
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(@Nonnull ApolloException e) {
+
+                        }
+                    });
+                }
             }
 
             @Override
@@ -120,7 +179,7 @@ public class MyMenuFragment extends Fragment {
                 .setTabTitle("울림알람")
                 .setTabTitleColor(getColor(android.R.color.black))
                 .badge(true)
-                .badgeCount(5)
+                .badgeCount(badgeCount)//이부분 변경해야됨
                 .build();
         SetTabIndicatorWidth setTabIndicatorWidth = new SetTabIndicatorWidth();
         setTabIndicatorWidth.wrapTabIndicatorToTitle(myTabLayout,30,30);

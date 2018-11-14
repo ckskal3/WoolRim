@@ -200,13 +200,13 @@ public class PoemListFragment extends Fragment{
         sectionAddItem.setOnItemClickListener(new SectionAddItem.OnItemClickListenr() {
             @Override
             public void onItemClick(SectionItemViewHolder holder, View view, int position) {
-                requestServerForPoemMedia( poetName,  poemNames.get(sectionAdapter.getPositionInSection(position)).poem);
+                requestServerForPoemMedia(poemNames.get(sectionAdapter.getPositionInSection(position))._id ,poetName,  poemNames.get(sectionAdapter.getPositionInSection(position)).poem);
             }
         });
         sectionAdapter.addSection(sectionAddItem);
     }
 
-    private void requestServerForPoemMedia(String poetName, String poemName){
+    private void requestServerForPoemMedia(int _id,String poetName, String poemName){
         Toast.makeText(getContext(),
                 poetName+" "+poemName,
                 Toast.LENGTH_SHORT).show();
@@ -223,9 +223,28 @@ public class PoemListFragment extends Fragment{
         bundle.putString("PoemName",poemName);
 
         if(pageCode == WoolrimApplication.REQUSET_POEM_LIST_FRAGMENT){
-            PlayerFrameFragment playerFrameFragment = PlayerFrameFragment.newInstance(new Bundle());
-            getActivity().getSupportFragmentManager().beginTransaction().addToBackStack("RecordListFragment")
-                    .replace(R.id.container, playerFrameFragment).commit();
+            apolloClient.query(GetRecordingForPlay.builder().poem_id(String.valueOf(_id)).build()).enqueue(new ApolloCall.Callback<GetRecordingForPlay.Data>() {
+                @Override
+                public void onResponse(@Nonnull final Response<GetRecordingForPlay.Data> response) {
+
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(getContext(), String.valueOf(response.data().getRecordingForPlay().size()), Toast.LENGTH_SHORT).show();
+                        }
+                    });
+                    Bundle bundle = new Bundle();
+                    PlayerFrameFragment playerFrameFragment = PlayerFrameFragment.newInstance(new Bundle());
+                    getActivity().getSupportFragmentManager().beginTransaction().addToBackStack("RecordListFragment")
+                            .replace(R.id.container, playerFrameFragment).commit();
+                }
+
+                @Override
+                public void onFailure(@Nonnull ApolloException e) {
+
+                }
+            });
+
         }else{
             apolloClient.query(GetPoemByName.builder().poem_name(poemName).poet_name(poetName).build())
                     .enqueue(new ApolloCall.Callback<GetPoemByName.Data>() {

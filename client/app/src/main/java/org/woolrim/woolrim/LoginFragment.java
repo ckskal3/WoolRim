@@ -138,13 +138,31 @@ public class LoginFragment extends Fragment {
                         httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
                         OkHttpClient okHttpClient = new OkHttpClient.Builder().addInterceptor(httpLoggingInterceptor).build();
                         ApolloClient apolloClient = ApolloClient.builder().okHttpClient(okHttpClient).serverUrl(WoolrimApplication.BASE_URL).build();
+                        final ArrayList<MyRecordItem> notificationItems = new ArrayList<>();
+                        apolloClient.query(GetNotification.builder().stu_id(Integer.parseInt(id)).build()).enqueue(new ApolloCall.Callback<GetNotification.Data>() {
+                            @Override
+                            public void onResponse(@Nonnull com.apollographql.apollo.api.Response<GetNotification.Data> response) {
+                                int cnt = response.data().getNotification().notification_list().size();
+                                if(cnt>0){
+                                    for(GetNotification.Notification_list item : response.data().getNotification().notification_list()){
+                                        notificationItems.add(new MyRecordItem(item.id(),item.content(),null,false));
+                                    }
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(@Nonnull ApolloException e) {
+
+                            }
+                        });
                         apolloClient.mutate(GetLogin.builder().stu_id(Integer.parseInt(id)).passwd(pass).build()).enqueue(new ApolloCall.Callback<GetLogin.Data>() {
                             @Override
                             public void onResponse(@Nonnull com.apollographql.apollo.api.Response<GetLogin.Data> response) {
                                 if (response.data().login().isSuccess()) { //로그인 성공시
-                                    final String[] userData = new String[2];
+                                    final String[] userData = new String[3];
                                     userData[0] = response.data().login().user().profile();
                                     userData[1] = response.data().login().user().name();
+                                    userData[2] = response.data().login().user().id();
                                     int size = response.data().login().recording_list().size();
                                     Log.d("Title",String.valueOf(size));
                                     WoolrimApplication.isLogin = true;
@@ -173,7 +191,9 @@ public class LoginFragment extends Fragment {
                                         }
                                         Bundle bundle = new Bundle();
                                         bundle.putString("UserName", userData[1]);
+                                        bundle.putString("UserPK",userData[2]);
                                         bundle.putParcelableArrayList("PoemList",items);
+                                        bundle.putParcelableArrayList("NotificationList",notificationItems);
                                         MyMenuFragment myMenuFragment = MyMenuFragment.newInstance(bundle);
                                         getActivity().getSupportFragmentManager()
                                                 .beginTransaction()

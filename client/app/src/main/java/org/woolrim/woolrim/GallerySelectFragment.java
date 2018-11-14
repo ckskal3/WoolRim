@@ -11,6 +11,8 @@ import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 
+import com.bumptech.glide.Glide;
+
 public class GallerySelectFragment extends DialogFragment implements View.OnClickListener {
 
     private Button gallerySelectBtn, cancelBtn, defaultImageSelectBtn;
@@ -105,7 +107,8 @@ public class GallerySelectFragment extends DialogFragment implements View.OnClic
                 dismiss();
                 break;
             case R.id.gallery_select_default_button:
-                MainActivity.profileImageView.setImageResource(R.drawable.profile_icon);
+                Glide.with(getContext()).load(R.drawable.profile_icon).into(MainActivity.profileImageView);
+//                MainActivity.profileImageView.setImageResource(R.drawable.profile_icon);
                 dismiss();
                 break;
             case R.id.gallery_select_gallery_button:

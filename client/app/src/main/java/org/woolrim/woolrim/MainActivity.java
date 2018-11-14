@@ -35,6 +35,7 @@ import com.android.volley.request.StringRequest;
 import com.blankj.utilcode.constant.PermissionConstants;
 import com.blankj.utilcode.util.LogUtils;
 import com.blankj.utilcode.util.PermissionUtils;
+import com.bumptech.glide.Glide;
 import com.tsengvn.typekit.Typekit;
 import com.tsengvn.typekit.TypekitContextWrapper;
 
@@ -144,11 +145,10 @@ public class MainActivity extends AppCompatActivity implements FragmentInteracti
             userNameTv.setText(R.string.guest);
             userName = userNameTv.getText().toString();
 
-            profileImageView.setImageResource(R.drawable.profile_icon);
+//            profileImageView.setImageResource(R.drawable.profile_icon);
+            Glide.with(this).load(R.drawable.profile_icon).into(profileImageView);
             profileChangeImageView.setVisibility(View.INVISIBLE);
         }
-
-
 
 
         MainFragment mainFragment = MainFragment.newInstance(new Bundle());
@@ -335,7 +335,8 @@ public class MainActivity extends AppCompatActivity implements FragmentInteracti
                     if (bitmap.getHeight() > 300 || bitmap.getWidth() > 300) {
                         bitmap = Bitmap.createScaledBitmap(bitmap, 300, 300, true);
                     }
-                    MainActivity.profileImageView.setImageBitmap(bitmap);
+                    Glide.with(this).load(bitmap).into(profileImageView);
+//                    MainActivity.profileImageView.setImageBitmap(bitmap);
                 } else {
                     onIntentAction();
                 }

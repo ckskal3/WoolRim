@@ -45,20 +45,13 @@ public class MainFragment extends Fragment implements View.OnClickListener {
     public static final int SHOW_LIST_LAYOUT_CODE = 105;
     public static final int SHOW_RECORD_LAYOUT_CODE = 106;
 
-
     private ConstraintLayout voiceSearchLayout;
     private LinearLayout showListLayout, recordPoemLayout;
     private ImageView imageView4, imageView5;
-    private View tranparentView;
 
     public static TextView voiceRecognitionTv1, voiceRecognitionTv2;
 
-    private Animation itemRotate;
-
     public static boolean isRecognitioning = false;
-
-
-
 
     public static MainFragment newInstance(Bundle bundle) {
         MainFragment mainFragment = new MainFragment();
@@ -98,8 +91,6 @@ public class MainFragment extends Fragment implements View.OnClickListener {
 
         imageView4 = view.findViewById(R.id.voice_recognition_icon_background);
         imageView5 = view.findViewById(R.id.voice_recognition_icon);
-        tranparentView = view.findViewById(R.id.transparent_view);
-        itemRotate = AnimationUtils.loadAnimation(getContext(), R.anim.item_rotate);
     }
 
     @Override
@@ -166,7 +157,7 @@ public class MainFragment extends Fragment implements View.OnClickListener {
             public void onResponse(@Nonnull com.apollographql.apollo.api.Response<GetAllPoem.Data> response) {
                 ArrayList<PoemAndPoetItem> arrayList = new ArrayList<>();
                 for(GetAllPoem.AllPoem allPoem :response.data().allPoem()){
-                    arrayList.add(new PoemAndPoetItem(allPoem.name(),allPoem.poet().name(),0,0,0));
+                    arrayList.add(new PoemAndPoetItem(Integer.parseInt(allPoem.id()),allPoem.name(),allPoem.poet().name(),allPoem.auth_count_man(),0,allPoem.auth_count_man()));
                 }
 
                 if(arrayList != null){

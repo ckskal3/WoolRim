@@ -17,12 +17,14 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+
 import org.woolrim.woolrim.DataItems.MyRecordItem;
 import org.woolrim.woolrim.DataItems.PoemAndPoetItem;
 import org.woolrim.woolrim.Utils.EmptyRecyclerView;
 
 import java.io.File;
 import java.util.ArrayList;
+
 
 public class MyRecordFragment extends Fragment {
 
@@ -33,7 +35,7 @@ public class MyRecordFragment extends Fragment {
     private Button myBongsaButton;
 
     private int fragmentRequestCode = 0;
-    private ArrayList<MyRecordItem> poemLists;
+    private ArrayList<MyRecordItem> poemLists,notificationLists;
     public MyRecordAdapter adapter;
 
 
@@ -50,6 +52,7 @@ public class MyRecordFragment extends Fragment {
         assert bundle != null;
         fragmentRequestCode = bundle.getInt("RequestCode");
         poemLists = bundle.getParcelableArrayList("PoemList");
+        notificationLists = bundle.getParcelableArrayList("NotificationList");
         return inflater.inflate(R.layout.fragment_my_records, container, false);
     }
 
@@ -57,6 +60,7 @@ public class MyRecordFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         init(view);
+
 
         if (fragmentRequestCode == 101) {
             myMenuTextView.setText("나의울림");
@@ -85,6 +89,7 @@ public class MyRecordFragment extends Fragment {
 
         adapter = new MyRecordAdapter(fragmentRequestCode);
         if (fragmentRequestCode == 101) {
+
             for(MyRecordItem myRecordItem : poemLists){
                 adapter.addItem(myRecordItem);
             }
@@ -94,8 +99,11 @@ public class MyRecordFragment extends Fragment {
 //            adapter.addItem(new MyRecordItem(null,"김소월", "시4", true));
 //            adapter.addItem(new MyRecordItem(null,"김소월", "시5", false));
         } else {
-            adapter.addItem(new MyRecordItem(null,"이런 알람이 있습니다.", null, true));
-            adapter.addItem(new MyRecordItem(null,"저런 알람도 있습니다.", null, true));
+            for(MyRecordItem myRecordItem : notificationLists){
+                adapter.addItem(myRecordItem);
+            }
+//            adapter.addItem(new MyRecordItem(null,"이런 알람이 있습니다.", null, true));
+//            adapter.addItem(new MyRecordItem(null,"저런 알람도 있습니다.", null, true));
         }
 
         Log.d("Size", "" + adapter.items.size());
