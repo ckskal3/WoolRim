@@ -120,6 +120,10 @@ const adminlogin = async (name, passwd) => {
   }
 }
 
+const deleteAllUser = async () => {
+  await User.delete();
+}
+
 const userResolver = {
   LoginResult: {
     recording_list: (obj) => getAllRecordingByLogin(obj.user.stu_id),
@@ -130,6 +134,7 @@ const userResolver = {
     getUser: (obj, { id }) => getUser(id),
   },
   Mutation: {
+    deleteAllUser: ()  => deleteAllUser(),
     createUser: (obj, { input }) => createUser(input),
     updateUser: (obj, { id, input }) => updateUser(id, input),
     deleteUser: (obj, { id }) => deleteUser(id),

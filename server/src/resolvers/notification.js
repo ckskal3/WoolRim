@@ -83,12 +83,17 @@ const deleteNotification = async (id_list) => {
   }
 }
 
+const deleteAllNotification = async () => {
+  await Notification.delete();
+}
+
 const notificationResolver = {
   Query: {
     getNotification: (obj, { stu_id }) => getNotification(stu_id),
     getUnreadCount: (obj, { user_id }) => getUnreadCount(user_id),
   },
   Mutation: {
+    deleteAllNotification: () => deleteAllNotification(),
     readAllNotification: (obj, { user_id }) => readAllNotification(user_id),
     createNotification: (obj, { input_list }) => createNotification(input_list),
     deleteNotification: (obj, { id_list }) => deleteNotification(id_list),

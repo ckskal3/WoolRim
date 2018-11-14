@@ -36,14 +36,8 @@ const getPoemByNames = async (poet_name, poem_name) => {
 }
 
 const createPoem = async (input_list) => {
-  input_list.map(item => { // default_value 설정
-    if (!item.auth_count) {
-      item.auth_count = 0;
-    }
-  });
   try {
     await Poem.createBulk(input_list);
-    // cormo 라이브러리 createBulk 에서는 default_value 속성 작동 안함
     return {
       isSuccess: true,
     };
