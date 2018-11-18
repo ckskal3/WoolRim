@@ -2,27 +2,3 @@ type Poet {
   id: ID!
   name: String!
 }
-
-input CreatePoetInput {
-  name: String!
-}
-
-input UpdatePoetInput {
-  id: ID!
-  name: String
-}
-
-type PoetResult {
-  isSuccess: Boolean!
-}
-
-type Query {
-  getPoet(id: ID!): Poet
-  getAllPoet: [Poet]
-}
-
-type Mutation {
-  createPoet(input_list: [CreatePoetInput]!): PoetResult!
-  updatePoet(input_list: [UpdatePoetInput]): PoetResult!
-  deletePoet(id_list: [ID]!): PoetResult!
-}

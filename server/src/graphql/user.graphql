@@ -34,20 +34,13 @@ type UserResult {
 type LoginResult {
   isSuccess: Boolean!
   user: User
+  unreadCount: Int!
   recording_list: [Recording!]!
   notification_list: [Notification!]!
 }
 
-type Query {
-  getUser(id: ID!): User
-  getAllUser: [User!]!
-}
-
 type Mutation {
-  deleteAllUser: Boolean!
   createUser(input: CreateUserInput!): UserResult!
-  updateUser(id: ID!, input: UpdateUserInput): UserResult!
-  deleteUser(id: ID!): UserResult!
   login(stu_id: Int!, passwd: String!): LoginResult!
   adminLogin(name: String!, passwd: String!): LoginResult!
   modifyUser(input: UpdateUserInput): UserResult!

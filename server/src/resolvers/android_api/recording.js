@@ -1,9 +1,10 @@
-import { Recording, User, Poem } from '../model';
-import { getUser } from './user';
-import { getPoem } from './poem';
+import { Recording, User, Poem } from '../../model';
+import { getUser } from '../web_api/user';
+import { getPoem } from '../web_api/poem';
 
 export const getAllRecording = async (stu_id) => {
   try {
+    console.log(stu_id);
     if (!stu_id) {
       const result = await Recording.query();
       return {
@@ -35,14 +36,6 @@ export const getAllRecording = async (stu_id) => {
       isSuccess: false,
       recording_list: [],
     };
-  }
-}
-
-export const getRecording = async (recording_id) => {
-  try {
-    return await Recording.find(recording_id);
-  } catch (err) {
-    return null;
   }
 }
 
@@ -142,22 +135,6 @@ const deleteRecording = async (input) => {
   }
 }
 
-const deleteRecordingById = async (id_list) => {
-  try {
-    await Recording.delete({ id: id_list });
-    return {
-      isSuccess: true,
-    }
-  } catch (e) {
-    return {
-      isSuccess: false,
-    }
-  }
-}
-const deleteAllRecording = async () => {
-  await Recording.delete();
-}
-
 const applyRecording = async (id_list) => {
   id_list.map(async (id) => {
     const recording = await Recording.find(id).include('user').include('poem');
@@ -182,11 +159,9 @@ const recordingResolver = {
     getRecordingForPlay: (obj, { poem_id, user_id }) => getRecordingForPlay(poem_id, user_id),
   },
   Mutation: {
-    deleteAllRecording: () => deleteAllRecording(),
     applyRecording: (obj, { id_list }) => applyRecording(id_list),
     createRecording: (obj, { input }) => createRecording(input),
     deleteRecording: (obj, { input }) => deleteRecording(input),
-    deleteRecordingById: (obj, { id_list }) => deleteRecordingById(id_list),
   }
 }
 

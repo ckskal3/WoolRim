@@ -5,27 +5,6 @@ type Notice {
   user: User!
 }
 
-input CreateNoticeInput {
-  content: String!
-  user_id: ID!
-}
-
-input UpdateNoticeInput {
-  id: ID!
-  content: String
-}
-
-type NoticeResult {
-  isSuccess: Boolean!
-}
-
 type Query {
   getNotice(id: ID!): Notice
-  getAllNotice: [Notice]
-}
-
-type Mutation {
-  createNotice(input_list: [CreateNoticeInput]!): NoticeResult!
-  updateNotice(input_list: [UpdateNoticeInput]): NoticeResult!
-  deleteNotice(id_list: [ID]!): NoticeResult!
 }

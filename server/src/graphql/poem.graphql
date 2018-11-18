@@ -10,35 +10,10 @@ type Poem {
   poet: Poet!
 }
 
-input CreatePoemInput {
-  name: String!
-  content: String!
-  point: Int!
-  length: Float!
-  poet_id: ID!
-}
-
-input UpdatePoemInput {
-  id: ID!
-  name: String
-  content: String
-  point: Int
-  length: Float
-}
-
-type PoemResult {
-  isSuccess: Boolean!
-}
-
 type Query {
-  getPoem(id: ID!): Poem
-  getAllPoem: [Poem]
   getPoemByNames(poet_name: String!, poem_name: String!): Poem
 }
 
 type Mutation {
   updateAuthCount(poem_id: ID!, gender: String!, count: Int!): Boolean!
-  createPoem(input_list: [CreatePoemInput]!): PoemResult!
-  updatePoem(input_list: [UpdatePoemInput]): PoemResult!
-  deletePoem(id_list: [ID]!): PoemResult!
 }

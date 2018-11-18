@@ -45,8 +45,6 @@ type Query {
 
 type Mutation {
   applyRecording(id_list: [ID!]!): Boolean!
-  deleteAllRecording: Boolean!
   createRecording(input: CreateRecordingInput!): RecordingResult!
   deleteRecording(input: DeleteRecordingInput!): RecordingResult!
-  deleteRecordingById(id_list: [ID]!): RecordingResult!
 }
