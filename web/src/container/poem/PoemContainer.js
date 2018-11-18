@@ -12,9 +12,6 @@ export class PoemContainer extends Component {
     super(props)
     this.state = {
       data: [],
-      toCreateDataList: [],
-      toDeleteDataList: [],
-      toUpdateDataList: [],
     }
   }
 
@@ -28,146 +25,47 @@ export class PoemContainer extends Component {
       data: result,
     })
   }
-  onDBApply = async () => {
-    const { toDeleteDataList, toCreateDataList, toUpdateDataList, data } = this.state;
-    if (toCreateDataList.length === 0 &&
-      toDeleteDataList.length === 0 &&
-      toUpdateDataList.length === 0) {
-      window.alert('적용 할 내용 없음');
-      return;
-    }
-    const msg = `
-      ${toCreateDataList.length} 개 생성
-      ${toDeleteDataList.map(v => `${v}번 `)} 삭제
-      ${toUpdateDataList.map(v => `${v}번 `)} 업데이트
-    `
-    const confirm = window.confirm(msg)
 
-    if (!confirm) {
-      return;
-    }
-    if (toCreateDataList.length > 0) {
-      toCreateDataList.map(v => {
-        if (v.key) {
-          delete v.key;
-        }
-      })
-      await createPoem(toCreateDataList);
-    }
-    if (toDeleteDataList.length > 0) {
-      await deletePoem(toDeleteDataList);
-    }
-    if (toUpdateDataList.length > 0) {
-      const filteredData = data.filter(v => {
-        return toUpdateDataList.includes(v.id);
-      })
-      await updatePoem(filteredData.map(v => {
-        return {
-          id: v.id,
-          name: v.name,
-          content: v.content,
-          point: v.point,
-          length: v.length,
-        };
-      }));
-    }
-    await this.getData();
-    this.setState({
-      toCreateDataList: [],
-      toDeleteDataList: [],
-      toUpdateDataList: [],
-    })
-  }
-
-  onCreate = (input) => {
+  onCreate = async (input) => {
     if (!input) {
       return;
     }
-    const { data, toCreateDataList } = this.state;
-    const date = new Date();
-    this.setState({
-      toCreateDataList: toCreateDataList.concat({
-        name: input.name,
-        poet_id: input.poet_id,
-        content: input.content,
-        point: input.point,
-        length: input.length,
-        key: date,
-      }),
-      data: data.concat({ id: 'NEW', ...input, auth_count: 0, key: date }),
-    })
+    delete input.poet;
+    if(await createPoem(input)){
+      window.alert('생성완료');
+    }else{
+      window.alert('생성실패');
+    }
+    await this.getData();
   }
 
-  onDelete = (input) => {
-    if (input.key) {
-      const { toCreateDataList, data } = this.state;
-      this.setState({
-        toCreateDataList: toCreateDataList.filter(v => {
-          return v.key !== input.key
-        }),
-        data: data.filter(v => {
-          return v.key !== input.key
-        }),
-      });
-      return;
+  onDelete = async (input) => {
+    if(window.confirm('정말로 삭제 하시겠습니까?')){
+      if(await deletePoem(input.id)){
+        window.alert('삭제완료')
+      }else{
+        window.alert('삭제실패')
+      }
     }
-    const { toDeleteDataList } = this.state;
-    if (toDeleteDataList.includes(input.id)) {
-      this.setState({
-        toDeleteDataList: toDeleteDataList.filter(v => v !== input.id),
-      })
-      return;
-    }
-    this.setState({
-      toDeleteDataList: toDeleteDataList.concat(input.id),
-    })
+    await this.getData();
   }
 
-  onUpdate = (input) => {
-    const { data } = this.state;
-    if (input.key) {
-      const { toCreateDataList } = this.state;
-      this.setState({
-        toCreateDataList: toCreateDataList.map(v => {
-          if (v.key === input.key) {
-            return {
-              name: input.name,
-              poet_id: input.poet_id,
-              content: input.content,
-              point: input.point,
-              length: input.length,
-              key: input.key,
-            };
-          }
-          return v;
-        }),
-        data: data.map(v => {
-          if (v.key === input.key) {
-            return input;
-          }
-          return v;
-        }),
-      });
-      return;
+  onUpdate = async (input) => {
+    if(await updatePoem({
+      id: input.id,
+      name: input.name,
+      content: input.content,
+      point: input.point,
+      length: input.length,
+    })){
+      window.alert('수정완료');
+    }else{
+      window.alert('수정실패');
     }
-    const { toUpdateDataList } = this.state;
-    if (!toUpdateDataList.includes(input.id)) {
-      this.setState({
-        toUpdateDataList: toUpdateDataList.concat(input.id),
-      })
-    }
-    this.setState({
-      data: data.map(v => {
-        if (v.id === input.id) {
-          return input;
-        }
-        return v;
-      }),
-    })
   }
 
   render() {
-    const { data, toDeleteDataList, toCreateDataList, toUpdateDataList } = this.state;
+    const { data } = this.state;
     return (
       <div className='main'>
         <ControlBtns title='시' match={this.props.match} onApply={this.onDBApply} />
@@ -175,7 +73,6 @@ export class PoemContainer extends Component {
         <Route path='/poem/create' render={() => <PoemRegister onRegister={this.onCreate} />} />
         <Route path='/poem' render={() =>
           <PoemTable data={data}
-            toDeleteDataList={toDeleteDataList}
             onDelete={this.onDelete}
             onUpdate={this.onUpdate}
           />}

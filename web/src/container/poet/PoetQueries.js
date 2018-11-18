@@ -12,34 +12,31 @@ const getAllPoet = async () => {
   return result.data.data.getAllPoet;
 }
 
-const updatePoet = async (input_list) => {
-  const query = `mutation($input_list:[UpdatePoetInput]){
-    updatePoet(input_list:$input_list){
-      isSuccess
-    }
+const updatePoet = async (input) => {
+  const query = `mutation($input:UpdatePoetInput!){
+    updatePoet(input:$input)
   }`
   const result = await axios.post(serverInfo.serverURL,
     {
       query,
       variables: {
-        input_list,
+        input,
       }
     }
   );
   return result.data.data.updatePoet;
 }
 
-const deletePoet = async (id_list) => {
-  const query = `mutation($id_list:[ID]!){
-    deletePoet(id_list:$id_list){
-      isSuccess
-    }
+const deletePoet = async (id) => {
+  console.log(id);
+  const query = `mutation($id:ID!){
+    deletePoet(id:$id)
   }`
   const result = await axios.post(serverInfo.serverURL,
     {
       query,
       variables: {
-        id_list
+        id
       }
     }
   );
@@ -47,10 +44,8 @@ const deletePoet = async (id_list) => {
 }
 
 const createPoet = async (input) => {
-  const query = `mutation($input:[CreatePoetInput]!){
-    createPoet(input_list:$input){
-      isSuccess
-    }
+  const query = `mutation($input:CreatePoetInput!){
+    createPoet(input:$input)
   }`
   const result = await axios.post(serverInfo.serverURL,
     {

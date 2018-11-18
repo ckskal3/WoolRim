@@ -16,52 +16,46 @@ const getAllNotice = async () => {
   return result.data.data.getAllNotice;
 }
 
-const updateNotice = async (input_list) => {
+const updateNotice = async (input) => {
   
-  const query = `mutation($input_list:[UpdateNoticeInput]){
-    updateNotice(input_list:$input_list){
-      isSuccess
-    }
+  const query = `mutation($input:UpdateNoticeInput!){
+    updateNotice(input:$input)
   }`
   const result = await axios.post(serverInfo.serverURL,
     {
       query,
       variables: {
-        input_list,
+        input,
       }
     }
   );
   return result.data.data.updateNotice;
 }
 
-const deleteNotice = async (id_list) => {
-  const query = `mutation($id_list:[ID]!){
-    deleteNotice(id_list:$id_list){
-      isSuccess
-    }
+const deleteNotice = async (id) => {
+  const query = `mutation($id:ID!){
+    deleteNotice(id:$id)
   }`
   const result = await axios.post(serverInfo.serverURL,
     {
       query,
       variables: {
-        id_list
+        id
       }
     }
   );
   return result.data.data.deleteNotice;
 }
 
-const createNotice = async (input_list) => {
-  const query = `mutation($input_list:[CreateNoticeInput]!){
-    createNotice(input_list:$input_list){
-      isSuccess
-    }
+const createNotice = async (input) => {
+  const query = `mutation($input:CreateNoticeInput!){
+    createNotice(input:$input)
   }`
   const result = await axios.post(serverInfo.serverURL,
     {
       query,
       variables: {
-        input_list,
+        input,
       }
     }
   );

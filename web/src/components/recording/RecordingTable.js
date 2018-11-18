@@ -20,58 +20,34 @@ export class RecordingTable extends Component {
     if (columnIndex === 7) {
       columnIndex--;
     }
-    const { data, toDeleteDataList } = this.props;
+    const { data } = this.props;
     const columnName = dataKey(data, columnIndex);
-    if (columnName === 'date') {
+    if (columnName === 'created') {
       data[rowIndex][columnName] = dateFormatter(data[rowIndex][columnName]);
     }
-    if (toDeleteDataList.includes(data[rowIndex].id)) {
-      return <Cell key={data[rowIndex].id} intent={Intent.DANGER}><div onClick={this.onClickCellToDelete}>{data[rowIndex][columnName]}</div></Cell>
-    } else {
-      return <Cell key={data[rowIndex].id}>{data[rowIndex][columnName]}</Cell>
-    }
+    return <Cell key={data[rowIndex].id}>{data[rowIndex][columnName]}</Cell>
   }
 
   joinedCellRenderer = (rowIndex, columnIndex) => {
-    const { data, toDeleteDataList } = this.props;
+    const { data } = this.props;
     const columnName = dataKey(data, columnIndex);
-    if (toDeleteDataList.includes(data[rowIndex].id)) {
-      return (
-        <Cell
-          key={data[rowIndex].id}
-          intent={Intent.DANGER}>
-          {data[rowIndex][columnName].name}
-        </Cell>
-      );
-    } else {
-      return (
-        <Cell
-          key={data[rowIndex].id}>
-          {data[rowIndex][columnName].name}
-        </Cell>
-      );
-    }
+    return (
+      <Cell
+        key={data[rowIndex].id}>
+        {data[rowIndex][columnName].name}
+      </Cell>
+    );
   }
 
   joinedJoinedCellRenderer = (rowIndex, columnIndex) => {
-    const { data, toDeleteDataList } = this.props;
+    const { data } = this.props;
     const columnName = dataKey(data, columnIndex);
-    if (toDeleteDataList.includes(data[rowIndex].id)) {
-      return (
-        <Cell
-          key={data[rowIndex].id}
-          intent={Intent.DANGER}>
-          {data[rowIndex].poem.poet.name}
-        </Cell>
-      );
-    } else {
-      return (
-        <Cell
-          key={data[rowIndex].id}>
-          {data[rowIndex].poem.poet.name}
-        </Cell>
-      );
-    }
+    return (
+      <Cell
+        key={data[rowIndex].id}>
+        {data[rowIndex].poem.poet.name}
+      </Cell>
+    );
   }
 
   managementCellRenderer = (rowIndex, columnIndex) => {
