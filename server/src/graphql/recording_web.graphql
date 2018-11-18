@@ -1,0 +1,8 @@
+type Query {
+  getRecording(id: ID!): Recording
+}
+
+type Mutation {
+  deleteAllRecording: Boolean!
+  deleteRecordingById(id: ID!): Boolean!
+}

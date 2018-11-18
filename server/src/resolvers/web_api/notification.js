@@ -1,4 +1,4 @@
-import { Notification } from '../model';
+import { Notification } from '../../model';
 
 const getAllNotification = async () => {
   return await Notification.query();

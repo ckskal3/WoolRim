@@ -1,8 +1,5 @@
-import { Poem, Poet } from '../model';
+import { Poem } from '../../model';
 import { getPoet } from './poet';
-const getAllPoem = async () => {
-  return await Poem.query();
-}
 
 const getPoem = async (id) => {
   return await Poem.find(id);
@@ -14,12 +11,17 @@ const createPoem = async (input) => {
 }
 
 const updatePoem = async (poem) => {
-  await Poem.find(poem.id).update(...poem);
+  await Poem.find(poem.id).update({
+    name: poem.name,
+    content: poem.content,
+    point: poem.point,
+    length: poem.length,
+  });
   return true;
 }
 
 const deletePoem = async (id) => {
-  await Poem.delete({ id });
+  await Poem.delete(id);
   return true;
 }
 
@@ -28,7 +30,6 @@ const poemWebResolver = {
     poet: (obj) => getPoet(obj.poet_id),
   },
   Query: {
-    getAllPoem: () => getAllPoem(),
     getPoem: (obj, { id }) => getPoem(id),
   },
   Mutation: {

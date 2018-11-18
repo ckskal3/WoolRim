@@ -1,0 +1,19 @@
+input CreateNoticeInput {
+  content: String!
+  user_id: ID!
+}
+
+input UpdateNoticeInput {
+  id: ID!
+  content: String!
+}
+
+type Query {
+  getAllNotice: [Notice!]!
+}
+
+type Mutation {
+  createNotice(input: CreateNoticeInput!): Boolean!
+  updateNotice(input: UpdateNoticeInput!): Boolean!
+  deleteNotice(id: ID!): Boolean!
+}

@@ -1,20 +1,9 @@
-import { Bookmark, User } from '../model';
+import { Bookmark } from '../../model';
 import { getUser } from './user';
 import { getRecording } from './recording';
 
 const getAllBookmark = async () => {
   return await Bookmark.query();
-}
-
-const createBookmark = async (input) => {
-  input.created = new Date();
-  await Bookmark.create(input);
-  return true;
-}
-
-const deleteBookmark = async (id) => {
-  await Bookmark.delete({ id });
-  return true;
 }
 
 const bookmarkWebResolver = {
@@ -25,10 +14,6 @@ const bookmarkWebResolver = {
   Query: {
     getAllBookmark: () => getAllBookmark(),
   },
-  Mutation: {
-    createBookmark: (obj, { input }) => createBookmark(input),
-    deleteBookmark: (obj, { id }) => deleteBookmark(id),
-  }
 }
 
 export { bookmarkWebResolver };

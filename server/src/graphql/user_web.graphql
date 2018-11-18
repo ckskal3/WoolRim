@@ -1,0 +1,9 @@
+type Query {
+  getAllUser: [User!]!
+  getUser(id: ID!): User
+}
+
+type Mutation {
+  deleteUser(id: ID!): Boolean!
+  updateUser(input: UpdateUserInput): Boolean!
+}

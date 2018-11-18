@@ -15,10 +15,11 @@ const createPoet = async (input) => {
 
 const updatePoet = async (poet) => {
   await Poet.find(poet.id).update({ name: poet.name });
+  return true;
 }
 
 const deletePoet = async (id) => {
-  await Poet.delete(id);
+  await Poet.delete({ id });
   return true;
 }
 

@@ -2,20 +2,18 @@ import { Recording } from '../../model';
 import { getUser } from './user';
 import { getPoem } from './poem';
 
-const getAllRecording = async () => {
-  return await Recording.query();
-}
-
 const getRecording = async (id) => {
   return await Recording.find(id);
 }
 
-const deleteRecording = async (id) => {
+const deleteRecordingById = async (id) => {
   await Recording.delete(id);
+  return true;
 }
 
 const deleteAllRecording = async () => {
   await Recording.delete();
+  return true;
 }
 
 const recordingWebResolver = {
@@ -29,12 +27,11 @@ const recordingWebResolver = {
     WAITING: 0,
   },
   Query: {
-    getAllRecording: () => getAllRecording(),
     getRecording: (obj, { id }) => getRecording(id),
   },
   Mutation: {
     deleteAllRecording: () => deleteAllRecording(),
-    deleteRecording: (obj, { input }) => deleteRecording(input),
+    deleteRecordingById: (obj, { id }) => deleteRecordingById(id),
   }
 }
 

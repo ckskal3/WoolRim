@@ -1,4 +1,4 @@
-import { User } from '../model';
+import { User } from '../../model';
 
 const getAllUser = async () => {
   return await User.query();

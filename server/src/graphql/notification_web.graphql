@@ -1,0 +1,14 @@
+input CreateNotificationInput {
+  content: String!
+  user_id: ID!
+}
+
+type Query {
+  getAllNotification: [Notification!]!
+}
+
+type Mutation {
+  deleteAllNotification: Boolean!
+  createNotification(input: CreateNotificationInput!): Boolean!
+  deleteNotification(id: ID!): Boolean!
+}
