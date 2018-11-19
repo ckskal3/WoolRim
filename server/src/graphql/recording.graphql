@@ -37,10 +37,15 @@ type getAllRecordingResult {
   recording_list: [Recording!]!
 }
 
+type getRecordingForPlayResult {
+  recording: Recording
+  isBookmarked: Boolean!
+}
+
 type Query {
   getAllRecording(stu_id: Int): getAllRecordingResult
   getAllRecordingByLogin(stu_id: Int): [Recording!]!
-  getRecordingForPlay(poem_id: ID!, user_id: ID): [Recording!]!
+  getRecordingForPlay(poem_id: ID!, user_id: ID, isMy: Boolean!): [getRecordingForPlayResult!]!
 }
 
 type Mutation {

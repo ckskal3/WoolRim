@@ -1,4 +1,4 @@
-import { Recording, User, Poem } from '../../model';
+import { Recording, User, Poem, Bookmark } from '../../model';
 import { getUser } from '../web_api/user';
 import { getPoem } from '../web_api/poem';
 
@@ -56,12 +56,44 @@ export const getAllRecordingByLogin = async (stu_id) => {
   }
 }
 
-export const getRecordingForPlay = async (poem_id, user_id) => {
+export const getRecordingForPlay = async (poem_id, user_id, isMy) => {
   try {
-    if(user_id){
-      return await Recording.where({ poem_id, user_id });
-    }else{
-      return await Recording.where({ poem_id });
+    if (user_id) { // 로그인
+      if (isMy) { // 나의 녹음 플레이
+        const recording_list = await Recording.where({ poem_id, user_id });
+        return recording_list.map(async recording => {
+          let isBookmarked = true;
+          const bookmark = await Bookmark.where({ recording_id: recording.id, user_id });
+          if (bookmark.length === 0) {
+            isBookmarked = false;
+          }
+          return {
+            isBookmarked,
+            recording: recording,
+          }
+        });
+      } else {
+        const recording_list = await Recording.where({ poem_id });
+        return recording_list.map(async recording => {
+          let isBookmarked = true;
+          const bookmark = await Bookmark.where({ recording_id: recording.id, user_id });
+          if (bookmark.length === 0) {
+            isBookmarked = false;
+          }
+          return {
+            isBookmarked,
+            recording: recording,
+          }
+        });
+      }
+    } else { // 비로그인
+      const recording_list = await Recording.where({ poem_id });
+      return recording_list.map(async recording => {
+        return {
+          isBookmarked: false,
+          recording: recording,
+        }
+      });
     }
   } catch (err) {
     return [];
@@ -156,7 +188,7 @@ const recordingResolver = {
   },
   Query: {
     getAllRecording: (obj, { stu_id }) => getAllRecording(stu_id),
-    getRecordingForPlay: (obj, { poem_id, user_id }) => getRecordingForPlay(poem_id, user_id),
+    getRecordingForPlay: (obj, { poem_id, user_id, isMy }) => getRecordingForPlay(poem_id, user_id, isMy),
   },
   Mutation: {
     applyRecording: (obj, { id_list }) => applyRecording(id_list),
