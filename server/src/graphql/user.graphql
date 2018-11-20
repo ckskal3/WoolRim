@@ -18,13 +18,10 @@ input CreateUserInput {
 }
 
 input UpdateUserInput {
-  name: String
-  univ: String
-  stu_id: Int
-  gender: String
+  id: ID!
+  name: String!
   passwd: String
-  bongsa_time: Int
-  profile: String
+  profile: String!
 }
 
 type UserResult {
@@ -43,5 +40,5 @@ type Mutation {
   createUser(input: CreateUserInput!): UserResult!
   login(stu_id: Int!, passwd: String!): LoginResult!
   adminLogin(name: String!, passwd: String!): LoginResult!
-  modifyUser(input: UpdateUserInput): UserResult!
+  modifyUser(input: UpdateUserInput!): UserResult!
 }

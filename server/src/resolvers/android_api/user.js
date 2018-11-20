@@ -41,7 +41,26 @@ const login = async (stu_id, passwd) => {
     }
   }
 }
-
+const modifyUser = async (input) => {
+  if (input.passwd) {
+    const encryption = await pbkdf2.pbkdf2Sync(input.passwd, input.name, 30, 32, 'sha512');
+    await User.find(input.id).update({
+      name: input.name,
+      passwd: encryption,
+      profile: input.profile,
+    })
+    return {
+      isSuccess: true,
+    }
+  }
+  await User.find(input.id).update({
+    name: input.name,
+    profile: input.profile,
+  })
+  return {
+    isSuccess: true,
+  }
+}
 const userResolver = {
   LoginResult: {
     unreadCount: (obj) => getUnreadCount(obj.user.id),
@@ -49,6 +68,7 @@ const userResolver = {
     notification_list: (obj) => getNotificationByLogin(obj.user.stu_id),
   },
   Mutation: {
+    modifyUser: (obj, { input }) => modifyUser(input),
     createUser: (obj, { input }) => createUser(input),
     login: (obj, { stu_id, passwd }) => login(stu_id, passwd),
   }
