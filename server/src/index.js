@@ -25,6 +25,7 @@ const upload = multer({ storage: storage });
 const apiServer = express();
 const fileServer = express();
 
+fileServer.use(express.static(path.join(__dirname,'../../../woolrim_storage/')));
 fileServer.use(cors());
 fileServer.set('view engine', 'jade')
 fileServer.set('views', __dirname + '/templates')
@@ -56,6 +57,11 @@ fileServer.post('/upload', upload.single('user_recording'), function (req, res) 
 fileServer.get('/upload', function (req, res) {
   res.render('upload');
 });
+
+fileServer.get('/:id/:filename' ,function(req, res) {
+  res.sendFile(path.join(__dirname,`../../../woolrim_storage/${req.params.id}/${req.params.filename}`))
+  // res.sendFile(path.join(__dirname,`../uploads/${req.params.id}/${req.params.filename}`))
+})
 
 fileServer.listen(4000, () => {
   console.log('4000번 file 서버 포트 개방!!');
