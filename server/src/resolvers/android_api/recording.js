@@ -55,8 +55,7 @@ export const getAllRecordingByLogin = async (stu_id) => {
     return [];
   }
 }
-
-export const getRecordingForPlay = async (poem_id, user_id, isMy) => {
+const getRecordingForPlay = async (poem_id, user_id, isMy) => {
   try {
     if (user_id) { // 로그인
       if (isMy) { // 나의 녹음 플레이

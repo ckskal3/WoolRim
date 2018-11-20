@@ -6,8 +6,10 @@ type Bookmark {
 }
 
 input createBookmarkInput {
+  user_id: ID!
   recording_id: ID!
 }
+
 type createBookmarkResult {
   isSuccess: Boolean!
 }

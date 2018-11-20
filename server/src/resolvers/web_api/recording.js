@@ -2,7 +2,7 @@ import { Recording } from '../../model';
 import { getUser } from './user';
 import { getPoem } from './poem';
 
-const getRecording = async (id) => {
+export const getRecording = async (id) => {
   return await Recording.find(id);
 }
 

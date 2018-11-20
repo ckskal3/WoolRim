@@ -1,4 +1,5 @@
 # import Mutation.* from 'user.graphql'
+# import Query.* from 'user.graphql'
 
 # import Query.* from 'notice.graphql'
 

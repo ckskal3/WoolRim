@@ -41,6 +41,21 @@ const login = async (stu_id, passwd) => {
     }
   }
 }
+
+const getMainInfo = async (stu_id) => {
+  const user = await User.where({ stu_id, }).one();
+  if (user) {
+    return {
+      isSuccess: true,
+      user,
+    }
+  } else {
+    return {
+      isSuccess: false,
+    }
+  }
+}
+
 const modifyUser = async (input) => {
   if (input.passwd) {
     const encryption = await pbkdf2.pbkdf2Sync(input.passwd, input.name, 30, 32, 'sha512');
@@ -66,6 +81,9 @@ const userResolver = {
     unreadCount: (obj) => getUnreadCount(obj.user.id),
     recording_list: (obj) => getAllRecordingByLogin(obj.user.stu_id),
     notification_list: (obj) => getNotificationByLogin(obj.user.stu_id),
+  },
+  Query: {
+    getMainInfo: (obj, { stu_id }) => getMainInfo(stu_id),
   },
   Mutation: {
     modifyUser: (obj, { input }) => modifyUser(input),

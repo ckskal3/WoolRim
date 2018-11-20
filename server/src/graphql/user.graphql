@@ -36,6 +36,10 @@ type LoginResult {
   notification_list: [Notification!]!
 }
 
+type Query {
+  getMainInfo(stu_id: Int!): LoginResult!
+}
+
 type Mutation {
   createUser(input: CreateUserInput!): UserResult!
   login(stu_id: Int!, passwd: String!): LoginResult!

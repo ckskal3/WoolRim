@@ -2,6 +2,7 @@ type Notification {
   id: ID!
   content: String!
   created: String!
+  read_flag: Boolean!
 }
 
 type NotificationResult {
