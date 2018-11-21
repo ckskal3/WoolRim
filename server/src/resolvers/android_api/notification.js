@@ -1,4 +1,4 @@
-import { Notification, User } from '../model';
+import { Notification, User } from '../../model';
 
 export const getNotificationByLogin = async (stu_id) => {
   try {
@@ -52,40 +52,6 @@ const readAllNotification = async (user_id) => {
     return false;
   }
 }
-const createNotification = async (input_list) => {
-  input_list.map(item => {
-    item.created = new Date();
-  });
-  try {
-    await Notification.createBulk(input_list);
-    return {
-      isSuccess: true,
-    };
-  } catch (err) {
-    console.log('createNotification has err : ', err);
-    return {
-      isSuccess: false,
-    };
-  }
-}
-
-const deleteNotification = async (id_list) => {
-  try {
-    await Notification.delete(id_list);
-    return {
-      isSuccess: true,
-    };
-  } catch (err) {
-    console.log('createNotification has err : ', err);
-    return {
-      isSuccess: false,
-    };
-  }
-}
-
-const deleteAllNotification = async () => {
-  await Notification.delete();
-}
 
 const notificationResolver = {
   Query: {
@@ -93,11 +59,8 @@ const notificationResolver = {
     getUnreadCount: (obj, { user_id }) => getUnreadCount(user_id),
   },
   Mutation: {
-    deleteAllNotification: () => deleteAllNotification(),
     readAllNotification: (obj, { user_id }) => readAllNotification(user_id),
-    createNotification: (obj, { input_list }) => createNotification(input_list),
-    deleteNotification: (obj, { id_list }) => deleteNotification(id_list),
   }
 }
 
-export { notificationResolver };
+export { notificationResolver, getUnreadCount };

@@ -11,7 +11,7 @@ class NoticeRegister extends Component {
 
   onSubmit = () => {
     const { content } = this.state;
-    this.props.onRegister(content);
+    this.props.onRegister({content});
     this.setState({
       content: '',
     })

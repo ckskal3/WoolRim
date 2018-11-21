@@ -1,6 +1,6 @@
-import { Bookmark, User } from '../model';
+import { Bookmark, User } from '../../model';
 import { getUser } from './user';
-import { getRecording } from './recording';
+import { getRecording } from '../web_api/recording';
 
 const getBookmarkList = async (stu_id) => {
   try {

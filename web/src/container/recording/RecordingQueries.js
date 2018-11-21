@@ -26,39 +26,19 @@ const getAllRecording = async () => {
   return result.data.data.getAllRecording.recording_list;
 }
 
-const deleteRecording = async (id_list) => {
-  const query = `mutation($id_list:[ID]!){
-    deleteRecordingById(id_list:$id_list){
-      isSuccess
-    }
+const deleteRecording = async (id) => {
+  const query = `mutation($id:ID!){
+    deleteRecordingById(id:$id)
   }`
   const result = await axios.post(serverInfo.serverURL,
     {
       query,
       variables: {
-        id_list
+        id
       }
     }
   );
   return result.data.data.deleteRecording;
 }
 
-const createRecording = async (input) => {
-  const query = `mutation($input: CreateRecordingInput!){
-    createRecording(input: $input){
-      isSuccess
-    }
-  }`
-  const result = await axios.post(serverInfo.serverURL,
-    {
-      query,
-      variables: {
-        input,
-      }
-    }
-  );
-  return result.data.data.createRecording;
-}
-
-
-export { getAllRecording, deleteRecording, createRecording }
+export { getAllRecording, deleteRecording }

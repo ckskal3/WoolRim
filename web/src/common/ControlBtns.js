@@ -23,13 +23,11 @@ class ControlBtns extends Component {
   }
   render() {
     const { title, path } = this.state;
-    const { onApply } = this.props;
     return (
       <ButtonGroup>
         <Link to={path} style={{ textDecoration: 'none' }}>
           <Button icon='annotation' text={`${title} 작성`} onClick={this.toggle}/>
         </Link>
-        <Button rightIcon="arrow-right" intent="success" text={`${title} DB에 적용`} onClick={onApply} />
       </ButtonGroup>
     )
   }

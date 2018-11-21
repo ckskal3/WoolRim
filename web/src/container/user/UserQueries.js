@@ -18,4 +18,19 @@ const getAllUser = async () => {
   return result.data.data.getAllUser;
 }
 
-export { getAllUser }
+const deleteUser = async (id) => {
+  const query = `mutation($id:ID!) {
+    deleteUser(id:$id)
+  }`
+  const result = await axios.post(serverInfo.serverURL,
+    {
+      query,
+      variables: {
+        id,
+      }
+    }
+  );
+  return result.data.data.deleteUser;
+}
+
+export { getAllUser, deleteUser }

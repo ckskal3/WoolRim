@@ -13,40 +13,38 @@ const getAllPoem = async () => {
       point
       length
       auth_count
+      auth_count_woman
+      auth_count_man
     }
   }`;
   const result = await axios.post(serverInfo.serverURL, { query });
   return result.data.data.getAllPoem;
 }
 
-const updatePoem = async (input_list) => {
-  const query = `mutation($input_list:[UpdatePoemInput]){
-    updatePoem(input_list:$input_list){
-      isSuccess
-    }
+const updatePoem = async (input) => {
+  const query = `mutation($input:UpdatePoemInput!){
+    updatePoem(input:$input)
   }`
   const result = await axios.post(serverInfo.serverURL,
     {
       query,
       variables: {
-        input_list,
+        input,
       }
     }
   );
   return result.data.data.updatePoem;
 }
 
-const deletePoem = async (id_list) => {
-  const query = `mutation($id_list:[ID]!){
-    deletePoem(id_list:$id_list){
-      isSuccess
-    }
+const deletePoem = async (id) => {
+  const query = `mutation($id:ID!){
+    deletePoem(id:$id)
   }`
   const result = await axios.post(serverInfo.serverURL,
     {
       query,
       variables: {
-        id_list
+        id
       }
     }
   );
@@ -54,10 +52,8 @@ const deletePoem = async (id_list) => {
 }
 
 const createPoem = async (input) => {
-  const query = `mutation($input:[CreatePoemInput]!){
-    createPoem(input_list:$input){
-      isSuccess
-    }
+  const query = `mutation($input:CreatePoemInput!){
+    createPoem(input:$input)
   }`
   const result = await axios.post(serverInfo.serverURL,
     {

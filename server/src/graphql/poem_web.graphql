@@ -1,0 +1,26 @@
+input CreatePoemInput {
+  name: String!
+  content: String!
+  point: Int!
+  length: Float!
+  poet_id: ID!
+}
+
+input UpdatePoemInput {
+  id: ID!
+  name: String!
+  content: String!
+  point: Int!
+  length: Float!
+}
+
+type Query {
+  getPoem(id: ID!): Poem
+  getAllPoem: [Poem!]!
+}
+
+type Mutation {
+  createPoem(input: CreatePoemInput!): Boolean!
+  updatePoem(input: UpdatePoemInput!): Boolean!
+  deletePoem(id: ID!): Boolean!
+}

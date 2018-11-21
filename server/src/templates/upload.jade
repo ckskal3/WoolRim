@@ -4,6 +4,9 @@ html
     meta(charset='utf-8')
   body
     form(action='upload' method='post' enctype="multipart/form-data")
-      input(type='file' name='userfile')
-      input(type='text' name='userid')
+      label 학번
+      input(type='text' name='stu_id')
+      br
+      br
+      input(type='file' name='user_recording')
       input(type='submit')

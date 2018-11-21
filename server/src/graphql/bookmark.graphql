@@ -5,20 +5,22 @@ type Bookmark {
   created: String!
 }
 
-input createBookmarkInput {
+input CreateBookmarkInput {
+  user_id: ID!
   recording_id: ID!
 }
-type createBookmarkResult {
+
+type CreateBookmarkResult {
   isSuccess: Boolean!
 }
 
-type deleteBookmarkResult {
+type DeleteBookmarkResult {
   isSuccess: Boolean!
 }
 
 type Mutation {
-  createBookmark(input: createBookmarkInput!): createBookmarkResult!
-  deleteBookmark(id_list: [ID!]!): deleteBookmarkResult!
+  createBookmark(input: CreateBookmarkInput!): CreateBookmarkResult!
+  deleteBookmark(id_list: [ID!]!): DeleteBookmarkResult!
 }
 
 type Query {

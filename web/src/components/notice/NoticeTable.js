@@ -1,6 +1,5 @@
 import React, { Component } from 'react'
 import { Column, Table, Cell, EditableCell } from "@blueprintjs/table";
-import { Intent } from '@blueprintjs/core';
 
 import { dataKey, dateFormatter } from '../../common/Tools';
 import Remover from '../../common/Remover';
@@ -17,16 +16,12 @@ export class NoticeTable extends Component {
   }
 
   cellRenderer = (rowIndex, columnIndex) => {
-    const { data, toDeleteDataList } = this.props;
+    const { data } = this.props;
     const columnName = dataKey(data, columnIndex);
-    if (columnName === 'date') {
+    if (columnName === 'created') {
       data[rowIndex][columnName] = dateFormatter(data[rowIndex][columnName]);
     }
-    if (toDeleteDataList.includes(data[rowIndex].id)) {
-      return <Cell key={data[rowIndex].id} intent={Intent.DANGER}><div onClick={this.onClickCellToDelete}>{data[rowIndex][columnName]}</div></Cell>
-    } else {
-      return <Cell key={data[rowIndex].id}>{data[rowIndex][columnName]}</Cell>
-    }
+    return <Cell key={data[rowIndex].id}>{data[rowIndex][columnName]}</Cell>
   }
 
   onCellConfirm = (value, rowIndex, columnIndex) => {
@@ -37,57 +32,31 @@ export class NoticeTable extends Component {
   }
 
   editableCellRenderer = (rowIndex, columnIndex) => {
-    const { data, toDeleteDataList } = this.props;
+    const { data } = this.props;
     const columnName = dataKey(data, columnIndex);
-    if (toDeleteDataList.includes(data[rowIndex].id)) {
-      return (
-        <EditableCell
-          key={data[rowIndex].id}
-          intent={Intent.DANGER}
-          rowIndex={rowIndex}
-          columnIndex={columnIndex}
-          value={data[rowIndex][columnName]}
-          onConfirm={this.onCellConfirm}
-        />
-      );
-    } else {
-      return (
-        <EditableCell
-          key={data[rowIndex].id}
-          rowIndex={rowIndex}
-          columnIndex={columnIndex}
-          value={data[rowIndex][columnName]}
-          onConfirm={this.onCellConfirm}
-        />
-      );
-    }
+    return (
+      <EditableCell
+        key={data[rowIndex].id}
+        rowIndex={rowIndex}
+        columnIndex={columnIndex}
+        value={data[rowIndex][columnName]}
+        onConfirm={this.onCellConfirm}
+      />
+    );
   }
 
   joinedCellRenderer = (rowIndex, columnIndex) => {
-    const { data, toDeleteDataList } = this.props;
+    const { data } = this.props;
     const columnName = dataKey(data, columnIndex);
-    if (toDeleteDataList.includes(data[rowIndex].id)) {
-      return (
-        <EditableCell
-          key={data[rowIndex].id}
-          intent={Intent.DANGER}
-          rowIndex={rowIndex}
-          columnIndex={columnIndex}
-          value={data[rowIndex][columnName].name}
-          onConfirm={this.onCellConfirm}
-        />
-      );
-    } else {
-      return (
-        <EditableCell
-          key={data[rowIndex].id}
-          rowIndex={rowIndex}
-          columnIndex={columnIndex}
-          value={data[rowIndex][columnName].name}
-          onConfirm={this.onCellConfirm}
-        />
-      );
-    }
+    return (
+      <EditableCell
+        key={data[rowIndex].id}
+        rowIndex={rowIndex}
+        columnIndex={columnIndex}
+        value={data[rowIndex][columnName].name}
+        onConfirm={this.onCellConfirm}
+      />
+    );
   }
 
   managementCellRenderer = (rowIndex, columnIndex) => {

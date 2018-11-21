@@ -4,7 +4,7 @@ import { Route } from 'react-router-dom';
 import { RecordingTable } from '../../components';
 import ControlBtns from '../../common/ControlBtns';
 import RecordingRegister from '../../components/recording/RecordingRegister';
-import { getAllRecording, deleteRecording, createRecording } from './RecordingQueries';
+import { getAllRecording, deleteRecording } from './RecordingQueries';
 import '../Container.css';
 
 export class RecordingContainer extends Component {
@@ -12,8 +12,6 @@ export class RecordingContainer extends Component {
     super(props)
     this.state = {
       data: [],
-      toCreateDataList: [],
-      toDeleteDataList: [],
     }
   }
 
@@ -28,79 +26,15 @@ export class RecordingContainer extends Component {
     })
   }
 
-  onDBApply = async () => {
-    const { toDeleteDataList, toCreateDataList, toUpdateDataList, data } = this.state;
-    if (toCreateDataList.length === 0 &&
-      toDeleteDataList.length === 0) {
-      window.alert('적용 할 내용 없음');
-      return;
+  onDelete = async (input) => {
+    if(window.confirm('정말로 삭제 하시겠습니까?')){
+      if(await deleteRecording(input.id)){
+        window.alert('삭제완료');
+      }else{
+        window.alert('삭제실패');
+      }
     }
-    const msg = `
-      ${toCreateDataList.length} 개 생성
-      ${toDeleteDataList.map(v => `${v}번 `)} 삭제`
-    const confirm = window.confirm(msg)
-
-    if (!confirm) {
-      return;
-    }
-    if (toCreateDataList.length > 0) {
-      toCreateDataList.map(v => {
-        if (v.key) {
-          delete v.key;
-        }
-      })
-      await createRecording(toCreateDataList);
-    }
-    if (toDeleteDataList.length > 0) {
-      await deleteRecording(toDeleteDataList);
-    }
-    
-    await this.getData();
-
-    this.setState({
-      toCreateDataList: [],
-      toDeleteDataList: [],
-    })
-  }
-
-  onCreate = (input) => {
-    if (!input) {
-      return;
-    }
-    const { data, toCreateDataList } = this.state;
-    const date = new Date();
-    this.setState({
-      toCreateDataList: toCreateDataList.concat({
-        name: input.name,
-        key: date,
-      }),
-      data: data.concat({ id: 'NEW', ...input, key: date }),
-    })
-  }
-
-  onDelete = (input) => {
-    if (input.key) {
-      const { toCreateDataList, data } = this.state;
-      this.setState({
-        toCreateDataList: toCreateDataList.filter(v => {
-          return v.key !== input.key
-        }),
-        data: data.filter(v => {
-          return v.key !== input.key
-        }),
-      });
-      return;
-    }
-    const { toDeleteDataList } = this.state;
-    if (toDeleteDataList.includes(input.id)) {
-      this.setState({
-        toDeleteDataList: toDeleteDataList.filter(v => v !== input.id),
-      })
-      return;
-    }
-    this.setState({
-      toDeleteDataList: toDeleteDataList.concat(input.id),
-    })
+    await this.getData()
   }
 
   render() {

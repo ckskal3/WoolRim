@@ -1,14 +1,12 @@
-# import Query.* from 'user.graphql'
 # import Mutation.* from 'user.graphql'
+# import Query.* from 'user.graphql'
 
 # import Query.* from 'notice.graphql'
-# import Mutation.* from 'notice.graphql'
+
+# import * from 'poet.graphql'
 
 # import Query.* from 'poem.graphql'
 # import Mutation.* from 'poem.graphql'
-
-# import Query.* from 'poet.graphql'
-# import Mutation.* from 'poet.graphql'
 
 # import Query.* from 'recording.graphql'
 # import Mutation.* from 'recording.graphql'
@@ -18,3 +16,23 @@
 
 # import Query.* from 'bookmark.graphql'
 # import Mutation.* from 'bookmark.graphql'
+
+# import Query.* from 'user_web.graphql'
+# import Mutation.* from 'user_web.graphql'
+
+# import Query.* from 'notice_web.graphql'
+# import Mutation.* from 'notice_web.graphql'
+
+# import Query.* from 'poem_web.graphql'
+# import Mutation.* from 'poem_web.graphql'
+
+# import Query.* from 'poet_web.graphql'
+# import Mutation.* from 'poet_web.graphql'
+
+# import Query.* from 'recording_web.graphql'
+# import Mutation.* from 'recording_web.graphql'
+
+# import Query.* from 'notification_web.graphql'
+# import Mutation.* from 'notification_web.graphql'
+
+# import Query.* from 'bookmark_web.graphql'

@@ -1,0 +1,19 @@
+input CreatePoetInput {
+  name: String!
+}
+
+input UpdatePoetInput {
+  id: ID!
+  name: String
+}
+
+type Query {
+  getPoet(id: ID!): Poet
+  getAllPoet: [Poet!]!
+}
+
+type Mutation {
+  createPoet(input: CreatePoetInput!): Boolean!
+  updatePoet(input: UpdatePoetInput!): Boolean!
+  deletePoet(id: ID!): Boolean!
+}

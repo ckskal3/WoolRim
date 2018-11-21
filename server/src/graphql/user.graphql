@@ -18,13 +18,10 @@ input CreateUserInput {
 }
 
 input UpdateUserInput {
-  name: String
-  univ: String
-  stu_id: Int
-  gender: String
+  id: ID!
+  name: String!
   passwd: String
-  bongsa_time: Int
-  profile: String
+  profile: String!
 }
 
 type UserResult {
@@ -34,21 +31,18 @@ type UserResult {
 type LoginResult {
   isSuccess: Boolean!
   user: User
+  unreadCount: Int!
   recording_list: [Recording!]!
   notification_list: [Notification!]!
 }
 
 type Query {
-  getUser(id: ID!): User
-  getAllUser: [User!]!
+  getMainInfo(stu_id: Int!): LoginResult!
 }
 
 type Mutation {
-  deleteAllUser: Boolean!
   createUser(input: CreateUserInput!): UserResult!
-  updateUser(id: ID!, input: UpdateUserInput): UserResult!
-  deleteUser(id: ID!): UserResult!
   login(stu_id: Int!, passwd: String!): LoginResult!
   adminLogin(name: String!, passwd: String!): LoginResult!
-  modifyUser(input: UpdateUserInput): UserResult!
+  modifyUser(input: UpdateUserInput!): UserResult!
 }

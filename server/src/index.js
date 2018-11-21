@@ -2,54 +2,67 @@ import express from 'express';
 import graphqlHTTP from 'express-graphql';
 import schema from './graphql/index';
 import cors from 'cors';
+import fs from 'fs';
+import path from 'path';
 
-const multer = require('multer'); // express에 multer모듈 적용 (for 파일업로드)
+const multer = require('multer');
+
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    console.log(req.body)
-    cb(null, 'uploads/') // cb 콜백함수를 통해 전송된 파일 저장 디렉토리 설정
+    const dir = path.join(__dirname,`../../../woolrim_storage/${req.body.stu_id}/`)
+    if(!fs.existsSync(dir)){
+      fs.mkdirSync(dir);
+    }
+    cb(null, dir)
   },
   filename: function (req, file, cb) {
-    cb(null, file.originalname) // cb 콜백함수를 통해 전송된 파일 이름 설정
+    cb(null, file.originalname)
   }
 })
-const bodyParser = require('body-parser')
 
-const upload = multer({ storage: storage })
+const upload = multer({ storage: storage });
 
-const app = express();
+const apiServer = express();
+const fileServer = express();
 
-app.use(cors());
-app.set('view engine', 'jade')
-app.set('views', __dirname + '/templates')
-app.use( bodyParser.json() );       // to support JSON-encoded bodies
-app.use(bodyParser.urlencoded({     // to support URL-encoded bodies
-  extended: true
-})); 
+fileServer.use(express.static(path.join(__dirname,'../../../woolrim_storage/')));
+fileServer.use(cors());
+fileServer.set('view engine', 'jade')
+fileServer.set('views', __dirname + '/templates')
 
-// app.get('/graphql', graphqlHTTP({
-//   schema,
-//   graphiql:true
-// }));
+apiServer.use(cors());
 
-app.post('/graphql', graphqlHTTP({
+apiServer.get('/graphql', graphqlHTTP({
   schema,
-  graphiql:false
+  graphiql: true
 }));
 
-app.get('/upload', function(req, res){
-  res.render('upload');
-});
+apiServer.post('/graphql', graphqlHTTP({
+  schema,
+  graphiql: false
+}));
 
-app.post('/upload', upload.single('file'), function(req, res){
-  res.status(200).send('Uploaded! : '+req.file.originalname); // object를 리턴함
-  console.log(req.body)
-});
-
-app.get('/', (req, res, next) => {
+apiServer.get('/', (req, res, next) => {
   res.send('hello im woolrim');
 });
 
-app.listen(3000,  () => {
-  console.log('3000번 포트 개방!!');
+apiServer.listen(3000, () => {
+  console.log('3000번 api 서버 포트 개방!!');
+});
+
+fileServer.post('/upload', upload.single('user_recording'), function (req, res) {
+  res.status(200).send('success');
+});
+
+fileServer.get('/upload', function (req, res) {
+  res.render('upload');
+});
+
+fileServer.get('/:id/:filename' ,function(req, res) {
+  res.sendFile(path.join(__dirname,`../../../woolrim_storage/${req.params.id}/${req.params.filename}`))
+  // res.sendFile(path.join(__dirname,`../uploads/${req.params.id}/${req.params.filename}`))
+})
+
+fileServer.listen(4000, () => {
+  console.log('4000번 file 서버 포트 개방!!');
 });
