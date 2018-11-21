@@ -26,8 +26,8 @@ public class RecordDAO {
 
     public void insertRecord(RecordItem recordItem) {
         ContentValues contentValues = new ContentValues();
-        contentValues.put(DBManagerHelper.COLUMN_RECORD_NAME, recordItem.name);
-        contentValues.put(DBManagerHelper.COLUMN_RECORD_PATH, recordItem.path);
+        contentValues.put(DBManagerHelper.COLUMN_RECORD_NAME, recordItem.fileName);
+        contentValues.put(DBManagerHelper.COLUMN_RECORD_PATH, recordItem.filePath);
         contentValues.put(DBManagerHelper.COLUMN_RECORD_STUDENT_ID, recordItem.studentId);
         contentValues.put(DBManagerHelper.COLUMN_RECORD_DURATION, recordItem.duration);
         database.insert(DBManagerHelper.RECORD_TABLE_NAME, null, contentValues);

@@ -304,8 +304,6 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
                     String finalMixPath = mFileNameAAC;
                     accEncoder.encodeToFile(finalMixPath);
                     mFilePath = mFileNameAAC;
-
-
                     isRecording = false;
                     isPaused = false;
 

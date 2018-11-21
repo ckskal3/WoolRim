@@ -23,6 +23,7 @@ import com.android.volley.error.VolleyError;
 import com.android.volley.request.StringRequest;
 import com.apollographql.apollo.ApolloCall;
 import com.apollographql.apollo.exception.ApolloException;
+import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 
 import java.util.ArrayList;
@@ -106,6 +107,9 @@ public class LoginFragment extends Fragment {
                     MainActivity.signInAndOutTv.setText(R.string.logout_kr);
                     MainActivity.profileChangeImageView.setVisibility(View.VISIBLE);
                     MainActivity.userNameTv.setText(R.string.user);
+                    WoolrimApplication.loginedUserName = getString(R.string.user);
+                    WoolrimApplication.loginedUserProfile = null;
+
 
                     if (requestCode == WoolrimApplication.REQUSET_RECORD_LIST_FRAGMENT) {
                         PoemListFragment poemListFragment = PoemListFragment.newInstance(bundle);
@@ -143,9 +147,9 @@ public class LoginFragment extends Fragment {
                             @Override
                             public void onResponse(@Nonnull com.apollographql.apollo.api.Response<GetNotification.Data> response) {
                                 int cnt = response.data().getNotification().notification_list().size();
-                                if(cnt>0){
-                                    for(GetNotification.Notification_list item : response.data().getNotification().notification_list()){
-                                        notificationItems.add(new MyRecordItem(item.id(),item.content(),null,false));
+                                if (cnt > 0) {
+                                    for (GetNotification.Notification_list item : response.data().getNotification().notification_list()) {
+                                        notificationItems.add(new MyRecordItem(item.id(), item.content(), null, false));
                                     }
                                 }
                             }
@@ -159,12 +163,18 @@ public class LoginFragment extends Fragment {
                             @Override
                             public void onResponse(@Nonnull com.apollographql.apollo.api.Response<GetLogin.Data> response) {
                                 if (response.data().login().isSuccess()) { //로그인 성공시
-                                    final String[] userData = new String[3];
+                                    final String[] userData = new String[4];
                                     userData[0] = response.data().login().user().profile();
                                     userData[1] = response.data().login().user().name();
                                     userData[2] = response.data().login().user().id();
+                                    userData[3] = String.valueOf(response.data().login().user().stu_id());
+
+                                    WoolrimApplication.loginedUserName = userData[1];
+                                    WoolrimApplication.loginedUserProfile = userData[0];
+                                    WoolrimApplication.loginedUserId = Integer.parseInt(userData[3]);
+
                                     int size = response.data().login().recording_list().size();
-                                    Log.d("Title",String.valueOf(size));
+                                    Log.d("Title", String.valueOf(size));
                                     WoolrimApplication.isLogin = true;
 
                                     getActivity().runOnUiThread(new Runnable() {
@@ -173,6 +183,7 @@ public class LoginFragment extends Fragment {
                                             MainActivity.signInAndOutTv.setText(R.string.logout_kr);
                                             MainActivity.profileChangeImageView.setVisibility(View.VISIBLE);
                                             MainActivity.userNameTv.setText(userData[1]);
+                                            Glide.with(getContext()).load(userData[0]).into(MainActivity.profileImageView);
                                             Toast.makeText(getContext(), userData[0], Toast.LENGTH_SHORT).show();
                                         }
                                     });
@@ -185,15 +196,15 @@ public class LoginFragment extends Fragment {
                                                 .commit();
                                         //                       .addToBackStack("LoginFagment")
                                     } else if (requestCode == WoolrimApplication.REQUSET_MY_MENU) {
-                                        ArrayList<MyRecordItem>  items = new ArrayList<>();
-                                        for (GetLogin.Recording_list list:response.data().login().recording_list()){
-                                            items.add(new MyRecordItem(list.id(),list.poem().poet().name(),list.poem().name(),false));
+                                        ArrayList<MyRecordItem> items = new ArrayList<>();
+                                        for (GetLogin.Recording_list list : response.data().login().recording_list()) {
+                                            items.add(new MyRecordItem(list.id(), list.poem().poet().name(), list.poem().name(), false));
                                         }
                                         Bundle bundle = new Bundle();
                                         bundle.putString("UserName", userData[1]);
-                                        bundle.putString("UserPK",userData[2]);
-                                        bundle.putParcelableArrayList("PoemList",items);
-                                        bundle.putParcelableArrayList("NotificationList",notificationItems);
+                                        bundle.putString("UserPK", userData[2]);
+                                        bundle.putParcelableArrayList("PoemList", items);
+                                        bundle.putParcelableArrayList("NotificationList", notificationItems);
                                         MyMenuFragment myMenuFragment = MyMenuFragment.newInstance(bundle);
                                         getActivity().getSupportFragmentManager()
                                                 .beginTransaction()
@@ -211,7 +222,6 @@ public class LoginFragment extends Fragment {
                                         }
                                     });
                                 }
-
                             }
 
                             @Override

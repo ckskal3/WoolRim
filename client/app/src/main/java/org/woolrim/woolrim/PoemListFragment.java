@@ -25,10 +25,14 @@ import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
 import com.google.gson.Gson;
 
+import org.woolrim.woolrim.DataItems.MyFavoritesItem;
 import org.woolrim.woolrim.DataItems.PoetItem;
 import org.woolrim.woolrim.DataItems.PoemAndPoetItem;
+import org.woolrim.woolrim.DataItems.RecordItem;
+import org.woolrim.woolrim.SQLiteDAO.FavoriteDAO;
 import org.woolrim.woolrim.SectionRecyclerView.SectionAddItem;
 import org.woolrim.woolrim.SectionRecyclerView.SectionItemViewHolder;
+import org.woolrim.woolrim.Utils.DBManagerHelper;
 
 import java.util.ArrayList;
 
@@ -38,7 +42,7 @@ import io.github.luizgrp.sectionedrecyclerviewadapter.SectionedRecyclerViewAdapt
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 
-public class PoemListFragment extends Fragment{
+public class PoemListFragment extends Fragment {
 
     private RecyclerView mRecyclerView;
     private SectionedRecyclerViewAdapter sectionAdapter;
@@ -65,7 +69,7 @@ public class PoemListFragment extends Fragment{
         assert bundle != null;
         poetDataArrayList = bundle.getParcelableArrayList("DataItems");
         pageCode = bundle.getInt(getString(R.string.request_code));
-        if(pageCode == WoolrimApplication.REQUSET_POEM_LIST_FRAGMENT){
+        if (pageCode == WoolrimApplication.REQUSET_POEM_LIST_FRAGMENT) {
             searchKey = bundle.getString("SearchKey");
         }
         return inflater.inflate(R.layout.frament_poemlist, container, false);
@@ -144,7 +148,7 @@ public class PoemListFragment extends Fragment{
             }
         });
 
-        if(searchKey != null){
+        if (searchKey != null) {
             searchPoemEditText.setText(searchKey);
         }
 
@@ -179,12 +183,12 @@ public class PoemListFragment extends Fragment{
         } else { //검색어 존재함
             for (PoetItem poetItem : poetDataArrayList) {
                 ArrayList<PoemAndPoetItem> poemAndPoetItems = new ArrayList<>();
-                for(PoemAndPoetItem dataItem : poetItem.poemName){
+                for (PoemAndPoetItem dataItem : poetItem.poemName) {
                     if (dataItem.poem.toLowerCase().contains(searchKey)) {
                         poemAndPoetItems.add(dataItem);
                     }
                 }
-                if(poemAndPoetItems.size()>0){ // 무언가 들어가있다.
+                if (poemAndPoetItems.size() > 0) { // 무언가 들어가있다.
                     String poetName = poetItem.poetName;
                     ArrayList<PoemAndPoetItem> dataItems = poemAndPoetItems;
 
@@ -195,20 +199,20 @@ public class PoemListFragment extends Fragment{
         }
     }
 
-    private void setHeaderAndItems(final String poetName, final ArrayList<PoemAndPoetItem> poemNames){
+    private void setHeaderAndItems(final String poetName, final ArrayList<PoemAndPoetItem> poemNames) {
         SectionAddItem sectionAddItem = new SectionAddItem(poetName, poemNames, pageCode);
         sectionAddItem.setOnItemClickListener(new SectionAddItem.OnItemClickListenr() {
             @Override
             public void onItemClick(SectionItemViewHolder holder, View view, int position) {
-                requestServerForPoemMedia(poemNames.get(sectionAdapter.getPositionInSection(position))._id ,poetName,  poemNames.get(sectionAdapter.getPositionInSection(position)).poem);
+                requestServerForPoemMedia(poemNames.get(sectionAdapter.getPositionInSection(position))._id, poetName, poemNames.get(sectionAdapter.getPositionInSection(position)).poem);
             }
         });
         sectionAdapter.addSection(sectionAddItem);
     }
 
-    private void requestServerForPoemMedia(int _id,String poetName, String poemName){
+    private void requestServerForPoemMedia(int _id, String poetName, String poemName) {
         Toast.makeText(getContext(),
-                poetName+" "+poemName,
+                poetName + " " + poemName,
                 Toast.LENGTH_SHORT).show();
 
         HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor();
@@ -219,24 +223,58 @@ public class PoemListFragment extends Fragment{
                 .build();
 
         final Bundle bundle = new Bundle();
-        bundle.putString("PoetName",poetName);
-        bundle.putString("PoemName",poemName);
+        bundle.putString("PoetName", poetName);
+        bundle.putString("PoemName", poemName);
 
-        if(pageCode == WoolrimApplication.REQUSET_POEM_LIST_FRAGMENT){
-            apolloClient.query(GetRecordingForPlay.builder().poem_id(String.valueOf(_id)).build()).enqueue(new ApolloCall.Callback<GetRecordingForPlay.Data>() {
+        if (pageCode == WoolrimApplication.REQUSET_POEM_LIST_FRAGMENT) { //Player
+            apolloClient.query(GetRecordingForPlay.builder().poem_id(String.valueOf(_id)).isMy(false).build()).enqueue(new ApolloCall.Callback<GetRecordingForPlay.Data>() {
                 @Override
-                public void onResponse(@Nonnull final Response<GetRecordingForPlay.Data> response) {
-
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(getContext(), String.valueOf(response.data().getRecordingForPlay().size()), Toast.LENGTH_SHORT).show();
-                        }
-                    });
+                public void onResponse(@Nonnull Response<GetRecordingForPlay.Data> response) {
                     Bundle bundle = new Bundle();
-                    PlayerFrameFragment playerFrameFragment = PlayerFrameFragment.newInstance(new Bundle());
+                    ArrayList<RecordItem> items = new ArrayList<>();
+                    if (WoolrimApplication.isLogin) {
+                        for (GetRecordingForPlay.GetRecordingForPlay1 item : response.data().getRecordingForPlay()) {
+                            int flag = item.isBookmarked() ? 1  : 0 ;
+                            items.add(new RecordItem(
+                                    item.recording().path(),
+                                    item.recording().user().name(),
+                                    item.recording().user().profile(),
+                                    item.recording().poem().name(),
+                                    item.recording().poem().poet().name(),
+                                    Integer.parseInt(item.recording().user().id()),
+                                    Integer.parseInt(item.recording().id()),
+                                    Integer.parseInt(item.recording().poem().id()),
+                                    flag
+                            ));
+                        }
+                    } else {
+                        for (GetRecordingForPlay.GetRecordingForPlay1 item : response.data().getRecordingForPlay()) {
+                            int bookmarkFlag;
+                            MyFavoritesItem myFavoritesItem = DBManagerHelper.favoriteDAO.selectFavorite(item.recording().user().name(), item.recording().poem().name());
+                            if (myFavoritesItem.error.equals("ERROR")) {
+                                bookmarkFlag = 0;
+                            } else {
+                                bookmarkFlag = 1;
+                            }
+                            items.add(new RecordItem(
+                                    item.recording().path(),
+                                    item.recording().user().name(),
+                                    item.recording().user().profile(),
+                                    item.recording().poem().name(),
+                                    item.recording().poem().poet().name(),
+                                    Integer.parseInt(item.recording().user().id()),
+                                    Integer.parseInt(item.recording().id()),
+                                    Integer.parseInt(item.recording().poem().id()),
+                                    bookmarkFlag
+                            ));
+                        }
+                    }
+
+                    bundle.putParcelableArrayList("Data",items);
+                    PlayerFragmentTemp playerFragmentTemp = PlayerFragmentTemp.newInstance(bundle);
+//                    PlayerFrameFragment playerFrameFragment = PlayerFrameFragment.newInstance(bundle);
                     getActivity().getSupportFragmentManager().beginTransaction().addToBackStack("RecordListFragment")
-                            .replace(R.id.container, playerFrameFragment).commit();
+                            .replace(R.id.container, playerFragmentTemp).commit();
                 }
 
                 @Override
@@ -244,13 +282,57 @@ public class PoemListFragment extends Fragment{
 
                 }
             });
+//            apolloClient.query(GetRecordingForPlay.builder().poem_id(String.valueOf(_id)).build()).enqueue(new ApolloCall.Callback<GetRecordingForPlay.Data>() {
+//                @Override
+//                public void onResponse(@Nonnull final Response<GetRecordingForPlay.Data> response) {
+//                    assert response.data() != null;
+//
+//                    getActivity().runOnUiThread(new Runnable() {
+//                        @Override
+//                        public void run() {
+//                            Toast.makeText(getContext(), String.valueOf(response.data().getRecordingForPlay().size()), Toast.LENGTH_SHORT).show();
+//                        }
+//                    });
+//                    Bundle bundle = new Bundle();
+//                    ArrayList<RecordItem> items = new ArrayList<>();
+//                    for(GetRecordingForPlay.GetRecordingForPlay1 data : response.data().getRecordingForPlay()){ // 현재 비로그인시로 짜여져있음
+//                        int bookmarkFlag;
+//                        MyFavoritesItem myFavoritesItem = DBManagerHelper.favoriteDAO.selectFavorite(data.user().name(), data.poem().name());
+//                        if(myFavoritesItem.error.equals("ERROR")){
+//                            bookmarkFlag = 0;
+//                        }else{
+//                            bookmarkFlag = 1;
+//                        }
+//                        items.add(new RecordItem(
+//                                data.path(),
+//                                data.user().name(),
+//                                data.user().profile(),
+//                                data.poem().name(),
+//                                data.poem().poet().name(),
+//                                Integer.parseInt(data.user().id()),
+//                                Integer.parseInt(data.id()),
+//                                Integer.parseInt(data.poem().id()),
+//                                bookmarkFlag
+//                        ));
+//                    }
+//                    bundle.putParcelableArrayList("Data",items);
+//                    PlayerFrameFragment playerFrameFragment = PlayerFrameFragment.newInstance(bundle);
+//                    getActivity().getSupportFragmentManager().beginTransaction().addToBackStack("RecordListFragment")
+//                            .replace(R.id.container, playerFrameFragment).commit();
+//                }
+//
+//                @Override
+//                public void onFailure(@Nonnull ApolloException e) {
+//
+//                }
+//            });
 
-        }else{
+        } else { // Recorder
             apolloClient.query(GetPoemByName.builder().poem_name(poemName).poet_name(poetName).build())
                     .enqueue(new ApolloCall.Callback<GetPoemByName.Data>() {
                         @Override
                         public void onResponse(@Nonnull Response<GetPoemByName.Data> response) {
-                            bundle.putString("PoemContent",response.data().getPoemByNames().content());
+                            bundle.putString("PoemContent", response.data().getPoemByNames().content());
                             RecordFragment recordFragment = RecordFragment.newInstance(bundle);
                             getActivity().getSupportFragmentManager().beginTransaction().addToBackStack("RecordListFragment")
                                     .replace(R.id.container, recordFragment).commit();
@@ -308,7 +390,7 @@ public class PoemListFragment extends Fragment{
 //        }
     }
 
-    private void processServerResponse(String response){
+    private void processServerResponse(String response) {
         Gson gson = new Gson();
         /*
         데이터받을 클래스 = gson.fromJson(response, 클래스명.class);

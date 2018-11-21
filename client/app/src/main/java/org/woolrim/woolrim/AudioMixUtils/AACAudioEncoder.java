@@ -145,7 +145,7 @@ class AACAudioEncoder extends AudioEncoder {
         MediaCodec codec = MediaCodec.createEncoderByType(AUDIO_MIME);
         MediaFormat format = new MediaFormat();
         format.setString(MediaFormat.KEY_MIME, AUDIO_MIME);
-        format.setInteger(MediaFormat.KEY_BIT_RATE, 128000);
+        format.setInteger(MediaFormat.KEY_BIT_RATE, 64000);
         format.setInteger(MediaFormat.KEY_CHANNEL_COUNT, 2);
         format.setInteger(MediaFormat.KEY_SAMPLE_RATE, 44100);
         format.setInteger(MediaFormat.KEY_AAC_PROFILE,

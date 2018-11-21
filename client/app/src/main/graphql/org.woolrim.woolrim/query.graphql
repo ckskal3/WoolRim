@@ -39,12 +39,12 @@ query GetUnReadCount($user_id: ID!){
     getUnreadCount(user_id:$user_id)
 }
 
-
-query GetRecordingForPlay($poem_id:ID!){
-  getRecordingForPlay(poem_id:$poem_id){
-    id,
-    path,
-    user{
+query GetRecordingForPlay($poem_id:ID!, $user_id:ID, $isMy:Boolean!){
+  getRecordingForPlay(poem_id:$poem_id ,user_id:$user_id, isMy:$isMy){
+    recording{
+      id,
+      path,
+      user{
       id,
       name,
       gender,
@@ -54,9 +54,37 @@ query GetRecordingForPlay($poem_id:ID!){
       id,
       name,
       poet{
+       	 	id,
+        	name
+      	}
+    	}
+    },
+    isBookmarked
+	}
+}
+
+query GetBookmarkList($stu_id:Int!){
+  getBookmarkList(stu_id:$stu_id){
+    id,
+  	recording{
+      id,
+      path,
+      poem{
         id,
-        name
+        name,
+        poet{
+          id,
+         	name
+        }
+      },
+      user{
+        id,
+        name,
+        univ,
+        stu_id,
+        profile
       }
     }
   }
 }
+
