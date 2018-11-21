@@ -32,20 +32,20 @@ type RecordingResult {
   isSuccess: Boolean!
 }
 
-type getAllRecordingResult {
+type GetAllRecordingResult {
   isSuccess: Boolean!
   recording_list: [Recording!]!
 }
 
-type getRecordingForPlayResult {
+type GetRecordingForPlayResult {
   recording: Recording
   isBookmarked: Boolean!
 }
 
 type Query {
-  getAllRecording(stu_id: Int): getAllRecordingResult
+  getAllRecording(stu_id: Int): GetAllRecordingResult
   getAllRecordingByLogin(stu_id: Int): [Recording!]!
-  getRecordingForPlay(poem_id: ID!, user_id: ID, isMy: Boolean!): [getRecordingForPlayResult!]!
+  getRecordingForPlay(poem_id: ID!, user_id: ID, isMy: Boolean!): [GetRecordingForPlayResult!]!
 }
 
 type Mutation {
