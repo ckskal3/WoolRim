@@ -28,9 +28,9 @@ const createBookmark = async (input) => {
   }
 }
 
-const deleteBookmark = async (id_list) => {
+const deleteBookmarkById = async (id) => {
   try {
-    await Bookmark.delete({ id: id_list });
+    await Bookmark.delete({ id, });
     return {
       isSuccess: true,
     };
@@ -39,6 +39,13 @@ const deleteBookmark = async (id_list) => {
     return {
       isSuccess: false,
     };
+  }
+}
+
+const deleteBookmark = async (user_id, recording_id) => {
+  await Bookmark.where({user_id, recording_id}).delete();
+  return {
+    isSuccess: true,
   }
 }
 
@@ -52,7 +59,8 @@ const bookmarkResolver = {
   },
   Mutation: {
     createBookmark: (obj, { input }) => createBookmark(input),
-    deleteBookmark: (obj, { id_list }) => deleteBookmark(id_list),
+    deleteBookmarkById: (obj, { id }) => deleteBookmarkById(id),
+    deleteBookmark: (obj, { user_id, recording_id }) => deleteBookmark(user_id, recording_id),
   }
 }
 

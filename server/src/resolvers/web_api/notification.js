@@ -6,7 +6,7 @@ const getAllNotification = async () => {
 
 const createNotification = async (input) => {
   input.created = new Date();
-  await Notification.createBulk(input);
+  await Notification.create(input);
   return true;
 }
 
