@@ -130,7 +130,7 @@
               ],
               "type": {
                 "kind": "OBJECT",
-                "name": "getAllRecordingResult",
+                "name": "GetAllRecordingResult",
                 "ofType": null
               },
               "isDeprecated": false,
@@ -225,7 +225,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "OBJECT",
-                      "name": "getRecordingForPlayResult",
+                      "name": "GetRecordingForPlayResult",
                       "ofType": null
                     }
                   }
@@ -1379,7 +1379,7 @@
         },
         {
           "kind": "OBJECT",
-          "name": "getAllRecordingResult",
+          "name": "GetAllRecordingResult",
           "description": "",
           "fields": [
             {
@@ -1430,7 +1430,7 @@
         },
         {
           "kind": "OBJECT",
-          "name": "getRecordingForPlayResult",
+          "name": "GetRecordingForPlayResult",
           "description": "",
           "fields": [
             {
@@ -1953,7 +1953,7 @@
                     "name": null,
                     "ofType": {
                       "kind": "INPUT_OBJECT",
-                      "name": "createBookmarkInput",
+                      "name": "CreateBookmarkInput",
                       "ofType": null
                     }
                   },
@@ -1965,7 +1965,7 @@
                 "name": null,
                 "ofType": {
                   "kind": "OBJECT",
-                  "name": "createBookmarkResult",
+                  "name": "CreateBookmarkResult",
                   "ofType": null
                 }
               },
@@ -2004,7 +2004,7 @@
                 "name": null,
                 "ofType": {
                   "kind": "OBJECT",
-                  "name": "deleteBookmarkResult",
+                  "name": "DeleteBookmarkResult",
                   "ofType": null
                 }
               },
@@ -2813,7 +2813,7 @@
         },
         {
           "kind": "INPUT_OBJECT",
-          "name": "createBookmarkInput",
+          "name": "CreateBookmarkInput",
           "description": "",
           "fields": null,
           "inputFields": [
@@ -2852,7 +2852,7 @@
         },
         {
           "kind": "OBJECT",
-          "name": "createBookmarkResult",
+          "name": "CreateBookmarkResult",
           "description": "",
           "fields": [
             {
@@ -2879,7 +2879,7 @@
         },
         {
           "kind": "OBJECT",
-          "name": "deleteBookmarkResult",
+          "name": "DeleteBookmarkResult",
           "description": "",
           "fields": [
             {

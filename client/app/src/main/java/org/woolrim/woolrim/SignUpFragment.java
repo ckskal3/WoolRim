@@ -22,21 +22,13 @@ import android.widget.NumberPicker;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.Response;
-import com.android.volley.error.AuthFailureError;
-import com.android.volley.error.VolleyError;
-import com.android.volley.request.StringRequest;
 import com.apollographql.apollo.ApolloCall;
 import com.apollographql.apollo.ApolloClient;
 import com.apollographql.apollo.exception.ApolloException;
-import com.google.gson.Gson;
 
 import org.woolrim.woolrim.Utils.NetworkStatus;
 import org.woolrim.woolrim.type.CreateUserInput;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Objects;
 
 import javax.annotation.Nonnull;
@@ -334,57 +326,6 @@ public class SignUpFragment extends Fragment implements View.OnClickListener, Te
             schoolSelectLayoutIsOpen = false;
         }
     }
-
-    private void requestServerForUserData() {
-        String url1 = "http://stou2.cafe24.com/Woolrim/UserSelect.php";
-        String url2 = "http://stou2.cafe24.com/Woolrim/UserInsert.php";
-
-        StringRequest stringRequest = new StringRequest(
-                Request.Method.POST,
-                url2,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        if (processServerResponse(response)) {
-                            Toast.makeText(getContext(), "회원가입 완료 되었습니다.", Toast.LENGTH_SHORT).show();
-                            assert getFragmentManager() != null;
-                            getFragmentManager().popBackStack();
-                        } else {
-                            Toast.makeText(getContext(), "오류가 발생했습니다. 다시 가입해주세요", Toast.LENGTH_SHORT).show();
-                        }
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-
-                    }
-                }
-        ) {
-            @Override
-            protected Map<String, String> getParams() throws AuthFailureError {
-                Map<String, String> params = new HashMap<>();
-                params.put("name", userName);
-                params.put("password", userPass);
-                params.put("student_id", userId);
-                params.put("gender", userGender);
-                params.put("university", userUnversity);
-                return params;
-            }
-        };
-
-        stringRequest.setShouldCache(false);
-        WoolrimApplication.requestQueue.add(stringRequest);
-    }
-
-    private boolean processServerResponse(String response) {
-        Gson gson = new Gson();
-        RequestData result = gson.fromJson(response, RequestData.class);
-        Log.d("Code", String.valueOf(result.code));
-        if (result.code == 200) return true;
-        else return false;
-    }
-
 
 
 }

@@ -1,6 +1,7 @@
 package org.woolrim.woolrim;
 
 import android.app.Application;
+import android.os.Build;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
@@ -27,8 +28,7 @@ public class WoolrimApplication extends Application {
     public final static String BASE_URL = "http://52.79.33.194:3000/graphql";
     public final static String FILE_BASE_URL = "http://52.79.33.194:4000/";
 
-    public static String loginedUserName;
-    public static String loginedUserProfile;
+    public static String loginedUserName,loginedUserProfile , loginedUserPK;
     public static int loginedUserId;
 
 
@@ -39,7 +39,7 @@ public class WoolrimApplication extends Application {
     public static OkHttpClient okHttpClient;
     public static ApolloClient apolloClient;
 
-    public static boolean isLogin = false;
+    public static boolean isLogin = false, isTest = false;
 
     @Override
     public void onCreate() {
@@ -74,5 +74,13 @@ public class WoolrimApplication extends Application {
         super.onTerminate();
     }
 
+    public static void userInfoReset(){
+        isLogin = false;
+        isTest = false;
+        loginedUserId = 0;
+        loginedUserProfile = null;
+        loginedUserPK = null;
+        loginedUserName = null;
+    }
 
 }

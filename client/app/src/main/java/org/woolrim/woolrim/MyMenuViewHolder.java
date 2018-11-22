@@ -40,6 +40,7 @@ public class MyMenuViewHolder extends RecyclerView.ViewHolder {
                 onItemClickListener.onClick(MyMenuViewHolder.this, view, position);
             }
         });
+
     }
 
     private void init(View view) {

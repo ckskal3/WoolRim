@@ -88,3 +88,38 @@ query GetBookmarkList($stu_id:Int!){
   }
 }
 
+query GetMyMenu($stu_id:Int!){
+  getMainInfo(stu_id: $stu_id){
+    isSuccess,
+    user{
+        id,
+        name,
+        stu_id,
+        profile
+    },
+    recording_list{
+        id,
+        path,
+        user{
+          id,
+          name,
+          stu_id,
+          profile
+        },
+        poem{
+          id,
+          name,
+          poet{
+            id,
+            name
+          }
+        }
+    },
+    notification_list{
+        id,
+        content
+    },
+    unreadCount
+  }
+}
+

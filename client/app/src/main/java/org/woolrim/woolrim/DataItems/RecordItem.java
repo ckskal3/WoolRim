@@ -31,30 +31,31 @@ public class RecordItem implements Parcelable {
         this.error = error;
     }
 
-    public RecordItem(Parcel src) {
-        fileName = src.readString();
-        filePath = src.readString();
-        studentName = src.readString();
-        studentProfilePath = src.readString();
-        poemName = src.readString();
-        poetName = src.readString();
-        mediaId = src.readInt();
-        studentId = src.readInt();
-        poemId = src.readInt();
-        duration = src.readString();
-        error = src.readString();
-        bookmarkFlag = src.readInt();
+
+    protected RecordItem(Parcel in) {
+        fileName = in.readString();
+        filePath = in.readString();
+        duration = in.readString();
+        studentName = in.readString();
+        studentProfilePath = in.readString();
+        poemName = in.readString();
+        poetName = in.readString();
+        studentId = in.readInt();
+        mediaId = in.readInt();
+        poemId = in.readInt();
+        bookmarkFlag = in.readInt();
+        error = in.readString();
     }
 
-    public static final RecordItem.Creator<RecordItem> CREATOR = new Parcelable.Creator<RecordItem>() {
+    public static final Creator<RecordItem> CREATOR = new Creator<RecordItem>() {
         @Override
-        public RecordItem createFromParcel(Parcel parcel) {
-            return new RecordItem(parcel);
+        public RecordItem createFromParcel(Parcel in) {
+            return new RecordItem(in);
         }
 
         @Override
-        public RecordItem[] newArray(int i) {
-            return new RecordItem[i];
+        public RecordItem[] newArray(int size) {
+            return new RecordItem[size];
         }
     };
 
@@ -67,15 +68,15 @@ public class RecordItem implements Parcelable {
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(fileName);
         parcel.writeString(filePath);
+        parcel.writeString(duration);
         parcel.writeString(studentName);
         parcel.writeString(studentProfilePath);
-        parcel.writeString(poetName);
         parcel.writeString(poemName);
-        parcel.writeInt(mediaId);
+        parcel.writeString(poetName);
         parcel.writeInt(studentId);
+        parcel.writeInt(mediaId);
         parcel.writeInt(poemId);
-        parcel.writeString(duration);
-        parcel.writeString(error);
         parcel.writeInt(bookmarkFlag);
+        parcel.writeString(error);
     }
 }

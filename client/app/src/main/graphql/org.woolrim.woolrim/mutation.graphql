@@ -7,31 +7,38 @@ mutation CreateUserMutation($input: CreateUserInput!){
 
 mutation GetLogin($stu_id: Int!, $passwd: String!){
 	login(stu_id: $stu_id, passwd: $passwd){
-		isSuccess
-    user{
-      id,
-      name,
-      univ,
-      stu_id,
-      gender,
-      created,
-      bongsa_time,
-      profile
-    }
-    recording_list{
-      id,
-      path,
-      auth_flag,
-      poem{
-        name,
-        poet{
-          name
+		isSuccess,
+        user{
+          id,
+          name,
+          univ,
+          stu_id,
+          gender,
+          created,
+          bongsa_time,
+          profile
         }
-      },
-      user{
-        name
-      }
-    }
+        recording_list{
+          id,
+          path,
+          auth_flag,
+          poem{
+            id,
+            name,
+            poet{
+              name
+            }
+          },
+          user{
+            id,
+            name
+          }
+        },
+        notification_list{
+          id,
+          content
+        },
+        unreadCount
 	}
 }
 
@@ -45,4 +52,9 @@ mutation UpdateUserProfile($input: UpdateUserInput!){
     }
 }
 
+mutation CreateBookMark($input: CreateBookmarkInput!){
+    createBookmark(input: $input){
+        isSuccess
+    }
+}
 
