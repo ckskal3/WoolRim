@@ -20,7 +20,8 @@ type DeleteBookmarkResult {
 
 type Mutation {
   createBookmark(input: CreateBookmarkInput!): CreateBookmarkResult!
-  deleteBookmark(id_list: [ID!]!): DeleteBookmarkResult!
+  deleteBookmarkById(id: ID!): DeleteBookmarkResult!
+  deleteBookmark(user_id: ID!, recording_id: ID!): DeleteBookmarkResult!
 }
 
 type Query {
