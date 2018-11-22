@@ -4,9 +4,13 @@ import android.app.Application;
 
 import com.android.volley.RequestQueue;
 import com.android.volley.toolbox.Volley;
+import com.apollographql.apollo.ApolloClient;
 import com.tsengvn.typekit.Typekit;
 
 import org.woolrim.woolrim.Utils.DBManagerHelper;
+
+import okhttp3.OkHttpClient;
+import okhttp3.logging.HttpLoggingInterceptor;
 
 public class WoolrimApplication extends Application {
     public final static int REQUSET_MAIN_ACTIVITY = 100;
@@ -21,10 +25,19 @@ public class WoolrimApplication extends Application {
     public final static int REQUSET_RECORD_LOGOUT = 113;
 
     public final static String BASE_URL = "http://52.79.33.194:3000/graphql";
+    public final static String FILE_BASE_URL = "http://52.79.33.194:4000/";
+
+    public static String loginedUserName;
+    public static String loginedUserProfile;
+    public static int loginedUserId;
 
 
     public static RequestQueue requestQueue;
     public static DBManagerHelper dbManagerHelper;
+
+    public static HttpLoggingInterceptor httpLoggingInterceptor;
+    public static OkHttpClient okHttpClient;
+    public static ApolloClient apolloClient;
 
     public static boolean isLogin = false;
 
@@ -42,6 +55,12 @@ public class WoolrimApplication extends Application {
 
         dbManagerHelper = new DBManagerHelper(WoolrimApplication.this);
         dbManagerHelper.openDatabase();
+
+        httpLoggingInterceptor = new HttpLoggingInterceptor();
+        httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        okHttpClient = new OkHttpClient.Builder().addInterceptor(httpLoggingInterceptor).build();
+        apolloClient = ApolloClient.builder().okHttpClient(okHttpClient).serverUrl(BASE_URL).build();
+
     }
 
 

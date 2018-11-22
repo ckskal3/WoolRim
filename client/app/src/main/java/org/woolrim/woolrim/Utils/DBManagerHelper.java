@@ -31,22 +31,26 @@ public class DBManagerHelper {
     public static final String COLUMN_RECORD_DURATION = "duration";
 
     public static final String COLUMN_POEM_PRIVATE_ID = "_id";
-    public static final String COLUMN_POEM_POEM  = "poem";
-    public static final String COLUMN_POEM_POET  = "poet";
-    public static final String COLUMN_POEM_FULL_COUNT  = "full_count";
-    public static final String COLUMN_POEM_MAN_COUNT  = "man_count";
-    public static final String COLUMN_POEM_WOMAN_COUNT  = "woman_count";
+    public static final String COLUMN_POEM_POEM = "poem";
+    public static final String COLUMN_POEM_POET = "poet";
+    public static final String COLUMN_POEM_FULL_COUNT = "full_count";
+    public static final String COLUMN_POEM_MAN_COUNT = "man_count";
+    public static final String COLUMN_POEM_WOMAN_COUNT = "woman_count";
 
     public static final String COLUMN_FAVORITE_PRIVATE_ID = "_id";
+    public static final String COLUMN_FAVORITE_RECORDING_ID = "recording_id";
+    public static final String COLUMN_FAVORITE_POEM_ID = "poem_id";
+    public static final String COLUMN_FAVORITE_RECORDING_STUDENT_ID = "recording_student_id";
     public static final String COLUMN_FAVORITE_POEM_NAME = "poem";
+    public static final String COLUMN_FAVORITE_RECORDING_STUDENT_NAME = "recording_student_name";
     public static final String COLUMN_FAVORITE_USER_NAME = "user";
-
 
 
     private SQLiteDatabaseHelper sqLiteDatabaseHelper;
     private final Context mContext;
     public static UserDAO userDAO;
     public static RecordDAO recordDAO;
+    public static FavoriteDAO favoriteDAO;
     public static SQLiteDatabase database;
 
 
@@ -60,6 +64,7 @@ public class DBManagerHelper {
 
         userDAO = new UserDAO(database);
         recordDAO = new RecordDAO(database);
+        favoriteDAO = new FavoriteDAO(database);
         return this;
     }
 
@@ -105,7 +110,7 @@ public class DBManagerHelper {
                     COLUMN_USER_PASSWORD + " text, " +
                     COLUMN_USER_STUDENT_ID + " integer, " +
                     COLUMN_USER_GENDER + " text, " +
-                    COLUMN_USER_UNIVERSITY + " text, "+
+                    COLUMN_USER_UNIVERSITY + " text, " +
                     COLUMN_USER_BONGSA_TIME + " integer )";
             db.execSQL(sql);
         }
@@ -121,35 +126,40 @@ public class DBManagerHelper {
             db.execSQL(sql);
         }
 
-        private static void createFavoriteTable(SQLiteDatabase db ){
-            String sql = "create table if not exists "+ FAVORITE_TABLE_NAME+"("+
-                    COLUMN_FAVORITE_PRIVATE_ID + " integer PRIMARY KEY autoincrement, "+
-                    COLUMN_FAVORITE_POEM_NAME + " text, "+
+        private static void createFavoriteTable(SQLiteDatabase db) {
+            String sql = "create table if not exists " + FAVORITE_TABLE_NAME + "(" +
+                    COLUMN_FAVORITE_PRIVATE_ID + " integer PRIMARY KEY autoincrement, " +
+                    COLUMN_FAVORITE_RECORDING_ID + " text, "+
+                    COLUMN_FAVORITE_POEM_ID + " text, " +
+                    COLUMN_FAVORITE_RECORDING_STUDENT_ID + " text," +
+                    COLUMN_FAVORITE_POEM_NAME + " text, " +
+                    COLUMN_FAVORITE_RECORDING_STUDENT_NAME + " text, " +
                     COLUMN_FAVORITE_USER_NAME + " text )";
 
             db.execSQL(sql);
         }
-        public static void createPoemTable(SQLiteDatabase db){
-            String sql = "create table if not exists "+ POEM_TABLE_NAME+"("+
-                    COLUMN_POEM_PRIVATE_ID + " integer PRIMARY KEY autoincrement,"+
-                    COLUMN_POEM_POEM + " text, "+
-                    COLUMN_POEM_POET + " text, "+
-                    COLUMN_POEM_MAN_COUNT + " integer, "+
-                    COLUMN_POEM_WOMAN_COUNT + " integer, "+
+
+        public static void createPoemTable(SQLiteDatabase db) {
+            String sql = "create table if not exists " + POEM_TABLE_NAME + "(" +
+                    COLUMN_POEM_PRIVATE_ID + " integer PRIMARY KEY autoincrement," +
+                    COLUMN_POEM_POEM + " text, " +
+                    COLUMN_POEM_POET + " text, " +
+                    COLUMN_POEM_MAN_COUNT + " integer, " +
+                    COLUMN_POEM_WOMAN_COUNT + " integer, " +
                     COLUMN_POEM_FULL_COUNT + " integer )";
 
             db.execSQL(sql);
         }
 
 
-        public static void dropTable(SQLiteDatabase db, String tableName) {
+        private static void dropTable(SQLiteDatabase db, String tableName) {
             db.execSQL("drop table if exists " + tableName);
         }
 
 
         public static void recycleTable() {
-            dropTable(database, USER_TABLE_NAME);
-            createUserTable(database);
+            dropTable(database, FAVORITE_TABLE_NAME);
+            createFavoriteTable(database);
         }
     }
 }

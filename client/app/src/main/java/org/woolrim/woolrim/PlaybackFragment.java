@@ -137,11 +137,11 @@ public class PlaybackFragment extends BottomSheetDialogFragment implements View.
             switch (view.getId()) {
                 case R.id.playback_button_icon_imageview:
                     onPlay(isPlaying);
-                    Log.d("ttt", recordItem.path);
+                    Log.d("ttt", recordItem.filePath);
                     isPlaying = !isPlaying;
                     break;
                 case R.id.playback_delete_textview:
-                    File file = new File(recordItem.path);
+                    File file = new File(recordItem.filePath);
                     if (file.delete())
                         Toast.makeText(getContext(), "삭제되었습니다.", Toast.LENGTH_SHORT).show();
                     dismiss();
@@ -180,7 +180,7 @@ public class PlaybackFragment extends BottomSheetDialogFragment implements View.
                     }
                 }
         );
-        simpleMultiPartRequest.addFile("file",recordItem.path);
+        simpleMultiPartRequest.addFile("file",recordItem.filePath);
 
         WoolrimApplication.requestQueue.add(simpleMultiPartRequest);
     }
@@ -235,7 +235,7 @@ public class PlaybackFragment extends BottomSheetDialogFragment implements View.
     private void setUpPlayer() {
         mediaPlayer = new MediaPlayer();
         try {
-            mediaPlayer.setDataSource(recordItem.path);
+            mediaPlayer.setDataSource(recordItem.filePath);
             mediaPlayer.prepare();
         }catch (IOException e){}
 
@@ -278,7 +278,7 @@ public class PlaybackFragment extends BottomSheetDialogFragment implements View.
     private void prepareMediaPlayer(int progress) throws IOException {
         mediaPlayer = new MediaPlayer();
 
-        mediaPlayer.setDataSource(recordItem.path);
+        mediaPlayer.setDataSource(recordItem.filePath);
         mediaPlayer.prepare();
         seekBar.setMaxProcess(mediaPlayer.getDuration());
         mediaPlayer.seekTo(progress);
