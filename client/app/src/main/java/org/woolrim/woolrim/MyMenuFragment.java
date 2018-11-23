@@ -18,6 +18,7 @@ import com.apollographql.apollo.ApolloCall;
 import com.apollographql.apollo.ApolloClient;
 import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
+import com.bumptech.glide.Glide;
 
 import org.woolrim.woolrim.DataItems.MyRecordItem;
 import org.woolrim.woolrim.DataItems.PoemAndPoetItem;
@@ -29,12 +30,13 @@ import java.util.Objects;
 
 import javax.annotation.Nonnull;
 
+import de.hdodenhof.circleimageview.CircleImageView;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 
 
 public class MyMenuFragment extends Fragment {
-    private ImageView profileIv;
+    private CircleImageView profileIv;
     private TextView userNameTv;
     private ViewPager myViewPager;
     private BadgeTabLayout myTabLayout;
@@ -58,12 +60,12 @@ public class MyMenuFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Bundle bundle = getArguments();
         assert bundle != null;
-        userName = bundle.getString("UserName");
+        userName = WoolrimApplication.loginedUserName;
+        userPK = WoolrimApplication.loginedUserPK;
+
         poemLists = bundle.getParcelableArrayList("PoemList");
-        userPK = bundle.getString("UserPK");
         notificationLists = bundle.getParcelableArrayList("NotificationList");
 
-        Log.d("Title",userName+" "+ String.valueOf(poemLists.size())+" "+String.valueOf(notificationLists.size()));
         return inflater.inflate(R.layout.fragment_my_menu, container, false);
     }
 
@@ -75,22 +77,23 @@ public class MyMenuFragment extends Fragment {
 
         setView();
 
-        HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor();
-        httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-        OkHttpClient okHttpClient = new OkHttpClient.Builder().addInterceptor(httpLoggingInterceptor).build();
+        if(!WoolrimApplication.isTest){
+            WoolrimApplication.apolloClient.query(GetUnReadCount.builder().user_id(userPK).build()).enqueue(new ApolloCall.Callback<GetUnReadCount.Data>() {
+                @Override
+                public void onResponse(@Nonnull Response<GetUnReadCount.Data> response) {
+                    badgeCount = response.data().getUnreadCount();
+                }
 
-        ApolloClient apolloClient = ApolloClient.builder().serverUrl(WoolrimApplication.BASE_URL).okHttpClient(okHttpClient).build();
-        apolloClient.query(GetUnReadCount.builder().user_id(userPK).build()).enqueue(new ApolloCall.Callback<GetUnReadCount.Data>() {
-            @Override
-            public void onResponse(@Nonnull Response<GetUnReadCount.Data> response) {
-                badgeCount = response.data().getUnreadCount();
-            }
+                @Override
+                public void onFailure(@Nonnull ApolloException e) {
 
-            @Override
-            public void onFailure(@Nonnull ApolloException e) {
+                }
+            });
+        }else{
+            badgeCount = 5;
+        }
 
-            }
-        });
+
 
         ViewPagerAdapter adapterTemp = new ViewPagerAdapter(getChildFragmentManager());
 
@@ -124,29 +127,23 @@ public class MyMenuFragment extends Fragment {
                 if(position == 1 && !notificationReadFlag) {
                     myTabLayout.getTabBuilderItem(position).noBadge().build();
                     //서버 연동
-                    HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor();
-                    httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-                    OkHttpClient okHttpClient = new OkHttpClient.Builder().addInterceptor(httpLoggingInterceptor).build();
-                    ApolloClient apolloClient = ApolloClient.builder().serverUrl(WoolrimApplication.BASE_URL).okHttpClient(okHttpClient).build();
+                    if(badgeCount >0) {
+                        if(!WoolrimApplication.isTest) {
+                            WoolrimApplication.apolloClient.mutate(ReadAllNotification.builder().user_id(userPK).build())
+                                    .enqueue(new ApolloCall.Callback<ReadAllNotification.Data>() {
+                                        @Override
+                                        public void onResponse(@Nonnull Response<ReadAllNotification.Data> response) {
 
-                    apolloClient.mutate(ReadAllNotification.builder().user_id(userPK).build()).enqueue(new ApolloCall.Callback<ReadAllNotification.Data>() {
-                        @Override
-                        public void onResponse(@Nonnull Response<ReadAllNotification.Data> response) {
-                            if(response.data().readAllNotification()){
-                                getActivity().runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        Toast.makeText(getContext(), "다 읽음", Toast.LENGTH_SHORT).show();
-                                    }
-                                });
-                            }
+                                        }
+
+                                        @Override
+                                        public void onFailure(@Nonnull ApolloException e) {
+
+                                        }
+                                    });
                         }
 
-                        @Override
-                        public void onFailure(@Nonnull ApolloException e) {
-
-                        }
-                    });
+                    }
                 }
             }
 
@@ -179,8 +176,9 @@ public class MyMenuFragment extends Fragment {
                 .setTabTitle("울림알람")
                 .setTabTitleColor(getColor(android.R.color.black))
                 .badge(true)
-                .badgeCount(badgeCount)//이부분 변경해야됨
+                .badgeCount(badgeCount)
                 .build();
+
         SetTabIndicatorWidth setTabIndicatorWidth = new SetTabIndicatorWidth();
         setTabIndicatorWidth.wrapTabIndicatorToTitle(myTabLayout,30,30);
 
@@ -205,6 +203,11 @@ public class MyMenuFragment extends Fragment {
 
     private void setView(){
         userNameTv.setText(userName);
+        if(WoolrimApplication.loginedUserProfile == null || WoolrimApplication.loginedUserProfile.equals(getString(R.string.no_profile_en))){
+            Glide.with(this).load(R.drawable.profile_icon).into(profileIv);
+        }else{
+            Glide.with(this).load(WoolrimApplication.loginedUserProfile).into(profileIv);
+        }
 
     }
 

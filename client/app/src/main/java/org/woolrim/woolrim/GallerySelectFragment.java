@@ -6,12 +6,21 @@ import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v4.app.DialogFragment;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 
+import com.apollographql.apollo.ApolloCall;
+import com.apollographql.apollo.exception.ApolloException;
 import com.bumptech.glide.Glide;
+
+import org.woolrim.woolrim.type.UpdateUserInput;
+
+import java.io.File;
+
+import javax.annotation.Nonnull;
 
 public class GallerySelectFragment extends DialogFragment implements View.OnClickListener {
 
@@ -108,13 +117,31 @@ public class GallerySelectFragment extends DialogFragment implements View.OnClic
                 break;
             case R.id.gallery_select_default_button:
                 Glide.with(getContext()).load(R.drawable.profile_icon).into(MainActivity.profileImageView);
-//                MainActivity.profileImageView.setImageResource(R.drawable.profile_icon);
-                dismiss();
+                requestServerForProfile();
                 break;
             case R.id.gallery_select_gallery_button:
                 fragmentInteraction.onIntentAction();
                 dismiss();
                 break;
         }
+    }
+    private void requestServerForProfile(){
+        WoolrimApplication.apolloClient.mutate(UpdateUserProfile.builder().input(
+                UpdateUserInput.builder()
+                        .id(WoolrimApplication.loginedUserPK)
+                        .name(WoolrimApplication.loginedUserName)
+                        .profile(getString(R.string.no_profile_en))
+                        .build())
+                .build())
+                .enqueue(new ApolloCall.Callback<UpdateUserProfile.Data>() {
+                    @Override
+                    public void onResponse(@Nonnull com.apollographql.apollo.api.Response<UpdateUserProfile.Data> response) {
+                        dismiss();
+                    }
+                    @Override
+                    public void onFailure(@Nonnull ApolloException e) {
+
+                    }
+                });
     }
 }

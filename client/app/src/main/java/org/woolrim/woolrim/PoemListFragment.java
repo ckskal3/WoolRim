@@ -215,120 +215,87 @@ public class PoemListFragment extends Fragment {
                 poetName + " " + poemName,
                 Toast.LENGTH_SHORT).show();
 
-        HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor();
-        httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-        OkHttpClient okHttpClient = new OkHttpClient.Builder().addInterceptor(httpLoggingInterceptor).build();
-
-        ApolloClient apolloClient = ApolloClient.builder().serverUrl(WoolrimApplication.BASE_URL).okHttpClient(okHttpClient)
-                .build();
-
         final Bundle bundle = new Bundle();
         bundle.putString("PoetName", poetName);
         bundle.putString("PoemName", poemName);
 
         if (pageCode == WoolrimApplication.REQUSET_POEM_LIST_FRAGMENT) { //Player
-            apolloClient.query(GetRecordingForPlay.builder().poem_id(String.valueOf(_id)).isMy(false).build()).enqueue(new ApolloCall.Callback<GetRecordingForPlay.Data>() {
-                @Override
-                public void onResponse(@Nonnull Response<GetRecordingForPlay.Data> response) {
-                    Bundle bundle = new Bundle();
-                    ArrayList<RecordItem> items = new ArrayList<>();
-                    if (WoolrimApplication.isLogin) {
-                        for (GetRecordingForPlay.GetRecordingForPlay1 item : response.data().getRecordingForPlay()) {
-                            int flag = item.isBookmarked() ? 1  : 0 ;
-                            items.add(new RecordItem(
-                                    item.recording().path(),
-                                    item.recording().user().name(),
-                                    item.recording().user().profile(),
-                                    item.recording().poem().name(),
-                                    item.recording().poem().poet().name(),
-                                    Integer.parseInt(item.recording().user().id()),
-                                    Integer.parseInt(item.recording().id()),
-                                    Integer.parseInt(item.recording().poem().id()),
-                                    flag
-                            ));
-                        }
-                    } else {
-                        for (GetRecordingForPlay.GetRecordingForPlay1 item : response.data().getRecordingForPlay()) {
-                            int bookmarkFlag;
-                            MyFavoritesItem myFavoritesItem = DBManagerHelper.favoriteDAO.selectFavorite(item.recording().user().name(), item.recording().poem().name());
-                            if (myFavoritesItem.error.equals("ERROR")) {
-                                bookmarkFlag = 0;
-                            } else {
-                                bookmarkFlag = 1;
+            if(WoolrimApplication.isLogin){
+                WoolrimApplication.apolloClient.query(GetRecordingForPlay.builder().poem_id(String.valueOf(_id)).user_id(WoolrimApplication.loginedUserPK).isMy(false).build())
+                        .enqueue(new ApolloCall.Callback<GetRecordingForPlay.Data>() {
+                            @Override
+                            public void onResponse(@Nonnull Response<GetRecordingForPlay.Data> response) {
+                                ArrayList<RecordItem> items = new ArrayList<>();
+                                for (GetRecordingForPlay.GetRecordingForPlay1 item : response.data().getRecordingForPlay()) {
+                                    int flag = item.isBookmarked() ? 1 : 0;
+                                    items.add(new RecordItem(
+                                            item.recording().path(),
+                                            item.recording().user().name(),
+                                            item.recording().user().profile(),
+                                            item.recording().poem().name(),
+                                            item.recording().poem().poet().name(),
+                                            Integer.parseInt(item.recording().user().id()),
+                                            Integer.parseInt(item.recording().id()),
+                                            Integer.parseInt(item.recording().poem().id()),
+                                            flag
+                                    ));
+                                }
+                                Bundle bundle = new Bundle();
+                                bundle.putParcelableArrayList("Data", items);
+                                PlayerFragmentTemp playerFragmentTemp = PlayerFragmentTemp.newInstance(bundle);
+//                    PlayerFrameFragment playerFrameFragment = PlayerFrameFragment.newInstance(bundle);
+                                getActivity().getSupportFragmentManager().beginTransaction().addToBackStack("RecordListFragment")
+                                        .replace(R.id.container, playerFragmentTemp).commit();
                             }
-                            items.add(new RecordItem(
-                                    item.recording().path(),
-                                    item.recording().user().name(),
-                                    item.recording().user().profile(),
-                                    item.recording().poem().name(),
-                                    item.recording().poem().poet().name(),
-                                    Integer.parseInt(item.recording().user().id()),
-                                    Integer.parseInt(item.recording().id()),
-                                    Integer.parseInt(item.recording().poem().id()),
-                                    bookmarkFlag
-                            ));
-                        }
-                    }
 
-                    bundle.putParcelableArrayList("Data",items);
-                    PlayerFragmentTemp playerFragmentTemp = PlayerFragmentTemp.newInstance(bundle);
-//                    PlayerFrameFragment playerFrameFragment = PlayerFrameFragment.newInstance(bundle);
-                    getActivity().getSupportFragmentManager().beginTransaction().addToBackStack("RecordListFragment")
-                            .replace(R.id.container, playerFragmentTemp).commit();
-                }
+                            @Override
+                            public void onFailure(@Nonnull ApolloException e) {
 
-                @Override
-                public void onFailure(@Nonnull ApolloException e) {
+                            }
+                        });
+            }else{
+                WoolrimApplication.apolloClient.query(GetRecordingForPlay.builder().poem_id(String.valueOf(_id)).isMy(false).build())
+                        .enqueue(new ApolloCall.Callback<GetRecordingForPlay.Data>() {
+                            @Override
+                            public void onResponse(@Nonnull Response<GetRecordingForPlay.Data> response) {
+                                ArrayList<RecordItem> items = new ArrayList<>();
+                                for (GetRecordingForPlay.GetRecordingForPlay1 item : response.data().getRecordingForPlay()) {
+                                    int bookmarkFlag;
+                                    MyFavoritesItem myFavoritesItem = DBManagerHelper.favoriteDAO.selectFavorite(item.recording().user().name(), item.recording().poem().name());
+                                    if (myFavoritesItem.error.equals("ERROR")) {
+                                        bookmarkFlag = 0;
+                                    } else {
+                                        bookmarkFlag = 1;
+                                    }
+                                    items.add(new RecordItem(
+                                            item.recording().path(),
+                                            item.recording().user().name(),
+                                            item.recording().user().profile(),
+                                            item.recording().poem().name(),
+                                            item.recording().poem().poet().name(),
+                                            Integer.parseInt(item.recording().user().id()),
+                                            Integer.parseInt(item.recording().id()),
+                                            Integer.parseInt(item.recording().poem().id()),
+                                            bookmarkFlag
+                                    ));
+                                }
+                                Bundle bundle = new Bundle();
+                                bundle.putParcelableArrayList("Data",items);
+                                PlayerFragmentTemp playerFragmentTemp = PlayerFragmentTemp.newInstance(bundle);
+                                getActivity().getSupportFragmentManager().beginTransaction().addToBackStack("RecordListFragment")
+                                        .replace(R.id.container, playerFragmentTemp).commit();
+                            }
 
-                }
-            });
-//            apolloClient.query(GetRecordingForPlay.builder().poem_id(String.valueOf(_id)).build()).enqueue(new ApolloCall.Callback<GetRecordingForPlay.Data>() {
-//                @Override
-//                public void onResponse(@Nonnull final Response<GetRecordingForPlay.Data> response) {
-//                    assert response.data() != null;
-//
-//                    getActivity().runOnUiThread(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            Toast.makeText(getContext(), String.valueOf(response.data().getRecordingForPlay().size()), Toast.LENGTH_SHORT).show();
-//                        }
-//                    });
-//                    Bundle bundle = new Bundle();
-//                    ArrayList<RecordItem> items = new ArrayList<>();
-//                    for(GetRecordingForPlay.GetRecordingForPlay1 data : response.data().getRecordingForPlay()){ // 현재 비로그인시로 짜여져있음
-//                        int bookmarkFlag;
-//                        MyFavoritesItem myFavoritesItem = DBManagerHelper.favoriteDAO.selectFavorite(data.user().name(), data.poem().name());
-//                        if(myFavoritesItem.error.equals("ERROR")){
-//                            bookmarkFlag = 0;
-//                        }else{
-//                            bookmarkFlag = 1;
-//                        }
-//                        items.add(new RecordItem(
-//                                data.path(),
-//                                data.user().name(),
-//                                data.user().profile(),
-//                                data.poem().name(),
-//                                data.poem().poet().name(),
-//                                Integer.parseInt(data.user().id()),
-//                                Integer.parseInt(data.id()),
-//                                Integer.parseInt(data.poem().id()),
-//                                bookmarkFlag
-//                        ));
-//                    }
-//                    bundle.putParcelableArrayList("Data",items);
-//                    PlayerFrameFragment playerFrameFragment = PlayerFrameFragment.newInstance(bundle);
-//                    getActivity().getSupportFragmentManager().beginTransaction().addToBackStack("RecordListFragment")
-//                            .replace(R.id.container, playerFrameFragment).commit();
-//                }
-//
-//                @Override
-//                public void onFailure(@Nonnull ApolloException e) {
-//
-//                }
-//            });
+                            @Override
+                            public void onFailure(@Nonnull ApolloException e) {
+
+                            }
+                        });
+            }
+
 
         } else { // Recorder
-            apolloClient.query(GetPoemByName.builder().poem_name(poemName).poet_name(poetName).build())
+            WoolrimApplication.apolloClient.query(GetPoemByName.builder().poem_name(poemName).poet_name(poetName).build())
                     .enqueue(new ApolloCall.Callback<GetPoemByName.Data>() {
                         @Override
                         public void onResponse(@Nonnull Response<GetPoemByName.Data> response) {
@@ -344,59 +311,8 @@ public class PoemListFragment extends Fragment {
                         }
                     });
         }
-
-
-        /*
-           ///////////서버 요청 부분 짜야함/////////////////////////
-            String url = "http://stou2.cafe24.com/Woolrim/RecordSelect";
-            StringRequest stringRequest = new StringRequest(Request.Method.POST,
-                    url,
-                    new Response.Listener<String>() {
-                        @Override
-                        public void onResponse(String response) {
-                            processServerResponse(response);
-                        }
-                    },
-                    new Response.ErrorListener() {
-                        @Override
-                        public void onErrorResponse(VolleyError error) {
-
-                        }
-                    }){
-                @Override
-                protected Map<String, String> getParams() throws AuthFailureError {
-                    Map<String,String> params = new HashMap<>();
-                    params.put("poet(?)",poetName);
-                    params.put("poem(?)",poemName);
-                    return params;
-                }
-            };
-
-            stringRequest.setShouldCache(false);
-            WoolrimApplication.requestQueue.add(stringRequest);
-        //////////////////////////////////////////////////////////////////
-        */
-//        if(pageCode == WoolrimApplication.REQUSET_POEM_LIST_FRAGMENT) {
-//            PlayerFrameFragment playerFrameFragment = PlayerFrameFragment.newInstance(new Bundle());
-//            getActivity().getSupportFragmentManager().beginTransaction().addToBackStack("RecordListFragment")
-//                    .replace(R.id.container, playerFrameFragment).commit();
-//        }else{
-//            Bundle bundle = new Bundle();
-//            bundle.putString("PoetName",poetName);
-//            bundle.putString("PoemName",poemName);
-//            RecordFragment recordFragment = RecordFragment.newInstance(bundle);
-//            getActivity().getSupportFragmentManager().beginTransaction().addToBackStack("RecordListFragment")
-//                    .replace(R.id.container, recordFragment).commit();
-//        }
     }
 
-    private void processServerResponse(String response) {
-        Gson gson = new Gson();
-        /*
-        데이터받을 클래스 = gson.fromJson(response, 클래스명.class);
-
-         */
-    }
 
     private void hide() {
         inputMethodManager.hideSoftInputFromWindow(searchPoemEditText.getWindowToken(), 0);

@@ -22,12 +22,14 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0">
 
-        <ImageView
+        <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/myprofileimageview"
             android:layout_width="100dp"
             android:layout_height="100dp"
             android:layout_marginTop="36dp"
             android:contentDescription="@string/logo"
+            app:civ_border_color="@android:color/white"
+            app:civ_border_width="4dp"
             app:srcCompat="@drawable/profile_icon" />
 
         <TextView

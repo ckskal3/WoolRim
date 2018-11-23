@@ -100,5 +100,8 @@
     <string name="upload_en">upload</string>
     <string name="default_time">00 : 00</string>
     <string name="timer_format">%02d : %02d</string>
+    <string name="android_kr">안드로이드</string>
+    <string name="android_en">Android</string>
+    <string name="no_profile_en">NULL</string>
 
 </resources>

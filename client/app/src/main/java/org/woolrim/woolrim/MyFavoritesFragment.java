@@ -1,5 +1,6 @@
 package org.woolrim.woolrim;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -32,11 +33,14 @@ import javax.annotation.Nonnull;
 import okhttp3.OkHttpClient;
 import okhttp3.logging.HttpLoggingInterceptor;
 
+import static android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION;
+
 public class MyFavoritesFragment extends Fragment {
     private RecyclerView myFavoritesRecyclerView;
     private MyFavoritesAdapter myFavoritesAdapter;
 
     private ArrayList<MyFavoritesItem> items = new ArrayList<>();
+    private boolean flag = true;
 
     public static MyFavoritesFragment newInstance(Bundle bundle) {
         MyFavoritesFragment myFavoritesFragment = new MyFavoritesFragment();
@@ -46,8 +50,17 @@ public class MyFavoritesFragment extends Fragment {
 
     @Override
     public void onResume() {
+        MainActivity.toolbarLabelTv.setText("즐겨찾기");
         Log.d("Time","onResume");
-//        getItems(WoolrimApplication.isLogin);
+        if(!flag) {
+            Log.d("Time","InnerOnResume");
+            items.clear();
+            myFavoritesAdapter.clearItem();
+
+            getItems(WoolrimApplication.isLogin);
+
+        }
+        flag = false;
         super.onResume();
     }
 
@@ -58,9 +71,7 @@ public class MyFavoritesFragment extends Fragment {
         Log.d("Time","onCreateView");
 
         Bundle bundle = getArguments();
-        assert bundle != null;
 //        items = bundle.getParcelableArrayList("Data");
-        getItems(WoolrimApplication.isLogin);
 
         return inflater.inflate(R.layout.fragment_my_favorites, container, false);
     }
@@ -72,18 +83,10 @@ public class MyFavoritesFragment extends Fragment {
 
         init(view);
 
-
         myFavoritesAdapter = new MyFavoritesAdapter();
-        if (!items.get(0).error.equals("ERROR")) {
-            for (MyFavoritesItem item : items) {
-                myFavoritesAdapter.addItem(item);
-            }
-        }
-//        myFavoritesAdapter.addItem(new MyFavoritesItem("별 헤는 밤","조경환",null));
-//        myFavoritesAdapter.addItem(new MyFavoritesItem("산유화","조수근",null));
-//        myFavoritesAdapter.addItem(new MyFavoritesItem("먼 후일","오동원",null));
-//        myFavoritesAdapter.addItem(new MyFavoritesItem("자화상","홍지호",null));
-//        myFavoritesAdapter.addItem(new MyFavoritesItem("긴 한숨","박채은",null));
+        getItems(WoolrimApplication.isLogin);
+
+
 
         myFavoritesAdapter.setOnItemClickListener(new MyFavoritesAdapter.OnItemClickListener() {
             @Override
@@ -94,11 +97,7 @@ public class MyFavoritesFragment extends Fragment {
                         myFavoritesAdapter.deleteItem(position);
                         break;
                     case R.id.favorite_play_iv:
-                        HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor();
-                        httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-                        OkHttpClient okHttpClient = new OkHttpClient.Builder().addInterceptor(httpLoggingInterceptor).build();
-                        ApolloClient apolloClient = ApolloClient.builder().serverUrl(WoolrimApplication.BASE_URL).okHttpClient(okHttpClient).build();
-                        apolloClient.query(GetRecordingForPlay.builder().poem_id(items.get(position).poemId).user_id(items.get(position).recordingStudentId).isMy(false).build())
+                        WoolrimApplication.apolloClient.query(GetRecordingForPlay.builder().poem_id(items.get(position).poemId).user_id(items.get(position).recordingStudentId).isMy(false).build())
                                 .enqueue(new ApolloCall.Callback<GetRecordingForPlay.Data>() {
                                     @Override
                                     public void onResponse(@Nonnull Response<GetRecordingForPlay.Data> response) {
@@ -106,6 +105,7 @@ public class MyFavoritesFragment extends Fragment {
                                         Bundle bundle = new Bundle();
                                         ArrayList<RecordItem> recordItems = new ArrayList<>();
                                         for(GetRecordingForPlay.GetRecordingForPlay1 item:response.data().getRecordingForPlay()){
+                                            Log.d("Http", items.get(position).recordingId);
                                             if(item.recording().id().equals(items.get(position).recordingId)){
                                                 flag = true;
                                                 recordItems.add(new RecordItem(
@@ -124,8 +124,10 @@ public class MyFavoritesFragment extends Fragment {
                                             }
                                         }
                                         if(flag){
-                                            PlayerFragmentTemp playerFragmentTemp = PlayerFragmentTemp.newInstance(bundle);
-                                            getActivity().getSupportFragmentManager().beginTransaction().addToBackStack("MainFragment").replace(R.id.container,playerFragmentTemp).commit();
+                                            Intent intent = new Intent(getContext(),SinglePlayerActivity.class);
+                                            intent.addFlags(FLAG_ACTIVITY_NO_ANIMATION);
+                                            intent.putParcelableArrayListExtra("Data",recordItems);
+                                            startActivity(intent);
 
                                         }else{
                                             getActivity().runOnUiThread(new Runnable() {
@@ -171,7 +173,7 @@ public class MyFavoritesFragment extends Fragment {
                                 for (GetBookmarkList.GetBookmarkList1 item:response.data().getBookmarkList()){
                                     Log.d("GetFavorite","Something");
                                     items.add(new MyFavoritesItem(
-                                            item.id(),
+                                            item.recording().id(),
                                             item.recording().poem().id(),
                                             item.recording().user().id(),
                                             item.recording().poem().name(),
@@ -179,6 +181,17 @@ public class MyFavoritesFragment extends Fragment {
                                             WoolrimApplication.loginedUserName
                                     ));
                                 }
+                            }
+                            if (!items.get(0).error.equals("ERROR")) {
+                                for (MyFavoritesItem item : items) {
+                                    myFavoritesAdapter.addItem(item);
+                                }
+                                getActivity().runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        myFavoritesAdapter.notifyDataSetChanged();
+                                    }
+                                });
                             }
                         }
 
@@ -189,7 +202,15 @@ public class MyFavoritesFragment extends Fragment {
                     });
         }else{
             items = DBManagerHelper.favoriteDAO.selectFavorite("Guest");
+
+            if (!items.get(0).error.equals("ERROR")) {
+                for (MyFavoritesItem item : items) {
+                    myFavoritesAdapter.addItem(item);
+                }
+            }
         }
+
+
     }
 }
 
@@ -235,6 +256,13 @@ class MyFavoritesAdapter extends RecyclerView.Adapter<MyFavoritesAdapter.MyFavor
     public void deleteItem(int position) {
         items.remove(position);
         notifyItemRemoved(position);
+    }
+
+    public void clearItem(){
+        int size = items.size();
+        for(int i = 0 ;i<size;i++){
+            deleteItem(0);
+        }
     }
 
     public void setOnItemClickListener(OnItemClickListener onItemClickListener) {

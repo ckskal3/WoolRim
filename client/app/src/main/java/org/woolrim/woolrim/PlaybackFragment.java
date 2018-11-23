@@ -187,7 +187,6 @@ public class PlaybackFragment extends BottomSheetDialogFragment implements View.
 
     private void processServerResponse(String response){
         Gson gson = new Gson();
-//        RequestData result = gson.fromJson(response,RequestData.class);
         Toast.makeText(getContext(),response,Toast.LENGTH_SHORT).show();
 
         ///성공일떄와 오류일떄 나눠서 처리해야함////////
@@ -198,7 +197,6 @@ public class PlaybackFragment extends BottomSheetDialogFragment implements View.
                 .commit();
         dismiss();
 
-//        Toast.makeText(getContext(),result.status+" "+String.valueOf(result.code)+result.message,Toast.LENGTH_SHORT).show();
     }
 
 

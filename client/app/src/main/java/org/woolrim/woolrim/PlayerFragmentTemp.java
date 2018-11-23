@@ -10,6 +10,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MotionEvent;
@@ -19,15 +20,21 @@ import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.apollographql.apollo.ApolloCall;
+import com.apollographql.apollo.api.Response;
+import com.apollographql.apollo.exception.ApolloException;
 import com.bumptech.glide.Glide;
 
 import org.woolrim.woolrim.DataItems.MyFavoritesItem;
 import org.woolrim.woolrim.DataItems.RecordItem;
 import org.woolrim.woolrim.Utils.DBManagerHelper;
+import org.woolrim.woolrim.type.CreateBookmarkInput;
 
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
+
+import javax.annotation.Nonnull;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.feeeei.circleseekbar.CircleSeekBar;
@@ -39,11 +46,13 @@ public class PlayerFragmentTemp extends Fragment implements View.OnTouchListener
     private RecordItem[] itemArray;
 
     private int itemSize, currentPage = 0;
+    private int[] indicatorId = {R.id.indicator1, R.id.indicator2, R.id.indicator3, R.id.indicator4};
 
     private CircleSeekBar circleSeekBar;
     private CircleImageView userProfileIV;
     private ImageView playBtnBackIV, playIconBackIV, favoriteIconIV;
     private TextView fullTimeTextView, playingTimeTextView, userNameTextView;
+    private View[] indicator;
 
     private ConstraintLayout playerBackgroundLayout;
 
@@ -69,11 +78,12 @@ public class PlayerFragmentTemp extends Fragment implements View.OnTouchListener
     }
 
 
-    public static PlayerFragmentTemp newInstance(Bundle bundle){
+    public static PlayerFragmentTemp newInstance(Bundle bundle) {
         PlayerFragmentTemp playerFragmentTemp = new PlayerFragmentTemp();
         playerFragmentTemp.setArguments(bundle);
-        return  playerFragmentTemp;
+        return playerFragmentTemp;
     }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -83,8 +93,9 @@ public class PlayerFragmentTemp extends Fragment implements View.OnTouchListener
         assert items != null;
         itemSize = items.size();
         itemArray = new RecordItem[itemSize];
-        int i =0;
-        for(RecordItem item : items){
+        indicator = new View[itemSize];
+        int i = 0;
+        for (RecordItem item : items) {
             itemArray[i] = item;
             i++;
         }
@@ -94,6 +105,7 @@ public class PlayerFragmentTemp extends Fragment implements View.OnTouchListener
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
 
         init(view);
 
@@ -109,18 +121,25 @@ public class PlayerFragmentTemp extends Fragment implements View.OnTouchListener
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+        MainActivity.toolbarLabelTv.setText(items.get(0).poemName);
+    }
+
+    @Override
     public void onDetach() {//Fragment stack에서 빠질때(?)
-        Log.d("Time","onDetach");
-        if(mediaPlayer != null){
+        Log.d("Time1", "onDetach");
+        if (mediaPlayer != null) {
             mediaPlayer.release();
         }
         updateBookmark();
+
         super.onDetach();
     }
 
     @Override
     public void onPause() {//다른 화면 전환시
-        Log.d("Time","onPause");
+        Log.d("Time1", "onPause");
         updateBookmark();
         super.onPause();
     }
@@ -129,10 +148,10 @@ public class PlayerFragmentTemp extends Fragment implements View.OnTouchListener
     public void onClick(View view) {
         switch (view.getId()) {
             case R.id.player_favorite_icon_iv:
-                if(bookmarkFlag == 1){
+                if (bookmarkFlag == 1) {
                     favoriteIconIV.setImageResource(R.drawable.favorite_middle_empty_color_icon);
                     bookmarkFlag = 0;
-                }else{
+                } else {
                     favoriteIconIV.setImageResource(R.drawable.favorite_middle_color_icon);
                     bookmarkFlag = 1;
                 }
@@ -146,8 +165,6 @@ public class PlayerFragmentTemp extends Fragment implements View.OnTouchListener
                 break;
         }
     }
-
-
 
 
     @Override
@@ -180,19 +197,21 @@ public class PlayerFragmentTemp extends Fragment implements View.OnTouchListener
                 return true;
             }
         }
-        if(itemSize > 1) {
-            if (mSwipeDetected == Action.RL) {
+        if (itemSize > 1) {
+            if (mSwipeDetected == Action.RL && currentPage != (itemSize-1)) {
                 Log.i(logTag, "우에서 좌");
                 stopMediaAndTimer();
                 updateBookmark();
-                currentPage = ++currentPage%itemSize;
+                indicator[currentPage].setBackground(ContextCompat.getDrawable(getContext(), R.drawable.default_indicator));
+                currentPage = ++currentPage % itemSize;
                 setItem(currentPage);
-            } else if (mSwipeDetected == Action.LR) {
+            } else if (mSwipeDetected == Action.LR && currentPage != 0) {
                 Log.i(logTag, "좌에서 우");
                 stopMediaAndTimer();
                 updateBookmark();
+                indicator[currentPage].setBackground(ContextCompat.getDrawable(getContext(), R.drawable.default_indicator));
                 --currentPage;
-                currentPage = currentPage < 0 ?  itemSize-1 : currentPage;
+                currentPage = currentPage < 0 ? itemSize - 1 : currentPage;
                 setItem(currentPage);
             }
         }
@@ -246,12 +265,18 @@ public class PlayerFragmentTemp extends Fragment implements View.OnTouchListener
         circleSeekBar = view.findViewById(R.id.player_circle_seek_bar);
         fullTimeTextView = view.findViewById(R.id.player_full_time_textview);
         playingTimeTextView = view.findViewById(R.id.player_playing_time_textview);
+
+        for (int i = 0; i < itemSize; i++) {
+            indicator[i] = view.findViewById(indicatorId[i]);
+            indicator[i].setVisibility(View.VISIBLE);
+        }
+
     }
 
     private void setItem(int currentPage) {
         bookmarkFlag = itemArray[currentPage].bookmarkFlag;
         userNameTextView.setText(itemArray[currentPage].studentName);
-        if (itemArray[currentPage].studentProfilePath == null) {
+        if (itemArray[currentPage].studentProfilePath == null || itemArray[currentPage].studentProfilePath.equals(getString(R.string.no_profile_en))) {
             Glide.with(this).load(R.drawable.profile_icon).into(userProfileIV);
         } else {
             Glide.with(this).load(itemArray[currentPage].studentProfilePath).into(userProfileIV);
@@ -261,6 +286,7 @@ public class PlayerFragmentTemp extends Fragment implements View.OnTouchListener
         } else {
             favoriteIconIV.setImageResource(R.drawable.favorite_middle_empty_color_icon);
         }
+        indicator[currentPage].setBackground(ContextCompat.getDrawable(getContext(), R.drawable.selected_indicator));
         fullTimeTextView.setText(getString(R.string.default_time));
         mediaPlayer = new MediaPlayer();
         try {
@@ -287,9 +313,9 @@ public class PlayerFragmentTemp extends Fragment implements View.OnTouchListener
 
                 }
             });
-        }catch (IOException e ){
+        } catch (IOException e) {
             e.printStackTrace();
-        }finally {
+        } finally {
             circleSeekBar.setCurProcess(0);
             playingTimeTextView.setText(getString(R.string.default_time));
             playingTimeTextView.setTextColor(getColor(R.color.timer_default_text_color));
@@ -299,7 +325,7 @@ public class PlayerFragmentTemp extends Fragment implements View.OnTouchListener
 
     }
 
-    private void stopMediaAndTimer(){
+    private void stopMediaAndTimer() {
         isPlaying = false;
         mediaPlayer.stop();
         mediaPlayer.release();
@@ -307,7 +333,7 @@ public class PlayerFragmentTemp extends Fragment implements View.OnTouchListener
         seekBarHandler.removeCallbacks(seekBarRunnable);
     }
 
-    private void setDuration(MediaPlayer mediaPlayer){
+    private void setDuration(MediaPlayer mediaPlayer) {
         long itemDuration = mediaPlayer.getDuration();
         long minutes = TimeUnit.MILLISECONDS.toMinutes(itemDuration);
         long seconds = TimeUnit.MILLISECONDS.toSeconds(itemDuration)
@@ -315,20 +341,50 @@ public class PlayerFragmentTemp extends Fragment implements View.OnTouchListener
         fullTimeTextView.setText(String.format(getString(R.string.timer_format), minutes, seconds));
     }
 
-    private void updateBookmark(){ // 비로그인시
-        Log.d("Flag",String.valueOf(bookmarkFlag)+" "+ String.valueOf(itemArray[currentPage].bookmarkFlag));
-        if(bookmarkFlag != itemArray[currentPage].bookmarkFlag) {
-            itemArray[currentPage].bookmarkFlag = bookmarkFlag;
-            DBManagerHelper.favoriteDAO.updateFavorite(
-                    new MyFavoritesItem(
-                            String.valueOf(itemArray[currentPage].mediaId),
-                            String.valueOf(itemArray[currentPage].poemId),
-                            String.valueOf(itemArray[currentPage].studentId),
-                            itemArray[currentPage].poemName,
-                            itemArray[currentPage].studentName,
-                            "Guest"
-                    ),
-                    bookmarkFlag);
+    private void updateBookmark() { // 비로그인시
+        Log.d("Flag", String.valueOf(bookmarkFlag) + " " + String.valueOf(itemArray[currentPage].bookmarkFlag));
+        if (bookmarkFlag != itemArray[currentPage].bookmarkFlag) { //이전상태와 지금상태가 다를때
+            if (WoolrimApplication.isLogin) {
+               requestServerForBookmark(bookmarkFlag);
+            } else {
+                itemArray[currentPage].bookmarkFlag = bookmarkFlag;
+                DBManagerHelper.favoriteDAO.updateFavorite(
+                        new MyFavoritesItem(
+                                String.valueOf(itemArray[currentPage].mediaId),
+                                String.valueOf(itemArray[currentPage].poemId),
+                                String.valueOf(itemArray[currentPage].studentId),
+                                itemArray[currentPage].poemName,
+                                itemArray[currentPage].studentName,
+                                "Guest"
+                        ),
+                        bookmarkFlag);
+            }
+        }
+    }
+
+    private void requestServerForBookmark(int bookmarkFlag){
+        if(bookmarkFlag == 1){
+            WoolrimApplication.apolloClient.mutate(CreateBookMark
+                    .builder()
+                    .input(CreateBookmarkInput
+                            .builder()
+                            .user_id(String.valueOf(WoolrimApplication.loginedUserPK))
+                            .recording_id(String.valueOf(itemArray[currentPage].mediaId))
+                            .build())
+                    .build())
+                    .enqueue(new ApolloCall.Callback<CreateBookMark.Data>() {
+                @Override
+                public void onResponse(@Nonnull Response<CreateBookMark.Data> response) {
+
+                }
+
+                @Override
+                public void onFailure(@Nonnull ApolloException e) {
+
+                }
+            });
+        }else{
+
         }
     }
 
@@ -343,7 +399,7 @@ public class PlayerFragmentTemp extends Fragment implements View.OnTouchListener
         updateSeekBar();
 
         mediaPlayer.start();
-        if(!isPause){
+        if (!isPause) {
             playingTimeTextView.setText(getString(R.string.default_time));
         }
         isPlaying = true;

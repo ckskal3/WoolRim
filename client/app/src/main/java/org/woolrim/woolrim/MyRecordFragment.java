@@ -1,9 +1,11 @@
 package org.woolrim.woolrim;
 
+import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -75,7 +77,12 @@ public class MyRecordFragment extends Fragment {
 
                         }
                     }
-                    adapter.updateItem();
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            adapter.updateItem();
+                        }
+                    });
                 }
             });
         } else {
@@ -93,24 +100,18 @@ public class MyRecordFragment extends Fragment {
             for(MyRecordItem myRecordItem : poemLists){
                 adapter.addItem(myRecordItem);
             }
-//            adapter.addItem(new MyRecordItem(null,"김소월", "시1", false));
-//            adapter.addItem(new MyRecordItem(null,"김소월", "시2", false));
-//            adapter.addItem(new MyRecordItem(null,"김소월", "시3", false));
-//            adapter.addItem(new MyRecordItem(null,"김소월", "시4", true));
-//            adapter.addItem(new MyRecordItem(null,"김소월", "시5", false));
+
         } else {
             for(MyRecordItem myRecordItem : notificationLists){
                 adapter.addItem(myRecordItem);
             }
-//            adapter.addItem(new MyRecordItem(null,"이런 알람이 있습니다.", null, true));
-//            adapter.addItem(new MyRecordItem(null,"저런 알람도 있습니다.", null, true));
+
         }
 
         Log.d("Size", "" + adapter.items.size());
 
         myRecordRecyclerView.setAdapter(adapter);
         myRecordRecyclerView.setEmptyView(view.findViewById(R.id.my_no_item_view));
-
 
 
         adapter.setOnItemClickListener(new MyRecordAdapter.OnItemClickListener() {
@@ -135,10 +136,12 @@ public class MyRecordFragment extends Fragment {
                         case R.id.my_record_item_background_layout:
                             if(!adapter.getItem(position).auth_flag) {
                                 if(adapter.getItem(position).click_flag){
-                                    myMenuViewHolder.backgroundLayout.setBackgroundColor(android.R.color.white);
+                                    Log.d("Time","Here");
+                                    myMenuViewHolder.backgroundLayout.setBackgroundColor(getColor(android.R.color.white));
                                     adapter.getItem(position).click_flag = false;
                                 }else{
-                                    myMenuViewHolder.backgroundLayout.setBackgroundColor(R.color.gray_bar_color);
+                                    Log.d("Time","There");
+                                    myMenuViewHolder.backgroundLayout.setBackgroundColor(getColor(R.color.bright_gray_color));
                                     adapter.getItem(position).click_flag = true;
                                 }
                             }
@@ -163,6 +166,16 @@ public class MyRecordFragment extends Fragment {
         myRecordRecyclerView = view.findViewById(R.id.my_list_recycler);
         myBongsaButton = view.findViewById(R.id.my_bongsa_get_button);
     }
+
+
+    private int getColor(int colorId){
+        final int version = Build.VERSION.SDK_INT;
+        if (version >= 23) {
+            return getResources().getColor(colorId, null);
+        } else {
+            return getResources().getColor(colorId);
+        }
+    }
 }
 
 
@@ -175,6 +188,7 @@ class MyRecordAdapter extends RecyclerView.Adapter<MyMenuViewHolder> {
     public ArrayList<MyRecordItem> items = new ArrayList<>();
     private OnItemClickListener onItemClickListener = null;
     private int fragmentRequestCode = 0;
+    public MyMenuViewHolder myMenuViewHolder;
 
     public MyRecordAdapter(int fragmentRequestCode) {
         super();
@@ -206,6 +220,7 @@ class MyRecordAdapter extends RecyclerView.Adapter<MyMenuViewHolder> {
     public void updateItem(){
         for(int i =0 ; i<items.size();i++) {
             if (items.get(i).click_flag) {
+                Log.d("Time",String.valueOf(i));
                 items.get(i).click_flag = false;
                 items.get(i).auth_flag = true;
                 notifyItemChanged(i);
@@ -229,6 +244,7 @@ class MyRecordAdapter extends RecyclerView.Adapter<MyMenuViewHolder> {
             holder.poemTv.setText(items.get(position).poem);
             if(items.get(position).auth_flag){
                 holder.deleteIv.setVisibility(View.INVISIBLE);
+                holder.backgroundLayout.setBackgroundColor(ContextCompat.getColor(holder.itemView.getContext(),android.R.color.white));
             }
         } else {
             holder.poetTv.setText(items.get(position).poet);
@@ -238,6 +254,8 @@ class MyRecordAdapter extends RecyclerView.Adapter<MyMenuViewHolder> {
         }
 
         holder.setOnItemClickListener(onItemClickListener);
+
+        myMenuViewHolder = holder;
 
     }
 

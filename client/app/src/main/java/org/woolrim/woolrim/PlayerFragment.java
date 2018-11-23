@@ -313,7 +313,7 @@ public class PlayerFragment extends Fragment implements View.OnClickListener, Pl
 
     private void setItem() {
         userNameTextView.setText(recordData.studentName);
-        if (recordData.studentProfilePath == null) {
+        if (recordData.studentProfilePath == null|| recordData.studentProfilePath.equals(getString(R.string.no_profile_en))) {
             Glide.with(this).load(R.drawable.profile_icon).into(userProfileIV);
         } else {
             Glide.with(this).load(recordData.studentProfilePath).into(userProfileIV);

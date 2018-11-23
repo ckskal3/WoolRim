@@ -7,7 +7,7 @@
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
 
 
     <application
@@ -32,9 +32,12 @@
             android:name=".MainActivity"
             android:screenOrientation="portrait"
             android:supportsRtl="true" />
-        <activity android:name=".PreviewPictureActivity"
-            android:screenOrientation="portrait"
-            />
+        <activity
+            android:name=".PreviewPictureActivity"
+            android:screenOrientation="portrait" />
+        <activity android:name=".SinglePlayerActivity"
+            android:screenOrientation="portrait"/>
+
         <service
             android:name=".Temp.GetDataService"
             android:enabled="true"
