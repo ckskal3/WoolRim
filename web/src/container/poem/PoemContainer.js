@@ -58,7 +58,6 @@ export class PoemContainer extends Component {
       point: input.point,
       length: input.length,
     })){
-      window.alert('수정완료');
     }else{
       window.alert('수정실패');
     }
