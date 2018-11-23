@@ -3,6 +3,7 @@ package org.woolrim.woolrim.AudioMixUtils;
 import android.media.MediaCodec;
 import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
+import android.util.Log;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -127,7 +128,7 @@ class AACAudioEncoder extends AudioEncoder {
         } catch (IOException e) {
             e.printStackTrace();
         } finally {
-
+            Log.d("Time","End");
             try {
                 if (fisRawAudio != null)
                     fisRawAudio.close();

@@ -2,7 +2,9 @@ package org.woolrim.woolrim;
 
 import android.content.Context;
 
+import android.graphics.Canvas;
 import android.media.AudioRecord;
+import android.media.audiofx.Visualizer;
 import android.os.Build;
 import android.os.Handler;
 import android.os.SystemClock;
@@ -14,18 +16,22 @@ import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.Chronometer;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 
 import org.woolrim.woolrim.AudioMixUtils.AudioEncoder;
 import org.woolrim.woolrim.DataItems.RecordItem;
+import org.woolrim.woolrim.Utils.WaveLineViewTemp;
 
 import java.io.File;
 import java.io.IOException;
@@ -41,7 +47,8 @@ import omrecorder.Recorder;
 public class RecordFragment extends Fragment implements View.OnClickListener, MainActivity.OnKeyBackPressedListener {
     private Recorder recorder;
     private TextView poemTv;
-    private Button startBtn, stopBtn, replayBtn;
+    private ImageView startAndPauseIconIV;
+    private LinearLayout startBtn, stopBtn, replayBtn;
     private Chronometer chronometer;
 
     private long totalDuration, tempDuration, startTime, pausedTime;
@@ -52,15 +59,9 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
     private boolean isRecording = false;
     private boolean isPaused = false;
 
+//    private WaveLineView waveLineView;
 
-    private File recordFile;
-
-
-    private WaveLineView waveLineView;
-    private AudioRecord audioRecord;
-    private short[] buffer = new short[100];
-    private Handler handler;
-    private Runnable runnable;
+    private WaveLineViewTemp waveLineView;
 
     public static RecordFragment newInstance(Bundle bundle) {
         RecordFragment recordFragment = new RecordFragment();
@@ -90,17 +91,21 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
 
         setListener();
 
+
+
     }
 
     @Override
     public void onAttach(Context context) {
+        Log.d("Time", "onAttach");
+
         super.onAttach(context);
 
     }
 
     @Override
     public void onDetach() {
-        super.onDetach();
+        Log.d("Time", "onDetach");
         if (isPaused) {
             //해당 녹음 파일 삭제 해야됨
             File file = new File(mFilePath);
@@ -109,16 +114,21 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
             }
         }
         recorder = null;
+        super.onDetach();
+
     }
 
     @Override
     public void onDestroyView() {
+        Log.d("Time", "onDestroyView");
 
         super.onDestroyView();
     }
 
     @Override
     public void onResume() {
+        Log.d("Time", "onResume");
+        waveLineView.onResume();
         super.onResume();
         MainActivity.toolbarLabelTv.setText(poetName + " - " + poemName);
     }
@@ -126,13 +136,16 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
     private void init(View view) {
         waveLineView = view.findViewById(R.id.wave_line_view);
         poemTv = view.findViewById(R.id.poem_content_tv);
-        startBtn = view.findViewById(R.id.record_btn);
-        stopBtn = view.findViewById(R.id.stop_btn);
-        replayBtn = view.findViewById(R.id.replay_btn);
+        startBtn = view.findViewById(R.id.record_layout);
+        startAndPauseIconIV = view.findViewById(R.id.start_and_pause_icon_iv);
+        stopBtn = view.findViewById(R.id.stop_layout);
+        replayBtn = view.findViewById(R.id.replay_layout);
         chronometer = view.findViewById(R.id.recordingduration_chronometer);
     }
 
     private void setupRecorder() {
+
+        File recordFile;
         recordFile = file();
         recorder = OmRecorder.pcm(
                 new PullTransport.Default(mic(), new PullTransport.OnAudioChunkPulledListener() {
@@ -194,9 +207,10 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-            case R.id.record_btn:
+            case R.id.record_layout:
                 if (!isRecording && !isPaused) { //최초 실행 녹음
                     if (mFilePath != null) { //이전 녹음 존재시 삭제
+                        waveLineView.onResume();
                         File file = new File(mFilePath);
                         if (file.delete()) {
                             Log.d("삭제", "됨");
@@ -211,38 +225,19 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
 
                     startTime = System.currentTimeMillis();
 
-                    recorder.startRecording();
+                    startAndPauseIconIV.setImageResource(R.drawable.record_pause_icon);
 
-//                    runnable = new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            double sum = 0;
-//                            int readSize = audioRecord.read(buffer, 0, buffer.length);
-//                            for (int i = 0; i < readSize; i++) {
-//                                sum += buffer[i] * buffer[i];
-//                            }
-//                            if (readSize > 0) {
-//                                int amplitude = (int)(sum / readSize);
-//                                amplitude/=100;
-//                                if (amplitude > 100) {
-//                                    amplitude = 100;
-//                                }
-//                                Log.d("amplitude", String.valueOf(amplitude));
-//                                waveLineView.setVolume(amplitude);
-//                            }
-//                            handler.postDelayed(this,2000);
-//                        }
-//                    };
-//                    handler.post(runnable);
+                    recorder.startRecording();
 
                     chronometer.setTextColor(getColor(R.color.app_sub_color));
                     chronometer.setBase(SystemClock.elapsedRealtime());
                     chronometer.start();
 
                     isRecording = !isRecording;
-                    startBtn.setText("일시정지");
                     Toast.makeText(getContext(), "Record Start!", Toast.LENGTH_SHORT).show();
                 } else if (!isRecording && isPaused) { // 일시 정지 후 다시 녹음
+
+                    startAndPauseIconIV.setImageResource(R.drawable.record_pause_icon);
 
                     startTime = System.currentTimeMillis();
 
@@ -255,12 +250,12 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
 
                     isRecording = !isRecording;
                     isPaused = !isPaused;
-                    startBtn.setText("일시정지");
                     Toast.makeText(getContext(), "Record Resume!", Toast.LENGTH_SHORT).show();
                 } else { // 일시정지
 
                     tempDuration = System.currentTimeMillis() - startTime + tempDuration;
                     totalDuration = tempDuration;
+                    startAndPauseIconIV.setImageResource(R.drawable.record_start_circle);
 
                     recorder.pauseRecording();
                     waveLineView.stopAnim();
@@ -271,25 +266,29 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
 
                     isRecording = !isRecording;
                     isPaused = !isPaused;
-                    startBtn.setText("녹음하기");
                     Toast.makeText(getContext(), "Record Pause!", Toast.LENGTH_SHORT).show();
                 }
                 break;
 
-            case R.id.stop_btn:
+            case R.id.stop_layout:
                 if (mFilePath != null && isRecording) {
                     try {
                         if (!isPaused)
                             totalDuration = totalDuration + System.currentTimeMillis() - startTime;
-                        startBtn.setText("녹음하기");
                         recorder.stopRecording();
 
                         recorder = null;
+                        startAndPauseIconIV.setImageResource(R.drawable.record_start_circle);
+                        waveLineView.clearDraw();
 
-                        waveLineView.stopAnim();
-                        waveLineView.release();
 
-//                        handler.removeMessages(0);
+
+//                        getActivity().runOnUiThread(new Runnable() {
+//                            @Override
+//                            public void run() {
+//                                waveLineView.clearDraw();
+//                            }
+//                        });
 
                         chronometer.setTextColor(getColor(R.color.timer_default_text_color));
                         chronometer.stop();
@@ -300,17 +299,22 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
                         e.printStackTrace();
                     }
 
+                    /////////////////
                     AudioEncoder accEncoder = AudioEncoder.createAccEncoder(mFilePath);
                     String finalMixPath = mFileNameAAC;
                     accEncoder.encodeToFile(finalMixPath);
+
                     mFilePath = mFileNameAAC;
+                    ///////////////////
+
+
                     isRecording = false;
                     isPaused = false;
 
                 }
 
                 break;
-            case R.id.replay_btn:
+            case R.id.replay_layout:
                 if (mFilePath != null && !isPaused && !isRecording) {
                     Bundle bundle = new Bundle();
                     bundle.putParcelable("RecordItem", new RecordItem(mFileName, mFilePath, 0, "null"));
@@ -323,7 +327,8 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
     }
 ///////////////이부분 수정함///////////////////////
     private void animateVoice(final float maxPeak) {
-        waveLineView.setVolume((int)(maxPeak-40));
+        waveLineView.setVolume((int)(maxPeak));
+
         Log.d("Volume",String.valueOf(maxPeak));
 //        recordButton.animate().scaleX(1 + maxPeak).scaleY(1 + maxPeak).setDuration(10).start();
     }
@@ -349,3 +354,4 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
         }
     }
 }
+

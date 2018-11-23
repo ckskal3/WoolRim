@@ -295,21 +295,29 @@ public class PoemListFragment extends Fragment {
 
 
         } else { // Recorder
-            WoolrimApplication.apolloClient.query(GetPoemByName.builder().poem_name(poemName).poet_name(poetName).build())
-                    .enqueue(new ApolloCall.Callback<GetPoemByName.Data>() {
-                        @Override
-                        public void onResponse(@Nonnull Response<GetPoemByName.Data> response) {
-                            bundle.putString("PoemContent", response.data().getPoemByNames().content());
-                            RecordFragment recordFragment = RecordFragment.newInstance(bundle);
-                            getActivity().getSupportFragmentManager().beginTransaction().addToBackStack("RecordListFragment")
-                                    .replace(R.id.container, recordFragment).commit();
-                        }
+            if(!WoolrimApplication.isTest){
+                WoolrimApplication.apolloClient.query(GetPoemByName.builder().poem_name(poemName).poet_name(poetName).build())
+                        .enqueue(new ApolloCall.Callback<GetPoemByName.Data>() {
+                            @Override
+                            public void onResponse(@Nonnull Response<GetPoemByName.Data> response) {
+                                bundle.putString("PoemContent", response.data().getPoemByNames().content());
+                                RecordFragment recordFragment = RecordFragment.newInstance(bundle);
+                                getActivity().getSupportFragmentManager().beginTransaction().addToBackStack("RecordListFragment")
+                                        .replace(R.id.container, recordFragment).commit();
+                            }
 
-                        @Override
-                        public void onFailure(@Nonnull ApolloException e) {
+                            @Override
+                            public void onFailure(@Nonnull ApolloException e) {
 
-                        }
-                    });
+                            }
+                        });
+            }else{
+                bundle.putString("PoemContent", "테스트 가나다 시");
+                RecordFragment recordFragment = RecordFragment.newInstance(bundle);
+                getActivity().getSupportFragmentManager().beginTransaction().addToBackStack("RecordListFragment")
+                        .replace(R.id.container, recordFragment).commit();
+            }
+
         }
     }
 

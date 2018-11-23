@@ -51,21 +51,36 @@
         app:layout_constraintTop_toBottomOf="@+id/scrollView"
         app:layout_constraintVertical_weight="2">
 
-        <jaygoo.widget.wlv.WaveLineView
-            android:id="@+id/wave_line_view"
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight="1"
-            app:wlvBackgroundColor="@android:color/transparent"
-            app:wlvLineColor="@color/app_main_color"
-            />
+            android:layout_weight="1">
+            <org.woolrim.woolrim.Utils.WaveLineViewTemp
+                android:id="@+id/wave_line_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_gravity="center"
+                app:wlvBackgroundColor="@android:color/transparent"
+                app:wlvLineColor="@color/app_main_color"
+                app:wlvMoveSpeed="200"
+                app:wlvFineLineWidth="0dp"
+                app:wlvThickLineWidth="1.5dp"
+                app:wlvSensibility="5"
+                />
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:layout_gravity="center_vertical"
+                android:background="@color/app_main_color"/>
+        </FrameLayout>
+
+
 
         <Chronometer
             android:id="@+id/recordingduration_chronometer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            android:layout_marginTop="5dp"
+            android:layout_marginBottom="30dp"
             android:textColor="#000000"
             android:textSize="45sp"
             android:textStyle="bold" />
@@ -73,37 +88,82 @@
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="102dp"
-            android:layout_marginEnd="10dp"
-            android:layout_marginStart="25dp"
+            android:layout_height="108dp"
+            android:layout_marginEnd="9dp"
+            android:layout_marginStart="15dp"
+            android:layout_marginBottom="10dp"
             android:background="@drawable/shadow"
             android:gravity="center"
             android:orientation="horizontal">
 
-            <Button
-                android:id="@+id/replay_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
-                android:layout_marginStart="5dp"
-                android:layout_marginTop="10dp"
-                android:text="@string/replay" />
+           <LinearLayout
+               android:id="@+id/replay_layout"
+               android:layout_width="wrap_content"
+               android:layout_height="match_parent"
+               android:orientation="vertical"
+               android:gravity="center">
 
-            <Button
-                android:id="@+id/record_btn"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
-                android:layout_marginTop="10dp"
-                android:text="@string/recordstart" />
+               <ImageView
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:layout_marginTop="16dp"
+                   app:srcCompat="@drawable/replay_icon" />
+               <TextView
+                   android:layout_width="wrap_content"
+                   android:layout_height="wrap_content"
+                   android:text="@string/replay"
+                   android:textSize="12sp"
+                   android:textColor="@color/recording_fragment_tool_box_color"/>
+           </LinearLayout>
 
-            <Button
-                android:id="@+id/stop_btn"
+            <LinearLayout
+                android:id="@+id/record_layout"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="10dp"
-                android:layout_marginTop="10dp"
-                android:text="@string/stop" />
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:layout_marginStart="42dp"
+                android:layout_marginEnd="42dp"
+                android:gravity="center">
+                <FrameLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content">
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="3dp"
+                        android:layout_gravity="center"
+                        app:srcCompat="@drawable/record_circle"/>
+                    <ImageView
+                        android:id="@+id/start_and_pause_icon_iv"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center"
+                        app:srcCompat="@drawable/record_start_circle" />
+                </FrameLayout>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/stop_layout"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:gravity="center">
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    app:srcCompat="@drawable/record_stop_icon" />
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/stop"
+                    android:textSize="12sp"
+                    android:textColor="@color/recording_fragment_tool_box_color"/>
+            </LinearLayout>
+
+
 
         </LinearLayout>
 

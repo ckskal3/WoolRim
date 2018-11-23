@@ -11,6 +11,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import java.io.File;
+
 public class CheckBottomFragment extends BottomSheetDialogFragment {
     public static final int MY_RECORD_DELETE_REQUEST = 0;
     public static final int MY_VOLUNTEER_SCORE_SUBMIT_REQUEST = 1;
@@ -175,6 +177,8 @@ public class CheckBottomFragment extends BottomSheetDialogFragment {
                         }else if (requestCode == 0) {
                             getActivity().getSupportFragmentManager().popBackStack();
                         }
+                        File file = new File(filePath);
+                        file.delete();
                         dismiss();
                     }
                 });

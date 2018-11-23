@@ -25,8 +25,8 @@ public class WoolrimApplication extends Application {
     public final static int REQUSET_FAVORITE = 112;
     public final static int REQUSET_RECORD_LOGOUT = 113;
 
-    public final static String BASE_URL = "http://52.79.33.194:3000/graphql";
-    public final static String FILE_BASE_URL = "http://52.79.33.194:4000/";
+    public final static String BASE_URL = "http://13.125.221.121:3000/graphql";
+    public final static String FILE_BASE_URL = "http://13.125.221.121:4000/";
 
     public static String loginedUserName,loginedUserProfile , loginedUserPK;
     public static int loginedUserId;

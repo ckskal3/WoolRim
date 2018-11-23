@@ -27,6 +27,7 @@ import com.apollographql.apollo.ApolloCall;
 import com.apollographql.apollo.ApolloClient;
 import com.apollographql.apollo.exception.ApolloException;
 import com.google.gson.Gson;
+import com.google.gson.annotations.SerializedName;
 
 import org.woolrim.woolrim.DataItems.PoetItem;
 import org.woolrim.woolrim.DataItems.PoemAndPoetItem;
@@ -106,10 +107,12 @@ public class MainFragment extends Fragment implements View.OnClickListener {
         if(NetworkStatus.getConnectivityStatus(getContext()) != NetworkStatus.TYPE_NOT_CONNECTED) {//인터넷 연결시
             switch (view.getId()) {
                 case R.id.show_list_layout: // 시 목록 보기
-                    requestServerForPoemListGraphQL(WoolrimApplication.REQUSET_POEM_LIST_FRAGMENT,null);
+                    requestServerForPoemList(WoolrimApplication.REQUSET_POEM_LIST_FRAGMENT);
+//                    requestServerForPoemListGraphQL(WoolrimApplication.REQUSET_POEM_LIST_FRAGMENT,null);
                     break;
                 case R.id.show_record_layout: // 시 녹음 목록 보기
-                    requestServerForPoemListGraphQL(WoolrimApplication.REQUSET_RECORD_LIST_FRAGMENT,null);
+                    requestServerForPoemList(WoolrimApplication.REQUSET_RECORD_LIST_FRAGMENT);
+//                    requestServerForPoemListGraphQL(WoolrimApplication.REQUSET_RECORD_LIST_FRAGMENT,null);
                     break;
                 case R.id.search_voice_layout: // 음성 인식
 
@@ -142,14 +145,7 @@ public class MainFragment extends Fragment implements View.OnClickListener {
     }
 
     public void requestServerForPoemListGraphQL(final int where, @Nullable final String searchKey){
-        HttpLoggingInterceptor httpLoggingInterceptor = new HttpLoggingInterceptor();
-        httpLoggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-        OkHttpClient okHttpClient = new OkHttpClient.Builder().addInterceptor(httpLoggingInterceptor).build();
-
-        ApolloClient apolloClient = ApolloClient.builder().serverUrl(WoolrimApplication.BASE_URL)
-                .okHttpClient(okHttpClient).build();
-
-        apolloClient.query(GetAllPoem.builder().build()).enqueue(new ApolloCall.Callback<GetAllPoem.Data>() {
+        WoolrimApplication.apolloClient.query(GetAllPoem.builder().build()).enqueue(new ApolloCall.Callback<GetAllPoem.Data>() {
             @Override
             public void onResponse(@Nonnull com.apollographql.apollo.api.Response<GetAllPoem.Data> response) {
                 ArrayList<PoemAndPoetItem> arrayList = new ArrayList<>();
@@ -208,5 +204,94 @@ public class MainFragment extends Fragment implements View.OnClickListener {
             }
         });
     }
+
+    public  void requestServerForPoemList(final int where) {
+        String url = "http://stou2.cafe24.com/Woolrim/DataSelect.php";
+        StringRequest stringRequest = new StringRequest(
+                Request.Method.GET,
+                url,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        ArrayList<PoemAndPoetItem> result = processServerRespose(response);
+                        if(result != null){
+                            String oldPoet = null;
+                            ArrayList<PoetItem> poetItems = new ArrayList<>();
+                            int i = -1 ;
+                            for(PoemAndPoetItem tempDataItem : result){
+                                String newPoet = tempDataItem.poet;
+                                if(!newPoet.equals(oldPoet)){
+                                    PoetItem poetItem = new PoetItem(newPoet);
+                                    poetItem.poemName.add(tempDataItem);
+                                    poetItems.add(poetItem);
+                                    oldPoet = newPoet;
+                                    i++;
+                                }else{
+                                    poetItems.get(i).poemName.add(tempDataItem);
+                                }
+                            }
+                            Bundle bundle = new Bundle();
+                            bundle.putParcelableArrayList("DataItems",poetItems);
+                            bundle.putInt(getString(R.string.request_code),where);
+                            if(where == WoolrimApplication.REQUSET_POEM_LIST_FRAGMENT) {
+//                                bundle.putString("SearchKey","먼 후일");
+                                PoemListFragment poemListFragment = PoemListFragment.newInstance(bundle);
+                                getActivity().getSupportFragmentManager().beginTransaction().
+                                        replace(R.id.container, poemListFragment).addToBackStack("MainFragment").commit();
+                            }else if(where == WoolrimApplication.REQUSET_RECORD_LIST_FRAGMENT){
+                                if(WoolrimApplication.isLogin){// 로그인 되어있을경우
+                                    PoemListFragment poemListFragment = PoemListFragment.newInstance(bundle);
+                                    getActivity().getSupportFragmentManager().beginTransaction().
+                                            replace(R.id.container, poemListFragment).addToBackStack("MainFragment").commit();
+                                }else{// 로그인 해야할 경우
+                                    LoginFragment loginFragment = LoginFragment.newInstance(bundle);
+                                    getActivity().getSupportFragmentManager().beginTransaction().
+                                            replace(R.id.container, loginFragment).addToBackStack("MainFragment").commit();
+                                }
+                            }
+                        }else{
+                            Toast.makeText(getContext(),"오류가 발생했습니다. 다시 시도해 주세요",Toast.LENGTH_SHORT).show();
+                        }
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                    }
+                }
+        ){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                return super.getParams();
+            }
+        };
+        stringRequest.setShouldCache(false);
+        WoolrimApplication.requestQueue.add(stringRequest);
+    }
+    private ArrayList<PoemAndPoetItem> processServerRespose(String response){
+        Gson gson = new Gson();
+        RequestData requestData = gson.fromJson(response,RequestData.class);
+        if(requestData.code == 200){
+            Log.d("Code",String.valueOf(requestData.code));
+            return requestData.result;
+        }else return null;
+    }
+    public class RequestData {
+        @SerializedName("data")
+        public UserItem data;
+        @SerializedName("Status")
+        public String status;
+        @SerializedName("Code")
+        public int code;
+        @SerializedName("message")
+        public String message;
+        @SerializedName("result")
+        public ArrayList<PoemAndPoetItem> result;
+    }
+
+    public class UserItem {
+        public UserDetail getUser;
+    }
+
 
 }
