@@ -1,17 +1,11 @@
 import { Connection } from 'cormo';
 
-export const Conn = new Connection('mysql', { 
-    host: 'woolrim-db.czpqx7iovvxj.ap-northeast-2.rds.amazonaws.com',
-    port: 3306,
-    user: 'woolrim_admin',
-    password: 'dnfflawoolrim',
-    database: 'woolrim_db',
-});
+const isProducttion = process.env.NODE_ENV === 'production';
 
-// export const Conn = new Connection('mysql', {
-//   host: 'localhost',
-//   port: 3306,
-//   user: 'root',
-//   password: 'Tnrms@@852',
-//   database: 'woolrim',
-// });
+export const Conn = new Connection('mysql', {
+  host: isProducttion ? process.env.DB_ADDR : 'localhost',
+  port: 3306,
+  user: isProducttion ? 'woolrim_admin' : 'root',
+  password: isProducttion ? process.env.DB_PASSWORD : 'Tnrms@@852',
+  database: isProducttion ? 'woolrim_db' : 'woolrim',
+});
