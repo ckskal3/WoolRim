@@ -38,7 +38,6 @@ import javax.annotation.Nonnull;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 import io.feeeei.circleseekbar.CircleSeekBar;
-import io.reactivex.internal.schedulers.IoScheduler;
 
 public class PlayerFragmentTemp extends Fragment implements View.OnTouchListener, View.OnClickListener {
 
@@ -59,7 +58,7 @@ public class PlayerFragmentTemp extends Fragment implements View.OnTouchListener
     private MediaPlayer mediaPlayer;
 
     private boolean isPlaying = false, isPause = false;
-    int bookmarkFlag;
+    int bookmarkFlag, bookmarkPosition;
 
     public Handler seekBarHandler = new Handler(Looper.getMainLooper());
     public Handler timerHandler = new Handler(Looper.getMainLooper());
@@ -90,6 +89,7 @@ public class PlayerFragmentTemp extends Fragment implements View.OnTouchListener
         Bundle bundle = getArguments();
         assert bundle != null;
         items = bundle.getParcelableArrayList("Data");
+        bookmarkPosition = bundle.getInt("BookmarkPosition",-1);
         assert items != null;
         itemSize = items.size();
         itemArray = new RecordItem[itemSize];
@@ -132,7 +132,7 @@ public class PlayerFragmentTemp extends Fragment implements View.OnTouchListener
         if (mediaPlayer != null) {
             mediaPlayer.release();
         }
-        updateBookmark();
+//        updateBookmark();
 
         super.onDetach();
     }
@@ -279,7 +279,7 @@ public class PlayerFragmentTemp extends Fragment implements View.OnTouchListener
         if (itemArray[currentPage].studentProfilePath == null || itemArray[currentPage].studentProfilePath.equals(getString(R.string.no_profile_en))) {
             Glide.with(this).load(R.drawable.profile_icon).into(userProfileIV);
         } else {
-            Glide.with(this).load(itemArray[currentPage].studentProfilePath).into(userProfileIV);
+            Glide.with(this).load(WoolrimApplication.FILE_BASE_URL+itemArray[currentPage].studentProfilePath).into(userProfileIV);
         }
         if (itemArray[currentPage].bookmarkFlag == 1) {
             favoriteIconIV.setImageResource(R.drawable.favorite_middle_color_icon);
@@ -341,29 +341,33 @@ public class PlayerFragmentTemp extends Fragment implements View.OnTouchListener
         fullTimeTextView.setText(String.format(getString(R.string.timer_format), minutes, seconds));
     }
 
-    private void updateBookmark() { // 비로그인시
+    private void updateBookmark() {
         Log.d("Flag", String.valueOf(bookmarkFlag) + " " + String.valueOf(itemArray[currentPage].bookmarkFlag));
         if (bookmarkFlag != itemArray[currentPage].bookmarkFlag) { //이전상태와 지금상태가 다를때
-            if (WoolrimApplication.isLogin) {
+            if (WoolrimApplication.isLogin) {//로그인시
                requestServerForBookmark(bookmarkFlag);
-            } else {
+            } else {//비로그인시
                 itemArray[currentPage].bookmarkFlag = bookmarkFlag;
-                DBManagerHelper.favoriteDAO.updateFavorite(
-                        new MyFavoritesItem(
-                                String.valueOf(itemArray[currentPage].mediaId),
-                                String.valueOf(itemArray[currentPage].poemId),
-                                String.valueOf(itemArray[currentPage].studentId),
-                                itemArray[currentPage].poemName,
-                                itemArray[currentPage].studentName,
-                                "Guest"
-                        ),
-                        bookmarkFlag);
+                MyFavoritesItem myFavoritesItem = new MyFavoritesItem(
+                        String.valueOf(itemArray[currentPage].mediaId),
+                        String.valueOf(itemArray[currentPage].poemId),
+                        String.valueOf(itemArray[currentPage].studentId),
+                        itemArray[currentPage].poemName,
+                        itemArray[currentPage].studentName,
+                        "Guest"
+                );
+                DBManagerHelper.favoriteDAO.updateFavorite(myFavoritesItem, bookmarkFlag);
+                if(bookmarkFlag == 1 && bookmarkPosition != -1){
+                    MyFavoritesFragment.myFavoritesAdapter.addItem(myFavoritesItem);
+                }else if(bookmarkFlag == 0 && bookmarkPosition != -1){
+                    MyFavoritesFragment.myFavoritesAdapter.deleteItem(bookmarkPosition);
+                }
             }
         }
     }
 
     private void requestServerForBookmark(int bookmarkFlag){
-        if(bookmarkFlag == 1){
+        if(bookmarkFlag == 1 ){
             WoolrimApplication.apolloClient.mutate(CreateBookMark
                     .builder()
                     .input(CreateBookmarkInput
@@ -375,7 +379,18 @@ public class PlayerFragmentTemp extends Fragment implements View.OnTouchListener
                     .enqueue(new ApolloCall.Callback<CreateBookMark.Data>() {
                 @Override
                 public void onResponse(@Nonnull Response<CreateBookMark.Data> response) {
-
+                    if(response.data().createBookmark().isSuccess()){
+                        if(bookmarkPosition != -1) {
+                            MyFavoritesFragment.myFavoritesAdapter.addItem(new MyFavoritesItem(
+                                    String.valueOf(itemArray[currentPage].mediaId),
+                                    String.valueOf(itemArray[currentPage].poemId),
+                                    String.valueOf(itemArray[currentPage].studentId),
+                                    itemArray[currentPage].poemName,
+                                    itemArray[currentPage].studentName,
+                                    WoolrimApplication.loginedUserName
+                            ));
+                        }
+                    }
                 }
 
                 @Override
@@ -384,6 +399,25 @@ public class PlayerFragmentTemp extends Fragment implements View.OnTouchListener
                 }
             });
         }else{
+            WoolrimApplication.apolloClient.mutate(DeleteBookMark.builder()
+                    .recording_id(String.valueOf(itemArray[currentPage].mediaId))
+                    .user_id(String.valueOf(itemArray[currentPage].studentId))
+                    .build())
+                    .enqueue(new ApolloCall.Callback<DeleteBookMark.Data>() {
+                        @Override
+                        public void onResponse(@Nonnull Response<DeleteBookMark.Data> response) {
+                            if(response.data().deleteBookmark().isSuccess()){
+                                if(bookmarkPosition !=-1) {
+                                    MyFavoritesFragment.myFavoritesAdapter.deleteItem(bookmarkPosition);
+                                }
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(@Nonnull ApolloException e) {
+
+                        }
+                    });
 
         }
     }

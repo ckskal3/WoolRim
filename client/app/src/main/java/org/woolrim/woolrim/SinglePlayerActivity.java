@@ -24,6 +24,7 @@ public class SinglePlayerActivity extends AppCompatActivity implements View.OnCl
         init();
         Intent intent = getIntent();
         ArrayList<RecordItem> items = intent.getParcelableArrayListExtra("Data");
+        int position = intent.getIntExtra("BookmarkPosition",-1);
 
         toolbarLabelTv.setText(items.get(0).poemName);
 
@@ -34,6 +35,7 @@ public class SinglePlayerActivity extends AppCompatActivity implements View.OnCl
 
         Bundle bundle = new Bundle();
         bundle.putParcelableArrayList("Data",items);
+        bundle.putInt("BookmarkPosition",position);
         PlayerFragmentTemp playerFragmentTemp = PlayerFragmentTemp.newInstance(bundle);
         getSupportFragmentManager().beginTransaction().add(R.id.single_player_container,playerFragmentTemp).commit();
 

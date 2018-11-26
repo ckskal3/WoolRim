@@ -168,7 +168,6 @@ public class MainActivity extends AppCompatActivity implements FragmentInteracti
             userNameTv.setText(R.string.guest);
             userName = userNameTv.getText().toString();
 
-//            profileImageView.setImageResource(R.drawable.profile_icon);
             Glide.with(this).load(R.drawable.profile_icon).into(profileImageView);
             profileChangeImageView.setVisibility(View.INVISIBLE);
         }
@@ -500,7 +499,7 @@ public class MainActivity extends AppCompatActivity implements FragmentInteracti
                 UpdateUserInput.builder()
                         .id(WoolrimApplication.loginedUserPK)
                         .name(WoolrimApplication.loginedUserName)
-                        .profile(WoolrimApplication.FILE_BASE_URL + String.valueOf(WoolrimApplication.loginedUserId)+"/" + imageFileName)
+                        .profile(String.valueOf(WoolrimApplication.loginedUserId)+"/" + imageFileName)
                         .build())
                 .build())
                 .enqueue(new ApolloCall.Callback<UpdateUserProfile.Data>() {

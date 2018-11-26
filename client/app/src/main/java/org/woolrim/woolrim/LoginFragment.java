@@ -143,7 +143,7 @@ public class LoginFragment extends Fragment {
                                             userData[3] = String.valueOf(response.data().login().user().stu_id());
 
                                             WoolrimApplication.isLogin = true;
-                                            WoolrimApplication.loginedUserProfile = userData[0];
+                                            WoolrimApplication.loginedUserProfile = WoolrimApplication.FILE_BASE_URL+userData[0];
                                             WoolrimApplication.loginedUserName = userData[1];
                                             WoolrimApplication.loginedUserPK = userData[2];
                                             WoolrimApplication.loginedUserId = Integer.parseInt(userData[3]);
@@ -157,7 +157,7 @@ public class LoginFragment extends Fragment {
                                                     if (userData[0] == null || userData[0].equals(getString(R.string.no_profile_en))) {
                                                         Glide.with(getContext()).load(R.drawable.profile_icon).into(MainActivity.profileImageView);
                                                     } else {
-                                                        Glide.with(getContext()).load(userData[0]).into(MainActivity.profileImageView);
+                                                        Glide.with(getContext()).load(WoolrimApplication.FILE_BASE_URL+userData[0]).into(MainActivity.profileImageView);
                                                     }
                                                 }
                                             });
