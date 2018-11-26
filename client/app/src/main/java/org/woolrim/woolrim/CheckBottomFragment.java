@@ -177,8 +177,10 @@ public class CheckBottomFragment extends BottomSheetDialogFragment {
                         }else if (requestCode == 0) {
                             getActivity().getSupportFragmentManager().popBackStack();
                         }
-                        File file = new File(filePath);
-                        file.delete();
+                        if( filePath != null) {
+                            File file = new File(filePath);
+                            file.delete();
+                        }
                         dismiss();
                     }
                 });

@@ -37,7 +37,7 @@ import static android.content.Intent.FLAG_ACTIVITY_NO_ANIMATION;
 
 public class MyFavoritesFragment extends Fragment {
     private RecyclerView myFavoritesRecyclerView;
-    private MyFavoritesAdapter myFavoritesAdapter;
+    public static  MyFavoritesAdapter myFavoritesAdapter;
 
     private ArrayList<MyFavoritesItem> items = new ArrayList<>();
     private boolean flag = true;
@@ -50,18 +50,15 @@ public class MyFavoritesFragment extends Fragment {
 
     @Override
     public void onResume() {
+        super.onResume();
         MainActivity.toolbarLabelTv.setText("즐겨찾기");
         Log.d("Time","onResume");
         if(!flag) {
             Log.d("Time","InnerOnResume");
-            items.clear();
-            myFavoritesAdapter.clearItem();
-
-            getItems(WoolrimApplication.isLogin);
 
         }
         flag = false;
-        super.onResume();
+
     }
 
     @Nullable
@@ -69,6 +66,7 @@ public class MyFavoritesFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
 
         Log.d("Time","onCreateView");
+        items.clear();
 
         Bundle bundle = getArguments();
 //        items = bundle.getParcelableArrayList("Data");
@@ -127,6 +125,7 @@ public class MyFavoritesFragment extends Fragment {
                                             Intent intent = new Intent(getContext(),SinglePlayerActivity.class);
                                             intent.addFlags(FLAG_ACTIVITY_NO_ANIMATION);
                                             intent.putParcelableArrayListExtra("Data",recordItems);
+                                            intent.putExtra("BookmarkPosition",position);
                                             startActivity(intent);
 
                                         }else{

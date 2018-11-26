@@ -58,3 +58,9 @@ mutation CreateBookMark($input: CreateBookmarkInput!){
     }
 }
 
+mutation DeleteBookMark($user_id : ID!, $recording_id : ID!){
+    deleteBookmark(user_id: $user_id, recording_id: $recording_id){
+        isSuccess
+    }
+}
+

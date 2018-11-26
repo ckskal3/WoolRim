@@ -107,12 +107,12 @@ public class MainFragment extends Fragment implements View.OnClickListener {
         if(NetworkStatus.getConnectivityStatus(getContext()) != NetworkStatus.TYPE_NOT_CONNECTED) {//인터넷 연결시
             switch (view.getId()) {
                 case R.id.show_list_layout: // 시 목록 보기
-                    requestServerForPoemList(WoolrimApplication.REQUSET_POEM_LIST_FRAGMENT);
-//                    requestServerForPoemListGraphQL(WoolrimApplication.REQUSET_POEM_LIST_FRAGMENT,null);
+//                    requestServerForPoemList(WoolrimApplication.REQUSET_POEM_LIST_FRAGMENT);
+                    requestServerForPoemListGraphQL(WoolrimApplication.REQUSET_POEM_LIST_FRAGMENT,null);
                     break;
                 case R.id.show_record_layout: // 시 녹음 목록 보기
-                    requestServerForPoemList(WoolrimApplication.REQUSET_RECORD_LIST_FRAGMENT);
-//                    requestServerForPoemListGraphQL(WoolrimApplication.REQUSET_RECORD_LIST_FRAGMENT,null);
+//                    requestServerForPoemList(WoolrimApplication.REQUSET_RECORD_LIST_FRAGMENT);
+                    requestServerForPoemListGraphQL(WoolrimApplication.REQUSET_RECORD_LIST_FRAGMENT,null);
                     break;
                 case R.id.search_voice_layout: // 음성 인식
 
