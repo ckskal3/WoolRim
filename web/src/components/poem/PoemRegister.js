@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import { MenuItem, EditableText, Button, FormGroup, InputGroup, Intent, NumericInput, Slider } from "@blueprintjs/core";
+import { MenuItem, EditableText, Button, FormGroup, InputGroup, Intent, NumericInput } from "@blueprintjs/core";
 import { Suggest } from "@blueprintjs/select";
 import { getAllPoet } from '../../container/poet/PoetQueries';
 

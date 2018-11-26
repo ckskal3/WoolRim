@@ -6,7 +6,6 @@ import '../Container.css'
 import ControlBtns from '../../common/ControlBtns';
 import NoticeRegister from '../../components/notice/NoticeRegister';
 import { getAllNotice, deleteNotice, createNotice, updateNotice } from './NoticeQueries';
-
 export class NoticeContainer extends Component {
   constructor(props) {
     super(props)
