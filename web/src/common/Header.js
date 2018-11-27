@@ -33,6 +33,12 @@ const headerTitleContent = [
     title: '공지사항 관리',
     url: 'notice',
     icon: 'volume-off'
+  },
+  {
+    key: 6,
+    title: '녹음 파일 심사',
+    url: 'audit',
+    icon: 'tick-circle'
   }
 ]
 

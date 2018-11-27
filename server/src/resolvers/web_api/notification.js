@@ -30,4 +30,4 @@ const notificationWebResolver = {
   }
 }
 
-export { notificationWebResolver };
+export { notificationWebResolver, createNotification };

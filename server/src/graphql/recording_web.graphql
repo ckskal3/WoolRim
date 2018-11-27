@@ -1,8 +1,16 @@
+type GetAllRecordingForAuditResut {
+  user: User!
+  recording_list: [Recording!]!
+}
+
 type Query {
   getRecording(id: ID!): Recording
+  getAllRecordingForAudit: [GetAllRecordingForAuditResut!]!
 }
 
 type Mutation {
+  acceptRecording(recording_id: ID!): Boolean!
+  rejectRecording(recording_id: ID!): Boolean!
   deleteAllRecording: Boolean!
   deleteRecordingById(id: ID!): Boolean!
 }

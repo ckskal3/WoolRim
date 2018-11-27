@@ -1,10 +1,10 @@
 import { Recording, User, Poem, Bookmark } from '../../model';
 import { getUser } from '../web_api/user';
 import { getPoem } from '../web_api/poem';
+import { createNotification } from '../web_api/notification'
 
 export const getAllRecording = async (stu_id) => {
   try {
-    console.log(stu_id);
     if (!stu_id) {
       const result = await Recording.query();
       return {
@@ -45,7 +45,7 @@ export const getAllRecordingByLogin = async (stu_id) => {
     if (!user) {
       return [];
     }
-    const result = await Recording.where({ user_id: user.id });
+    const result = await Recording.where({ user_id: user.id, auth_flag: 1 });
     if (result.length === 0) {
       return [];
     }
@@ -126,6 +126,10 @@ const createRecording = async (input) => {
   });
   try {
     await recording.save();
+    await createNotification({
+      user_id: user.id,
+      content: `${poem_result[0].name} 울림이 업로드 되었습니다.`,
+    })
     return {
       isSuccess: true,
     };
@@ -168,7 +172,12 @@ const deleteRecording = async (input) => {
 
 const applyRecording = async (id_list) => {
   id_list.map(async (id) => {
-    const recording = await Recording.find(id).include('user').include('poem');
+    const recording = await Recording.find(id).include('poem').include('user');
+    const content = `${recording.poem.name} 울림의 봉사 점수 신청이 완료되었습니다`;
+    await createNotification({
+      content,
+      user_id: recording.user_id
+    })
     const sum_point = recording.user.bongsa_time + recording.poem.point;
     await User.find(recording.user.id).update({ bongsa_time: sum_point });
   })

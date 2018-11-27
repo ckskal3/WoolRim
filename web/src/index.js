@@ -9,7 +9,7 @@ import {
 import 'bootstrap/dist/css/bootstrap.min.css';
 import '@blueprintjs/core/lib/css/blueprint.css';
 import '@blueprintjs/table/lib/css/table.css';
-import { UserContainer, PoetContainer, PoemContainer, NoticeContainer, RecordingContainer } from './container'
+import { UserContainer, PoetContainer, PoemContainer, NoticeContainer, RecordingContainer, AuditContainer } from './container'
 import Header from './common/Header'
 
 const userInfo = {
@@ -26,6 +26,7 @@ ReactDOM.render(
       <Route path="/poem" component={PoemContainer} />
       <Route path="/notice" render={props => <NoticeContainer {...props} current_account={userInfo} />} />
       <Route path="/recording" component={RecordingContainer} />
+      <Route path="/audit" component={AuditContainer} />
     </div>
   </Router>
   , document.getElementById('root')
