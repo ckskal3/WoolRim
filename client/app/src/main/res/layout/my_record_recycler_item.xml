@@ -19,23 +19,25 @@
 
     <TextView
         android:id="@+id/myrecord_poet_textview"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_marginStart="15dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
         android:layout_marginBottom="8dp"
+        android:ellipsize="end"
+        android:singleLine="true"
         android:text="@string/poet_temp"
         android:textSize="15sp"
         android:textStyle="bold"
         app:layout_constraintBottom_toTopOf="@+id/view2"
-        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/delete_imageview"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
-        android:id="@+id/myrecord_item_dash_tecxtview"
+        android:id="@+id/myrecord_item_dash_textview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="3dp"
@@ -61,11 +63,11 @@
         app:layout_constraintBottom_toBottomOf="@+id/myrecord_poet_textview"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toEndOf="@+id/myrecord_item_dash_tecxtview"
+        app:layout_constraintStart_toEndOf="@+id/myrecord_item_dash_textview"
         app:layout_constraintTop_toTopOf="@+id/myrecord_poet_textview" />
 
     <ImageView
-        android:id="@+id/playimageview"
+        android:id="@+id/play_imageview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="2dp"
@@ -73,24 +75,20 @@
         android:layout_marginBottom="2dp"
         android:contentDescription="@string/play"
         app:layout_constraintBottom_toBottomOf="@+id/myrecord_poem_textview"
-        app:layout_constraintEnd_toStartOf="@+id/deleteimageview"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/delete_imageview"
         app:layout_constraintTop_toTopOf="@+id/myrecord_poem_textview"
         app:srcCompat="@drawable/play_small_icon" />
 
     <ImageView
-        android:id="@+id/deleteimageview"
+        android:id="@+id/delete_imageview"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="2dp"
         android:layout_marginEnd="15dp"
         android:layout_marginBottom="2dp"
         android:contentDescription="@string/delete"
-        app:layout_constraintBottom_toBottomOf="@+id/playimageview"
+        app:layout_constraintBottom_toBottomOf="@+id/play_imageview"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="1.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="@+id/playimageview"
+        app:layout_constraintTop_toTopOf="@+id/play_imageview"
         app:srcCompat="@drawable/delete_icon" />
 </android.support.constraint.ConstraintLayout>

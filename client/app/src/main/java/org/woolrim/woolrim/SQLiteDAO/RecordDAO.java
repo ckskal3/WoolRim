@@ -61,7 +61,7 @@ public class RecordDAO {
                 cursor.getString(cursor.getColumnIndex(DBManagerHelper.COLUMN_RECORD_NAME)),
                 cursor.getString(cursor.getColumnIndex(DBManagerHelper.COLUMN_RECORD_PATH)),
                 cursor.getInt(cursor.getColumnIndex(DBManagerHelper.COLUMN_RECORD_STUDENT_ID)),
-                cursor.getString(cursor.getColumnIndex(DBManagerHelper.COLUMN_RECORD_DURATION))
+                cursor.getInt(cursor.getColumnIndex(DBManagerHelper.COLUMN_RECORD_DURATION))
         );
     }
 }

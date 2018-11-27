@@ -108,6 +108,7 @@ public class MyFavoritesFragment extends Fragment {
                                                 flag = true;
                                                 recordItems.add(new RecordItem(
                                                         item.recording().path(),
+                                                        (int)item.recording().duration(),
                                                         item.recording().user().name(),
                                                         item.recording().user().profile(),
                                                         item.recording().poem().name(),

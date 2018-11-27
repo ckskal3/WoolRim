@@ -4,19 +4,20 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 public class RecordItem implements Parcelable {
-    public String fileName, filePath, duration, studentName, studentProfilePath, poemName, poetName;
-    public int studentId, mediaId, poemId, bookmarkFlag;
+    public String fileName, filePath, studentName, studentProfilePath, poemName, poetName;
+    public int studentId, mediaId, poemId, bookmarkFlag, duration;
     public String error;
 
-    public RecordItem(String fileName, String filePath, int studentId, String duration) {
+    public RecordItem(String fileName, String filePath, int studentId, int duration) {
         this.fileName = fileName;
         this.filePath = filePath;
         this.studentId = studentId;
         this.duration = duration;
     }
 
-    public RecordItem(String filePath, String studentName, String studentProfilePath, String poemName, String poetName, int studentId, int mediaId, int poemId, int bookmarkFlag) {
+    public RecordItem(String filePath,int duration, String studentName, String studentProfilePath, String poemName, String poetName, int studentId, int mediaId, int poemId, int bookmarkFlag) {
         this.filePath = filePath;
+        this.duration = duration;
         this.studentName = studentName;
         this.studentProfilePath = studentProfilePath;
         this.poetName = poetName;
@@ -35,7 +36,6 @@ public class RecordItem implements Parcelable {
     protected RecordItem(Parcel in) {
         fileName = in.readString();
         filePath = in.readString();
-        duration = in.readString();
         studentName = in.readString();
         studentProfilePath = in.readString();
         poemName = in.readString();
@@ -44,6 +44,7 @@ public class RecordItem implements Parcelable {
         mediaId = in.readInt();
         poemId = in.readInt();
         bookmarkFlag = in.readInt();
+        duration = in.readInt();
         error = in.readString();
     }
 
@@ -68,7 +69,6 @@ public class RecordItem implements Parcelable {
     public void writeToParcel(Parcel parcel, int i) {
         parcel.writeString(fileName);
         parcel.writeString(filePath);
-        parcel.writeString(duration);
         parcel.writeString(studentName);
         parcel.writeString(studentProfilePath);
         parcel.writeString(poemName);
@@ -77,6 +77,7 @@ public class RecordItem implements Parcelable {
         parcel.writeInt(mediaId);
         parcel.writeInt(poemId);
         parcel.writeInt(bookmarkFlag);
+        parcel.writeInt(duration);
         parcel.writeString(error);
     }
 }

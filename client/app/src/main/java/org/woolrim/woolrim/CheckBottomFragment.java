@@ -11,7 +11,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.apollographql.apollo.ApolloCall;
+import com.apollographql.apollo.api.Response;
+import com.apollographql.apollo.exception.ApolloException;
+import com.bumptech.glide.Glide;
+
+import org.woolrim.woolrim.DataItems.MyRecordItem;
+
 import java.io.File;
+import java.util.ArrayList;
+
+import javax.annotation.Nonnull;
 
 public class CheckBottomFragment extends BottomSheetDialogFragment {
     public static final int MY_RECORD_DELETE_REQUEST = 0;
@@ -144,44 +154,44 @@ public class CheckBottomFragment extends BottomSheetDialogFragment {
                 rightTextView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        if(requestCode != 0){
+                        if(requestCode != 0 && requestCode != WoolrimApplication.REQUSET_MY_MENU){
                             switch (requestCode){
                                 case WoolrimApplication.REQUSET_HOME:
                                     MainActivity.requestCode = 0;
                                     getActivity().getSupportFragmentManager().popBackStack("MainFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
                                     break;
-                                case WoolrimApplication.REQUSET_MY_MENU:
-                                    MainActivity.requestCode = 0;
-                                    Bundle bundle = new Bundle();
-                                    bundle.putString("UserName",MainActivity.userNameTv.getText().toString().trim());
-                                    MyMenuFragment myMenuFragment = MyMenuFragment.newInstance(bundle);
-                                    getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.container, myMenuFragment).commit();
-                                    //서버연동 가져오기
-                                    break;
                                 case WoolrimApplication.REQUSET_FAVORITE:
                                     MainActivity.requestCode = 0;
-                                    MyFavoritesFragment myFavoritesFragment = MyFavoritesFragment.newInstance(new Bundle());
-                                    getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.container,myFavoritesFragment).commit();
-                                    //서버연동  가져오기
+                                    processFavoriteFragmentChange();
                                     break;
                                 case WoolrimApplication.REQUSET_RECORD_LOGOUT:
                                     MainActivity.requestCode = 0;
-                                    WoolrimApplication.isLogin = false;
+                                    WoolrimApplication.userInfoReset();
                                     MainActivity.signInAndOutTv.setText(R.string.login_kr);
                                     MainActivity.userNameTv.setText(R.string.guest);
                                     MainActivity.profileChangeImageView.setVisibility(View.INVISIBLE);
-                                    MainActivity.profileImageView.setImageResource(R.drawable.profile_icon);
+                                    Glide.with(getContext()).load(R.drawable.profile_icon).into(MainActivity.profileImageView);
                                     getActivity().getSupportFragmentManager().popBackStack("MainFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
                                     break;
                             }
-                        }else if (requestCode == 0) {
+                            if( filePath != null) {
+                                File file = new File(filePath);
+                                file.delete();
+                            }
+                            dismiss();
+                        }else if (requestCode == WoolrimApplication.REQUSET_MY_MENU){
+                            MainActivity.requestCode = 0;
+                            processMyMenuFragmentChange();
+                        }
+                        else {
                             getActivity().getSupportFragmentManager().popBackStack();
+                            if( filePath != null) {
+                                File file = new File(filePath);
+                                file.delete();
+                            }
+                            dismiss();
                         }
-                        if( filePath != null) {
-                            File file = new File(filePath);
-                            file.delete();
-                        }
-                        dismiss();
+
                     }
                 });
                 checkTextView1.setText("지금 나가시면 울림이 저장되지 않습니다.");
@@ -204,5 +214,51 @@ public class CheckBottomFragment extends BottomSheetDialogFragment {
                 waringTextView2.setText("업로드 결과를 알려드립니다.");
                 break;
         }
+    }
+    private void processMyMenuFragmentChange(){
+        WoolrimApplication.apolloClient.query(GetMyMenu.builder().stu_id(WoolrimApplication.loginedUserId).build())
+                .enqueue(new ApolloCall.Callback<GetMyMenu.Data>() {
+            @Override
+            public void onResponse(@Nonnull Response<GetMyMenu.Data> response) {
+                if(response.data().getMainInfo().isSuccess()){
+                    Bundle bundle = new Bundle();
+                    ArrayList<MyRecordItem> myRecordItem = new ArrayList<>();
+                    for (GetMyMenu.Recording_list item : response.data().getMainInfo().recording_list()) {
+                        myRecordItem.add(new MyRecordItem(
+                                item.id(),
+                                item.poem().poet().name(),
+                                item.poem().name(),
+                                false
+                        ));
+                    }
+                    ArrayList<MyRecordItem> notificationItems = new ArrayList<>();
+                    for (GetMyMenu.Notification_list item : response.data().getMainInfo().notification_list()) {
+                        notificationItems.add(new MyRecordItem(item.id(), item.content(), null, false));
+                    }
+                    bundle.putParcelableArrayList("PoemList", myRecordItem);
+                    bundle.putParcelableArrayList("NotificationList", notificationItems);
+
+                    MyMenuFragment myMenuFragment = MyMenuFragment.newInstance(bundle);
+                    getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.container, myMenuFragment).commit();
+
+                    if( filePath != null) {
+                        File file = new File(filePath);
+                        file.delete();
+                    }
+                    dismiss();
+                }
+
+            }
+
+            @Override
+            public void onFailure(@Nonnull ApolloException e) {
+
+            }
+        });
+    }
+
+    private void processFavoriteFragmentChange(){
+        MyFavoritesFragment myFavoritesFragment = MyFavoritesFragment.newInstance(new Bundle());
+        getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.container, myFavoritesFragment).commit();
     }
 }

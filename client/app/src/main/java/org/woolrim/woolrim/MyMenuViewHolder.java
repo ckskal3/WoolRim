@@ -47,9 +47,9 @@ public class MyMenuViewHolder extends RecyclerView.ViewHolder {
         backgroundLayout = view.findViewById(R.id.my_record_item_background_layout);
         poemTv = view.findViewById(R.id.myrecord_poem_textview);
         poetTv = view.findViewById(R.id.myrecord_poet_textview);
-        dashTv = view.findViewById(R.id.myrecord_item_dash_tecxtview);
-        playIv = view.findViewById(R.id.playimageview);
-        deleteIv = view.findViewById(R.id.deleteimageview);
+        dashTv = view.findViewById(R.id.myrecord_item_dash_textview);
+        playIv = view.findViewById(R.id.play_imageview);
+        deleteIv = view.findViewById(R.id.delete_imageview);
 
     }
 

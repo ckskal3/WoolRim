@@ -4,6 +4,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -21,7 +22,6 @@ import android.widget.Toast;
 
 
 import org.woolrim.woolrim.DataItems.MyRecordItem;
-import org.woolrim.woolrim.DataItems.PoemAndPoetItem;
 import org.woolrim.woolrim.Utils.EmptyRecyclerView;
 
 import java.io.File;
@@ -119,11 +119,11 @@ public class MyRecordFragment extends Fragment {
             public void onClick(MyMenuViewHolder myMenuViewHolder, View view, int position) {
                 if (fragmentRequestCode == 101) {
                     switch (view.getId()) {
-                        case R.id.playimageview:
+                        case R.id.play_imageview:
                             MyRecordItem myRecordItem = adapter.getItem(position);
                             Toast.makeText(getContext(), String.valueOf(position) + "번째 플레이 버튼" + myRecordItem.poem + " " + myRecordItem.poet, Toast.LENGTH_SHORT).show();
                             break;
-                        case R.id.deleteimageview:
+                        case R.id.delete_imageview:
                             Bundle bundle = new Bundle();
                             bundle.putInt("FragmentRequestCode", CheckBottomFragment.MY_RECORD_DELETE_REQUEST);
                             bundle.putInt("ItemPosition", position);
@@ -149,7 +149,7 @@ public class MyRecordFragment extends Fragment {
                     }
                 } else {
                     switch (view.getId()) {
-                        case R.id.deleteimageview:
+                        case R.id.delete_imageview:
                             adapter.deleteItem(position, null);
                             Toast.makeText(getContext(), String.valueOf(position) + "번째 삭제 버튼", Toast.LENGTH_SHORT).show();
                             break;
@@ -240,6 +240,7 @@ class MyRecordAdapter extends RecyclerView.Adapter<MyMenuViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull MyMenuViewHolder holder, int position) {
         if (fragmentRequestCode == 101) {
+            holder.poetTv.setLayoutParams(new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT));
             holder.poetTv.setText(items.get(position).poet);
             holder.poemTv.setText(items.get(position).poem);
             if(items.get(position).auth_flag){

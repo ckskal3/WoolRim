@@ -103,5 +103,6 @@
     <string name="android_kr">안드로이드</string>
     <string name="android_en">Android</string>
     <string name="no_profile_en">NULL</string>
+    <string name="delete_kr">삭제</string>
 
 </resources>

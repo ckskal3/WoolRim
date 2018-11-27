@@ -198,7 +198,7 @@ public class WaveLineViewTemp extends RenderViewTemp {
                         float x = samplingX[i];
                         for (int n = 0; n < paths.size(); n++) {
                             //四条线分别乘以不同的函数系数
-                            paths.get(n).lineTo(x, 0);
+                            paths.get(n).lineTo(x, centerHeight);
                         }
                     }
 

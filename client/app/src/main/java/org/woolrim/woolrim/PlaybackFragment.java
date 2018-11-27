@@ -3,9 +3,11 @@ package org.woolrim.woolrim;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.design.widget.BottomSheetDialogFragment;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -39,11 +41,14 @@ public class PlaybackFragment extends BottomSheetDialogFragment implements View.
     private Handler handler = new Handler();
 
     private MediaPlayer mediaPlayer;
-    private CircleSeekBar seekBar;
+    private CircleSeekBar circleSeekBar;
     private ImageView playBtn;
-    private TextView completeTv, deleteTv, fullTimeTv;
+    private TextView completeTv, deleteTv, fullTimeTv, playingTimeTv;
 
     private boolean isPlaying = false;
+
+    public Handler seekBarHandler = new Handler(Looper.getMainLooper());
+    public Handler timerHandler = new Handler(Looper.getMainLooper());
 
     public static PlaybackFragment newInstance(Bundle bundle) {
         PlaybackFragment playbackFragment = new PlaybackFragment();
@@ -79,53 +84,14 @@ public class PlaybackFragment extends BottomSheetDialogFragment implements View.
         completeTv.setOnClickListener(this);
         deleteTv.setOnClickListener(this);
 
-        seekBar.setOnSeekBarChangeListener(new CircleSeekBar.OnSeekBarChangeListener() {
-            @Override
-            public void onChanged(CircleSeekBar circleSeekBar, int i) {
-
-            }
-
-//            @Override
-//            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
-//                if (mediaPlayer != null && b) {
-//                    mediaPlayer.seekTo(i);
-//                    handler.removeCallbacks(runnable);
-//
-//                    updateSeekBar();
-//                } else if (mediaPlayer == null && b) {
-//                    try {
-//                        prepareMediaPlayer(i);
-//                    } catch (IOException e) {
-//                    }
-//                    updateSeekBar();
-//                }
-//            }
-//
-//            @Override
-//            public void onStartTrackingTouch(SeekBar seekBar) {
-//                if (mediaPlayer != null) {
-//                    handler.removeCallbacks(runnable);
-//                }
-//            }
-//
-//            @Override
-//            public void onStopTrackingTouch(SeekBar seekBar) {
-//                if (mediaPlayer != null) {
-//                    handler.removeCallbacks(runnable);
-//                    mediaPlayer.seekTo(seekBar.getProgress());
-//
-//                    updateSeekBar();
-//                }
-//            }
-        });
-
     }
 
 
     private void init(View view) {
-        seekBar = view.findViewById(R.id.playback_circle_seek_bar);
+        circleSeekBar = view.findViewById(R.id.playback_circle_seek_bar);
         playBtn = view.findViewById(R.id.playback_button_icon_imageview);
         completeTv = view.findViewById(R.id.playback_complete_textview);
+        playingTimeTv = view.findViewById(R.id.playback_playing_time_textview);
         deleteTv = view.findViewById(R.id.playback_delete_textview);
         fullTimeTv = view.findViewById(R.id.playback_full_time_textview);
 
@@ -147,7 +113,10 @@ public class PlaybackFragment extends BottomSheetDialogFragment implements View.
                     dismiss();
                     break;
                 case R.id.playback_complete_textview:
-                    recordItem.duration = String.valueOf(mediaPlayer.getDuration());
+                    recordItem.duration = mediaPlayer.getDuration();
+                    if(mediaPlayer != null){
+                        stopAndResetPlayer();
+                    }
                     DBManagerHelper.recordDAO.insertRecord(recordItem);
 
                     //////////////////서버로 파일 보내는 코드//////////////////
@@ -205,7 +174,7 @@ public class PlaybackFragment extends BottomSheetDialogFragment implements View.
         super.onPause();
 
         if (mediaPlayer != null) {
-            stopPlay();
+            stopAndResetPlayer();
         }
     }
 
@@ -214,7 +183,7 @@ public class PlaybackFragment extends BottomSheetDialogFragment implements View.
         super.onDestroyView();
 
         if (mediaPlayer != null) {
-            stopPlay();
+            stopAndResetPlayer();
         }
     }
 
@@ -235,23 +204,30 @@ public class PlaybackFragment extends BottomSheetDialogFragment implements View.
         try {
             mediaPlayer.setDataSource(recordItem.filePath);
             mediaPlayer.prepare();
-        }catch (IOException e){}
+        }catch (IOException e){
+            e.printStackTrace();
+        }finally {
+            circleSeekBar.setMaxProcess(mediaPlayer.getDuration());
 
+            long itemDuration = mediaPlayer.getDuration();
+            long minutes = TimeUnit.MILLISECONDS.toMinutes(itemDuration);
+            long seconds = TimeUnit.MILLISECONDS.toSeconds(itemDuration)
+                    - TimeUnit.MINUTES.toSeconds(minutes);
 
-        seekBar.setMaxProcess(mediaPlayer.getDuration());
+            fullTimeTv.setText(String.format(getString(R.string.timer_format), minutes, seconds));
 
-        long itemDuration = mediaPlayer.getDuration();
-        long minutes = TimeUnit.MILLISECONDS.toMinutes(itemDuration);
-        long seconds = TimeUnit.MILLISECONDS.toSeconds(itemDuration)
-                - TimeUnit.MINUTES.toSeconds(minutes);
-
-        fullTimeTv.setText(String.format("%02d : %02d", minutes, seconds));
+            mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mediaPlayer) {
+                    completePlay();
+                }
+            });
+        }
 
     }
 
     private void startPlay()  {
-        playBtn.setImageResource(R.drawable.replay_icon);
-
+        startItemSetting();
 
         mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
             @Override
@@ -260,86 +236,101 @@ public class PlaybackFragment extends BottomSheetDialogFragment implements View.
             }
         });
 
-        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mediaPlayer) {
-                stopPlay();
-            }
-        });
-
         updateSeekBar();
+        updateTime();
+
 
         getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
     }
 
-    private void prepareMediaPlayer(int progress) throws IOException {
-        mediaPlayer = new MediaPlayer();
-
-        mediaPlayer.setDataSource(recordItem.filePath);
-        mediaPlayer.prepare();
-        seekBar.setMaxProcess(mediaPlayer.getDuration());
-        mediaPlayer.seekTo(progress);
-
-        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mediaPlayer) {
-                stopPlay();
-            }
-        });
-
-        getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
-    }
 
 
     private void resumePlay() {
-        playBtn.setImageResource(R.drawable.replay_icon);
-        handler.removeCallbacks(runnable);
-        mediaPlayer.start();
+        startItemSetting();
+
         updateSeekBar();
+        updateTime();
+        mediaPlayer.start();
     }
 
     private void pausePlay() {
-        playBtn.setImageResource(R.drawable.play_big_icon);
-        handler.removeCallbacks(runnable);
+        stopAndPauseItemSetting();
+
+        seekBarHandler.removeCallbacks(seekBarRunnable);
+        timerHandler.removeCallbacks(timeRunnable);
         mediaPlayer.pause();
     }
 
-    private void stopPlay() {
-        playBtn.setImageResource(R.drawable.play_big_icon);
-        handler.removeCallbacks(runnable);
+    private void completePlay(){
+        stopAndPauseItemSetting();
+
+        circleSeekBar.setCurProcess(circleSeekBar.getMaxProcess());
+        seekBarHandler.removeCallbacks(seekBarRunnable);
+        timerHandler.removeCallbacks(timeRunnable);
         isPlaying = false;
-        mediaPlayer.stop();
-        mediaPlayer.reset();
-        mediaPlayer.release();
-        mediaPlayer = null;
-
-        seekBar.setCurProcess(seekBar.getMaxProcess());
-
         getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
-
     }
 
-    private Runnable runnable = new Runnable() {
+    private void stopPlay() {
+        Log.d("Time","stopPlay");
+        completePlay();
+        mediaPlayer.stop();
+    }
+
+    private void stopAndResetPlayer(){
+        stopPlay();
+        mediaPlayer.release();
+        mediaPlayer = null;
+    }
+    private Runnable seekBarRunnable = new Runnable() {
         @Override
         public void run() {
             if (mediaPlayer != null) {
-
                 int mCurrentPosition = mediaPlayer.getCurrentPosition();
-                seekBar.setCurProcess(mCurrentPosition);
-
-                long minutes = TimeUnit.MILLISECONDS.toMinutes(mCurrentPosition);
-                long seconds = TimeUnit.MILLISECONDS.toSeconds(mCurrentPosition)
-                        - TimeUnit.MINUTES.toSeconds(minutes);
-
+                circleSeekBar.setCurProcess(mCurrentPosition);
                 updateSeekBar();
             }
         }
     };
 
+    private Runnable timeRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (mediaPlayer != null) {
+
+                int mCurrentPosition = mediaPlayer.getCurrentPosition();
+                Log.d("Time",String.valueOf(mCurrentPosition));
+                long minutes = TimeUnit.MILLISECONDS.toMinutes(mCurrentPosition);
+                long seconds = TimeUnit.MILLISECONDS.toSeconds(mCurrentPosition)
+                        - TimeUnit.MINUTES.toSeconds(minutes);
+
+                playingTimeTv.setText(String.format(getString(R.string.timer_format), minutes, seconds));
+                updateTime();
+
+            }
+
+        }
+    };
+
     private void updateSeekBar() {
-        handler.postDelayed(runnable, 100);
+        seekBarHandler.postDelayed(seekBarRunnable, 20);
     }
+
+    private void updateTime() {
+        timerHandler.postDelayed(timeRunnable, 5);
+    }
+
+    private void stopAndPauseItemSetting(){
+        playBtn.setImageResource(R.drawable.play_big_icon);
+        playingTimeTv.setTextColor(ContextCompat.getColor(getContext(),R.color.timer_default_text_color));
+    }
+
+
+    private void startItemSetting(){
+        playBtn.setImageResource(R.drawable.pause_icon);
+        playingTimeTv.setTextColor(ContextCompat.getColor(getContext(),R.color.app_sub_color));
+    }
+
 
 }
