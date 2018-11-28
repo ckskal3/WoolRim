@@ -11,7 +11,7 @@ const createNotification = async (input) => {
 }
 
 const deleteNotification = async (id) => {
-  await Notification.delete(id);
+  await Notification.find(id).delete();
   return true;
 }
 

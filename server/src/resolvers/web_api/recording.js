@@ -9,7 +9,7 @@ export const getRecording = async (id) => {
 }
 
 const deleteRecordingById = async (id) => {
-  await Recording.delete(id);
+  await Recording.find(id).delete();
   return true;
 }
 
