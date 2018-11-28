@@ -159,6 +159,13 @@ public class DBManagerHelper {
 
         public static void recycleTable() {
             dropTable(database, FAVORITE_TABLE_NAME);
+            dropTable(database, USER_TABLE_NAME);
+            dropTable(database, RECORD_TABLE_NAME);
+            dropTable(database, POEM_TABLE_NAME);
+
+            createPoemTable(database);
+            createRecordTable(database);
+            createUserTable(database);
             createFavoriteTable(database);
         }
     }

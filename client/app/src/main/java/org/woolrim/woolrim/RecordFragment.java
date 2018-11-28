@@ -209,6 +209,9 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
         switch (view.getId()) {
             case R.id.record_layout:
                 if (!isRecording && !isPaused) { //최초 실행 녹음
+                    totalDuration = 0;
+                    tempDuration =0;
+
                     if (mFilePath != null) { //이전 녹음 존재시 삭제
                         waveLineView.onResume();
                         File file = new File(mFilePath);
@@ -289,10 +292,12 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
 //                                waveLineView.clearDraw();
 //                            }
 //                        });
-
+                        int timer = (int)chronometer.getBase();
+                        Log.d("Time",String.valueOf(timer)+" "+String.valueOf(totalDuration));
                         chronometer.setTextColor(getColor(R.color.timer_default_text_color));
                         chronometer.stop();
                         chronometer.setBase(SystemClock.elapsedRealtime());
+
 
                         Toast.makeText(getContext(), "Record Stop!", Toast.LENGTH_SHORT).show();
                     } catch (IOException e) {
@@ -317,7 +322,7 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
             case R.id.replay_layout:
                 if (mFilePath != null && !isPaused && !isRecording) {
                     Bundle bundle = new Bundle();
-                    bundle.putParcelable("RecordItem", new RecordItem(mFileName, mFilePath, 0, "null"));
+                    bundle.putParcelable("RecordItem", new RecordItem(mFileName, mFilePath, 0, (int)totalDuration));
                     PlaybackFragment playbackFragment = PlaybackFragment.newInstance(bundle);
                     FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
                     playbackFragment.show(fragmentTransaction, "playback");

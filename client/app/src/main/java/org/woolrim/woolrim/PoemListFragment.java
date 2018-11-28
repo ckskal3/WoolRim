@@ -230,6 +230,7 @@ public class PoemListFragment extends Fragment {
                                     int flag = item.isBookmarked() ? 1 : 0;
                                     items.add(new RecordItem(
                                             item.recording().path(),
+                                            (int)item.recording().duration(),
                                             item.recording().user().name(),
                                             item.recording().user().profile(),
                                             item.recording().poem().name(),
@@ -269,6 +270,7 @@ public class PoemListFragment extends Fragment {
                                     }
                                     items.add(new RecordItem(
                                             item.recording().path(),
+                                            (int)item.recording().duration(),
                                             item.recording().user().name(),
                                             item.recording().user().profile(),
                                             item.recording().poem().name(),

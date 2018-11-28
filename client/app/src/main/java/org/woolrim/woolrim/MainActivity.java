@@ -22,33 +22,24 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
-import android.widget.FrameLayout;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
 import com.android.volley.Response;
-import com.android.volley.error.AuthFailureError;
 import com.android.volley.error.VolleyError;
 import com.android.volley.request.SimpleMultiPartRequest;
-import com.android.volley.request.StringRequest;
 import com.apollographql.apollo.ApolloCall;
-import com.apollographql.apollo.ApolloClient;
 import com.apollographql.apollo.exception.ApolloException;
 import com.blankj.utilcode.constant.PermissionConstants;
 import com.blankj.utilcode.util.LogUtils;
 import com.blankj.utilcode.util.PermissionUtils;
 import com.bumptech.glide.Glide;
-import com.tsengvn.typekit.Typekit;
 import com.tsengvn.typekit.TypekitContextWrapper;
 
-import org.woolrim.woolrim.DataItems.MyFavoritesItem;
 import org.woolrim.woolrim.DataItems.MyRecordItem;
-import org.woolrim.woolrim.Utils.DBManagerHelper;
 import org.woolrim.woolrim.Utils.PermissionDialog;
 import org.woolrim.woolrim.type.UpdateUserInput;
 
@@ -59,15 +50,10 @@ import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 
 import javax.annotation.Nonnull;
-
-import okhttp3.OkHttpClient;
-import okhttp3.logging.HttpLoggingInterceptor;
 
 import static com.android.volley.Request.Method.POST;
 
@@ -234,7 +220,9 @@ public class MainActivity extends AppCompatActivity implements FragmentInteracti
             final FragmentTransaction currentFragmentTransaction = currentFragmentManager.beginTransaction();
             Fragment currentFragment = currentFragmentManager.findFragmentById(R.id.container);
 
-            switch (view.getId()) { // currentFragment 가  RecordFragment 일때는 onBackPressed / PlayerFragment 일때는 addToBackStack 안함
+            switch (view.getId()) {
+                // currentFragment 가  RecordFragment 일때는 onBackPressed
+                // 자기자신, PlayerFragment, 메뉴에 있는 Fragment 일때는 addToBackStack 안함
                 case R.id.profile_modify_iv:
                     GallerySelectFragment gallerySelectFragment = GallerySelectFragment.newInstance(new Bundle());
                     gallerySelectFragment.show(currentFragmentManager, "Main");
@@ -254,7 +242,7 @@ public class MainActivity extends AppCompatActivity implements FragmentInteracti
                         requestCode = WoolrimApplication.REQUSET_FAVORITE;
                         onBackPressed();
                     } else if (!(currentFragment instanceof MyFavoritesFragment)) {
-                        processFragmentChange(currentFragment, new Bundle());
+                        processFavoriteFragmentChange(currentFragment, new Bundle());
                     }
                     break;
 
@@ -266,82 +254,19 @@ public class MainActivity extends AppCompatActivity implements FragmentInteracti
                         Bundle bundle = new Bundle();
                         bundle.putInt(getString(R.string.request_code), WoolrimApplication.REQUSET_MY_MENU);
                         LoginFragment loginFragment = LoginFragment.newInstance(bundle);
-
                         FragmentTransaction ft = currentFragmentTransaction.replace(R.id.container, loginFragment);
 
-                        if (currentFragment instanceof LoginFragment || currentFragment instanceof MyFavoritesFragment) {
+                        if (currentFragment instanceof LoginFragment || currentFragment instanceof MyFavoritesFragment || currentFragment instanceof PlayerFragmentTemp) {
                             ft.commit();
                         } else {
                             ft.addToBackStack("MainFragment").commit();
                         }
                     } else if (!(currentFragment instanceof MyMenuFragment)) { //마이 메뉴인경우 다시 안띄움
                         //서버로 부터 알람내역이랑 자신이 올린 녹음파일에 대한 데이터 가져와야함
-
-                        if(WoolrimApplication.isTest){
-                            Bundle bundle = new Bundle();
-
-                            ArrayList<MyRecordItem> myRecordItem = new ArrayList<>();
-                            myRecordItem.add(new MyRecordItem("1", "시인", "시1", false));
-                            myRecordItem.add(new MyRecordItem("2", "시인", "시2", false));
-                            myRecordItem.add(new MyRecordItem("3", "시인", "시3", false));
-                            myRecordItem.add(new MyRecordItem("4", "시인", "시4", false));
-                            myRecordItem.add(new MyRecordItem("5", "시인", "시5", false));
-                            myRecordItem.add(new MyRecordItem("6", "시인", "시6", false));
-                            myRecordItem.add(new MyRecordItem("7", "시인", "시7", false));
-                            myRecordItem.add(new MyRecordItem("8", "시인", "시8", false));
-
-
-
-                            ArrayList<MyRecordItem> notificationItems = new ArrayList<>();
-                            notificationItems.add(new MyRecordItem("1", "알림1", null, false));
-                            notificationItems.add(new MyRecordItem("2", "알림2", null, false));
-                            notificationItems.add(new MyRecordItem("3", "알림3", null, false));
-                            notificationItems.add(new MyRecordItem("4", "알림4", null, false));
-
-                            bundle.putParcelableArrayList("PoemList", myRecordItem);
-                            bundle.putParcelableArrayList("NotificationList", notificationItems);
-
-                            MyMenuFragment myMenuFragment = MyMenuFragment.newInstance(bundle);
-                            currentFragmentTransaction
-                                    .replace(R.id.container, myMenuFragment)
-                                    .addToBackStack("MainFragment")
-                                    .commit();
-                        }
-                        else {
-                            WoolrimApplication.apolloClient
-                                    .query(GetMyMenu.builder().stu_id(WoolrimApplication.loginedUserId).build())
-                                    .enqueue(new ApolloCall.Callback<GetMyMenu.Data>() {
-                                        @Override
-                                        public void onResponse(@Nonnull com.apollographql.apollo.api.Response<GetMyMenu.Data> response) {
-                                            Bundle bundle = new Bundle();
-                                            ArrayList<MyRecordItem> myRecordItem = new ArrayList<>();
-                                            for (GetMyMenu.Recording_list item : response.data().getMainInfo().recording_list()) {
-                                                myRecordItem.add(new MyRecordItem(
-                                                        item.id(),
-                                                        item.poem().poet().name(),
-                                                        item.poem().name(),
-                                                        false
-                                                ));
-                                            }
-                                            ArrayList<MyRecordItem> notificationItems = new ArrayList<>();
-                                            for (GetMyMenu.Notification_list item : response.data().getMainInfo().notification_list()) {
-                                                notificationItems.add(new MyRecordItem(item.id(), item.content(), null, false));
-                                            }
-                                            bundle.putParcelableArrayList("PoemList", myRecordItem);
-                                            bundle.putParcelableArrayList("NotificationList", notificationItems);
-
-                                            MyMenuFragment myMenuFragment = MyMenuFragment.newInstance(bundle);
-                                            currentFragmentTransaction
-                                                    .replace(R.id.container, myMenuFragment)
-                                                    .addToBackStack("MainFragment")
-                                                    .commit();
-                                        }
-
-                                        @Override
-                                        public void onFailure(@Nonnull ApolloException e) {
-
-                                        }
-                                    });
+                        if (WoolrimApplication.isTest) {//테스트용 지워야함
+                            testMyMenuFragmentChange(currentFragment, currentFragmentTransaction);
+                        } else {
+                            processMyMenuFragmentChange(currentFragment, currentFragmentTransaction);
                         }
                     }
                     break;
@@ -499,7 +424,7 @@ public class MainActivity extends AppCompatActivity implements FragmentInteracti
                 UpdateUserInput.builder()
                         .id(WoolrimApplication.loginedUserPK)
                         .name(WoolrimApplication.loginedUserName)
-                        .profile(String.valueOf(WoolrimApplication.loginedUserId)+"/" + imageFileName)
+                        .profile(String.valueOf(WoolrimApplication.loginedUserId) + "/" + imageFileName)
                         .build())
                 .build())
                 .enqueue(new ApolloCall.Callback<UpdateUserProfile.Data>() {
@@ -510,7 +435,7 @@ public class MainActivity extends AppCompatActivity implements FragmentInteracti
                                 @Override
                                 public void run() {
                                     Log.d("Time", "here");
-                                    Glide.with(getApplicationContext()).load(WoolrimApplication.FILE_BASE_URL + String.valueOf(WoolrimApplication.loginedUserId)+"/" + imageFileName).into(profileImageView);
+                                    Glide.with(getApplicationContext()).load(WoolrimApplication.FILE_BASE_URL + String.valueOf(WoolrimApplication.loginedUserId) + "/" + imageFileName).into(profileImageView);
                                 }
                             });
                             File file = new File(imageFilePath);
@@ -544,7 +469,7 @@ public class MainActivity extends AppCompatActivity implements FragmentInteracti
         }
     }
 
-    private void processFragmentChange(Fragment fragment, Bundle bundle) {
+    private void processFavoriteFragmentChange(Fragment fragment, Bundle bundle) {
         if (fragment instanceof MyMenuFragment || fragment instanceof LoginFragment || fragment instanceof PlayerFragmentTemp) {
             Log.d("Title", "here");
             MyFavoritesFragment myFavoritesFragment = MyFavoritesFragment.newInstance(bundle);
@@ -555,5 +480,91 @@ public class MainActivity extends AppCompatActivity implements FragmentInteracti
         }
     }
 
+    private void testMyMenuFragmentChange(Fragment currentFragment, FragmentTransaction currentFragmentTransaction) {
+        Bundle bundle = new Bundle();
+
+        ArrayList<MyRecordItem> myRecordItem = new ArrayList<>();
+        myRecordItem.add(new MyRecordItem("1", "시인", "시1", false));
+        myRecordItem.add(new MyRecordItem("2", "시인", "시2", false));
+        myRecordItem.add(new MyRecordItem("3", "시인", "시3", false));
+        myRecordItem.add(new MyRecordItem("4", "시인", "시4", false));
+        myRecordItem.add(new MyRecordItem("5", "시인", "시5", false));
+        myRecordItem.add(new MyRecordItem("6", "시인", "시6", false));
+        myRecordItem.add(new MyRecordItem("7", "시인", "시7", false));
+        myRecordItem.add(new MyRecordItem("8", "시인", "시8", false));
+
+
+        ArrayList<MyRecordItem> notificationItems = new ArrayList<>();
+        notificationItems.add(new MyRecordItem("1", "알림1", null, false));
+        notificationItems.add(new MyRecordItem("2", "알림2", null, false));
+        notificationItems.add(new MyRecordItem("3", "알림3", null, false));
+        notificationItems.add(new MyRecordItem("4", "알림4", null, false));
+
+        bundle.putParcelableArrayList("PoemList", myRecordItem);
+        bundle.putParcelableArrayList("NotificationList", notificationItems);
+
+        MyMenuFragment myMenuFragment = MyMenuFragment.newInstance(bundle);
+
+        if (currentFragment instanceof MyFavoritesFragment || currentFragment instanceof LoginFragment || currentFragment instanceof PlayerFragmentTemp) {
+            currentFragmentTransaction
+                    .replace(R.id.container, myMenuFragment)
+                    .commit();
+        } else {
+            currentFragmentTransaction
+                    .replace(R.id.container, myMenuFragment)
+                    .addToBackStack("MainFragment")
+                    .commit();
+        }
+
+
+    }
+
+    private void processMyMenuFragmentChange(final Fragment currentFragment, final FragmentTransaction currentFragmentTransaction) {
+        WoolrimApplication.apolloClient
+                .query(GetMyMenu.builder().stu_id(WoolrimApplication.loginedUserId).build())
+                .enqueue(new ApolloCall.Callback<GetMyMenu.Data>() {
+                    @Override
+                    public void onResponse(@Nonnull com.apollographql.apollo.api.Response<GetMyMenu.Data> response) {
+                        if (response.data().getMainInfo().isSuccess()) {
+                            Bundle bundle = new Bundle();
+                            ArrayList<MyRecordItem> myRecordItem = new ArrayList<>();
+                            for (GetMyMenu.Recording_list item : response.data().getMainInfo().recording_list()) {
+                                myRecordItem.add(new MyRecordItem(
+                                        item.id(),
+                                        item.poem().poet().name(),
+                                        item.poem().name(),
+                                        false
+                                ));
+                            }
+                            ArrayList<MyRecordItem> notificationItems = new ArrayList<>();
+                            for (GetMyMenu.Notification_list item : response.data().getMainInfo().notification_list()) {
+                                notificationItems.add(new MyRecordItem(item.id(), item.content(), null, false));
+                            }
+                            bundle.putParcelableArrayList("PoemList", myRecordItem);
+                            bundle.putParcelableArrayList("NotificationList", notificationItems);
+
+                            MyMenuFragment myMenuFragment = MyMenuFragment.newInstance(bundle);
+
+                            if (currentFragment instanceof MyFavoritesFragment || currentFragment instanceof PlayerFragmentTemp) {
+                                currentFragmentTransaction
+                                        .replace(R.id.container, myMenuFragment)
+                                        .commit();
+                            } else {
+                                currentFragmentTransaction
+                                        .replace(R.id.container, myMenuFragment)
+                                        .addToBackStack("MainFragment")
+                                        .commit();
+                            }
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(@Nonnull ApolloException e) {
+
+                    }
+
+                });
+
+    }
 
 }

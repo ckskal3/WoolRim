@@ -2,6 +2,7 @@ package org.woolrim.woolrim;
 
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.media.PlaybackParams;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -57,7 +58,7 @@ public class PlayerFragmentTemp extends Fragment implements View.OnTouchListener
 
     private MediaPlayer mediaPlayer;
 
-    private boolean isPlaying = false, isPause = false;
+    private boolean isPlaying = false, isPause = false, isRestartAndResume = false;
     int bookmarkFlag, bookmarkPosition;
 
     public Handler seekBarHandler = new Handler(Looper.getMainLooper());
@@ -234,14 +235,16 @@ public class PlayerFragmentTemp extends Fragment implements View.OnTouchListener
         @Override
         public void run() {
             if (mediaPlayer != null) {
-                int mCurrentPosition = mediaPlayer.getCurrentPosition();
 
+                int mCurrentPosition = mediaPlayer.getCurrentPosition();
+                Log.d("Time",String.valueOf(mCurrentPosition));
                 long minutes = TimeUnit.MILLISECONDS.toMinutes(mCurrentPosition);
                 long seconds = TimeUnit.MILLISECONDS.toSeconds(mCurrentPosition)
                         - TimeUnit.MINUTES.toSeconds(minutes);
 
                 playingTimeTextView.setText(String.format(getString(R.string.timer_format), minutes, seconds));
                 updateTime();
+
             }
 
         }
@@ -252,7 +255,7 @@ public class PlayerFragmentTemp extends Fragment implements View.OnTouchListener
     }
 
     private void updateTime() {
-        timerHandler.postDelayed(timeRunnable, 50);
+        timerHandler.postDelayed(timeRunnable, 5);
     }
 
     private void init(View view) {
@@ -287,54 +290,32 @@ public class PlayerFragmentTemp extends Fragment implements View.OnTouchListener
             favoriteIconIV.setImageResource(R.drawable.favorite_middle_empty_color_icon);
         }
         indicator[currentPage].setBackground(ContextCompat.getDrawable(getContext(), R.drawable.selected_indicator));
-        fullTimeTextView.setText(getString(R.string.default_time));
+        setDuration(itemArray[currentPage].duration);
+        circleSeekBar.setMaxProcess(itemArray[currentPage].duration);
+        circleSeekBar.setCurProcess(0);
+        playingTimeTextView.setText(getString(R.string.default_time));
+        playingTimeTextView.setTextColor(getColor(R.color.timer_default_text_color));
+        playIconBackIV.setImageResource(R.drawable.play_big_icon);
+
         mediaPlayer = new MediaPlayer();
-        try {
-            mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-            mediaPlayer.setDataSource(itemArray[currentPage].filePath);
-            mediaPlayer.prepareAsync();
-            mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
-                @Override
-                public void onPrepared(MediaPlayer mediaPlayer) {
-                    setDuration(mediaPlayer);
-                    circleSeekBar.setMaxProcess(mediaPlayer.getDuration());
-                    mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-                        @Override
-                        public void onCompletion(MediaPlayer mediaPlayer) {
-                            playIconBackIV.setImageResource(R.drawable.play_big_icon);
-                            isPlaying = false;
-                            isPause = false;
-                            seekBarHandler.removeCallbacks(seekBarRunnable);
-                            timerHandler.removeCallbacks(timeRunnable);
-
-                            circleSeekBar.setCurProcess(mediaPlayer.getDuration());
-                        }
-                    });
-
-                }
-            });
-        } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            circleSeekBar.setCurProcess(0);
-            playingTimeTextView.setText(getString(R.string.default_time));
-            playingTimeTextView.setTextColor(getColor(R.color.timer_default_text_color));
-            playIconBackIV.setImageResource(R.drawable.play_big_icon);
-
-        }
+        mediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 
     }
 
     private void stopMediaAndTimer() {
         isPlaying = false;
-        mediaPlayer.stop();
-        mediaPlayer.release();
+        isRestartAndResume = false;
+        if(mediaPlayer != null || mediaPlayer.isPlaying()) {
+            mediaPlayer.stop();
+            mediaPlayer.release();
+        }
         timerHandler.removeCallbacks(timeRunnable);
         seekBarHandler.removeCallbacks(seekBarRunnable);
     }
 
-    private void setDuration(MediaPlayer mediaPlayer) {
-        long itemDuration = mediaPlayer.getDuration();
+    private void setDuration(int duration) {
+//        Log.d("Time",String.valueOf(mediaPlayer.getDuration()));
+        long itemDuration = duration;
         long minutes = TimeUnit.MILLISECONDS.toMinutes(itemDuration);
         long seconds = TimeUnit.MILLISECONDS.toSeconds(itemDuration)
                 - TimeUnit.MINUTES.toSeconds(minutes);
@@ -429,18 +410,67 @@ public class PlayerFragmentTemp extends Fragment implements View.OnTouchListener
     }
 
     public void onStartBtnClick() {
-        updateTime();
-        updateSeekBar();
+        if(!isRestartAndResume){
+            try {
+                mediaPlayer.setDataSource(itemArray[currentPage].filePath);
+                mediaPlayer.prepareAsync();
+                mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                    @Override
+                    public void onPrepared(MediaPlayer mediaPlayer) {
+                        mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                            @Override
+                            public void onCompletion(MediaPlayer mediaPlayer) {
+                                playIconBackIV.setImageResource(R.drawable.play_big_icon);
+                                isPlaying = false;
+                                isPause = false;
+                                isRestartAndResume = true;
+                                seekBarHandler.removeCallbacks(seekBarRunnable);
+                                timerHandler.removeCallbacks(timeRunnable);
 
-        mediaPlayer.start();
-        if (!isPause) {
-            playingTimeTextView.setText(getString(R.string.default_time));
+                                circleSeekBar.setCurProcess(mediaPlayer.getDuration());
+                            }
+                        });
+
+                        updateTime();
+                        updateSeekBar();
+
+                        setDuration(mediaPlayer.getDuration());
+
+                        mediaPlayer.start();
+
+                        if (!isPause) {
+                            playingTimeTextView.setText(getString(R.string.default_time));
+                        }
+                        isPlaying = true;
+                        isPause = false;
+                        playIconBackIV.setImageResource(R.drawable.pause_icon);
+                        playingTimeTextView.setTextColor(getColor(R.color.app_sub_color));
+
+                        Toast.makeText(getContext(), "재생", Toast.LENGTH_LONG).show();
+
+                    }
+                });
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }else{
+            updateTime();
+            updateSeekBar();
+
+            mediaPlayer.start();
+
+            if (!isPause) {
+                playingTimeTextView.setText(getString(R.string.default_time));
+            }
+            isPlaying = true;
+            isPause = false;
+            playIconBackIV.setImageResource(R.drawable.pause_icon);
+            playingTimeTextView.setTextColor(getColor(R.color.app_sub_color));
+
+            Toast.makeText(getContext(), "재생", Toast.LENGTH_LONG).show();
         }
-        isPlaying = true;
-        isPause = false;
-        playIconBackIV.setImageResource(R.drawable.pause_icon);
-        playingTimeTextView.setTextColor(getColor(R.color.app_sub_color));
-        Toast.makeText(getContext(), "재생", Toast.LENGTH_LONG).show();
+
+
 
     }
 
@@ -455,6 +485,7 @@ public class PlayerFragmentTemp extends Fragment implements View.OnTouchListener
         playingTimeTextView.setTextColor(getColor(R.color.timer_default_text_color));
         isPlaying = false;
         isPause = true;
+        isRestartAndResume = true;
 
 
     }

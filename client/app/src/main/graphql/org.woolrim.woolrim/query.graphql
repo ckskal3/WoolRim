@@ -44,6 +44,7 @@ query GetRecordingForPlay($poem_id:ID!, $user_id:ID, $isMy:Boolean!){
     recording{
       id,
       path,
+      duration,
       user{
       id,
       name,
