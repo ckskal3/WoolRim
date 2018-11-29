@@ -180,6 +180,7 @@ const applyRecording = async (id_list) => {
     })
     const sum_point = recording.user.bongsa_time + recording.poem.point;
     await User.find(recording.user.id).update({ bongsa_time: sum_point });
+    await Recording.find(id).update({ auth_flag: 2 });
   })
   return true;
 }
@@ -191,6 +192,7 @@ const recordingResolver = {
   },
   Status: {
     REJECTED: -1,
+    APPLIED: 2,
     ACCEPTED: 1,
     WAITING: 0,
   },

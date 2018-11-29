@@ -26,6 +26,7 @@ enum Status {
   REJECTED
   ACCEPTED
   WAITING
+  APPLIED
 }
 
 type RecordingResult {
