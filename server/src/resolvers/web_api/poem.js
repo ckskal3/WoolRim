@@ -21,7 +21,7 @@ const updatePoem = async (poem) => {
 }
 
 const deletePoem = async (id) => {
-  await Poem.delete(id);
+  await Poem.find(id).delete();
   return true;
 }
 
