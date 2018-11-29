@@ -13,8 +13,6 @@ const deleteRecordingById = async (id) => {
   return true;
 }
 
-const deleteAllRecording = async () => {
-  await Recording.delete();
   return true;
 }
 
@@ -68,7 +66,6 @@ const recordingWebResolver = {
   Mutation: {
     acceptRecording: (obj, {recording_id}) => acceptRecording(recording_id),
     rejectRecording: (obj, {recording_id}) => rejectRecording(recording_id),
-    deleteAllRecording: () => deleteAllRecording(),
     deleteRecordingById: (obj, { id }) => deleteRecordingById(id),
   }
 }

@@ -62,7 +62,7 @@ class AuditList extends Component {
   render() {
     const { list } = this.props;
     if (list.length === 0) {
-      return <div>WAIT</div>
+      return <div>심사할 목록 없음</div>
     } else {
       return (
         <div className='root'>

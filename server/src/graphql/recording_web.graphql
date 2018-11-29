@@ -11,6 +11,5 @@ type Query {
 type Mutation {
   acceptRecording(recording_id: ID!): Boolean!
   rejectRecording(recording_id: ID!): Boolean!
-  deleteAllRecording: Boolean!
   deleteRecordingById(id: ID!): Boolean!
 }
