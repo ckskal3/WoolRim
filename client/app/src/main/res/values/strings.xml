@@ -5,7 +5,7 @@
     <string name="record_poem">시 녹음 하기</string>
     <string name="play">재생</string>
     <string name="pause">일시정지</string>
-    <string name="stop">정지</string>
+    <string name="record_complete_kr">녹음완료</string>
     <string name="sign_up_kr">회원가입</string>
     <string name="want_poem">원하는 시를 입력해주세요.</string>
     <string name="poetry">  계절이 지나가는 하늘에는\n
@@ -52,7 +52,7 @@
                             무덤 위에 파란 잔디가 피어나듯이\n
                             내 이름자 묻힌 언덕 위에도\n
                             자랑처럼 풀이 무성할 거외다.</string>
-    <string name="recordstart">녹음하기</string>
+    <string name="record_start">녹음하기</string>
     <string name="logo">Logo</string>
     <string name="replay">다시듣기</string>
     <string name="name_temp">사용자 이름</string>
@@ -64,16 +64,16 @@
     <string name="mymenu">MyMenu</string>
     <string name="home">Home</string>
     <string name="back">Back</string>
-    <string name="pleasefill">각각 채워야됩니다</string>
-    <string name="pleasepoem">낭송하고 싶은 시를 입력하세요</string>
+    <string name="please_fill">각각 채워야됩니다</string>
+    <string name="please_poem">낭송하고 싶은 시를 입력하세요</string>
     <string name="search">검색</string>
     <string name="login_kr">로그인</string>
-    <string name= "logout_kr">로그아웃</string>
-    <string name="mypage_kr">마이페이지</string>
+    <string name="logout_kr">로그아웃</string>
+    <string name="my_page_kr">마이페이지</string>
     <string name="menu_kr">메뉴</string>
-    <string name="bgmselect_kr">BGM 선택하기</string>
+    <string name="bgm_select_kr">BGM 선택하기</string>
     <string name="complete_kr">완료</string>
-    <string name="record_complete_kr">울림 업로드 신청하기</string>
+    <string name="record_upload_kr">울림 업로드 신청하기</string>
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
     <string name="nav_header_title">Android Studio</string>
@@ -104,5 +104,7 @@
     <string name="android_en">Android</string>
     <string name="no_profile_en">NULL</string>
     <string name="delete_kr">삭제</string>
+    <string name="bgm_en">BGM</string>
+    <string name="limit_duration_warning_kr">※최대 녹음시간은 %d분 %d초 입니다.\n\t시간을 넘지 않게 녹음 해주세요</string>
 
 </resources>

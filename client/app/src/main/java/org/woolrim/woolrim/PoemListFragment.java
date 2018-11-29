@@ -303,6 +303,8 @@ public class PoemListFragment extends Fragment {
                             @Override
                             public void onResponse(@Nonnull Response<GetPoemByName.Data> response) {
                                 bundle.putString("PoemContent", response.data().getPoemByNames().content());
+                                int limitDuration = (int)(response.data().getPoemByNames().length() * 60000);
+                                bundle.putInt("PoemLimitDuration",limitDuration);
                                 RecordFragment recordFragment = RecordFragment.newInstance(bundle);
                                 getActivity().getSupportFragmentManager().beginTransaction().addToBackStack("RecordListFragment")
                                         .replace(R.id.container, recordFragment).commit();

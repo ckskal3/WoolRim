@@ -30,7 +30,7 @@ public class CheckBottomFragment extends BottomSheetDialogFragment {
     public static final int MY_RECORD_SUBMIT_REQUEST = 3;
 
     private int fragmentRequestCode = 0, requestCode;
-    private String filePath,poetName, poemName;
+    private String filePath,poetName, poemName, deleteItemId;
     private int deleteItemPosition;
     private TextView leftTextView, rightTextView, checkTextView1, checkTextView2, waringTextView1, waringTextView2;
 
@@ -54,6 +54,7 @@ public class CheckBottomFragment extends BottomSheetDialogFragment {
             }
         }else if(fragmentRequestCode == MY_RECORD_DELETE_REQUEST){
             deleteItemPosition = bundle.getInt("ItemPosition");
+            deleteItemId = bundle.getString("ItemId");
             poemName = bundle.getString("ItemPoem");
             poetName = bundle.getString("ItemPoet");
         }
@@ -119,8 +120,26 @@ public class CheckBottomFragment extends BottomSheetDialogFragment {
                 rightTextView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        MyMenuFragment.myRecordFragment1.adapter.deleteItem(deleteItemPosition,null);
-                        dismiss();
+                        WoolrimApplication.apolloClient.mutate(DeleteRecording.builder().id(deleteItemId).build()).enqueue(new ApolloCall.Callback<DeleteRecording.Data>() {
+                            @Override
+                            public void onResponse(@Nonnull Response<DeleteRecording.Data> response) {
+                                if(response.data().deleteRecordingById()){
+                                    getActivity().runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            MyMenuFragment.myRecordFragment1.adapter.deleteItem(deleteItemPosition,null);
+                                        }
+                                    });
+                                    dismiss();
+                                }
+                            }
+
+                            @Override
+                            public void onFailure(@Nonnull ApolloException e) {
+
+                            }
+                        });
+
                     }
                 });
                 checkTextView1.setText("'"+poetName+" - "+poemName+"' 울림을 ");

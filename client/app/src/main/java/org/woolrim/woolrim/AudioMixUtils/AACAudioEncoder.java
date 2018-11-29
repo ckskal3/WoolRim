@@ -19,8 +19,8 @@ class AACAudioEncoder extends AudioEncoder {
     private final static String AUDIO_MIME = "audio/mp4a-latm";
     private final static long audioBytesPerSample = 44100 * 16 / 8;
 
-    AACAudioEncoder(String rawAudioFile) {
-        super(rawAudioFile);
+    AACAudioEncoder(String rawAudioFile, OnEncodingCompletedListener onEncodingCompletedListener) {
+        super(rawAudioFile,onEncodingCompletedListener);
     }
 
     @Override
@@ -137,8 +137,8 @@ class AACAudioEncoder extends AudioEncoder {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            File file = new File(rawAudioFile);
-            file.delete();
+            onEncodingCompletedListener.onEndingCompleted();
+
         }
     }
 

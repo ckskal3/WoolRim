@@ -39,6 +39,7 @@ mutation GetLogin($stu_id: Int!, $passwd: String!){
           content
         },
         unreadCount
+
 	}
 }
 
@@ -64,3 +65,10 @@ mutation DeleteBookMark($user_id : ID!, $recording_id : ID!){
     }
 }
 
+mutation DeleteRecording($id : ID!){
+    deleteRecordingById(id: $id)
+}
+
+mutation DeleteNotification($id : ID!){
+    deleteNotification(id: $id)
+}

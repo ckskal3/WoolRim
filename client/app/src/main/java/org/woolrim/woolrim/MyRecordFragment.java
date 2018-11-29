@@ -8,24 +8,33 @@ import android.support.constraint.ConstraintLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.DefaultItemAnimator;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewParent;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 
+import com.apollographql.apollo.ApolloCall;
+import com.apollographql.apollo.api.Response;
+import com.apollographql.apollo.exception.ApolloException;
+
 import org.woolrim.woolrim.DataItems.MyRecordItem;
 import org.woolrim.woolrim.Utils.EmptyRecyclerView;
 
 import java.io.File;
 import java.util.ArrayList;
+
+import javax.annotation.Nonnull;
 
 
 public class MyRecordFragment extends Fragment {
@@ -37,7 +46,7 @@ public class MyRecordFragment extends Fragment {
     private Button myBongsaButton;
 
     private int fragmentRequestCode = 0;
-    private ArrayList<MyRecordItem> poemLists,notificationLists;
+    private ArrayList<MyRecordItem> poemLists, notificationLists;
     public MyRecordAdapter adapter;
 
 
@@ -110,13 +119,14 @@ public class MyRecordFragment extends Fragment {
 
         Log.d("Size", "" + adapter.items.size());
 
+        myRecordRecyclerView.addItemDecoration(new DividerItemDecoration(getContext(),DividerItemDecoration.VERTICAL));
         myRecordRecyclerView.setAdapter(adapter);
         myRecordRecyclerView.setEmptyView(view.findViewById(R.id.my_no_item_view));
 
 
         adapter.setOnItemClickListener(new MyRecordAdapter.OnItemClickListener() {
             @Override
-            public void onClick(MyMenuViewHolder myMenuViewHolder, View view, int position) {
+            public void onClick(MyMenuViewHolder myMenuViewHolder, View view, final int position) {
                 if (fragmentRequestCode == 101) {
                     switch (view.getId()) {
                         case R.id.play_imageview:
@@ -127,6 +137,7 @@ public class MyRecordFragment extends Fragment {
                             Bundle bundle = new Bundle();
                             bundle.putInt("FragmentRequestCode", CheckBottomFragment.MY_RECORD_DELETE_REQUEST);
                             bundle.putInt("ItemPosition", position);
+                            bundle.putString("ItemId",adapter.getItem(position)._id);
                             bundle.putString("ItemPoem", adapter.getItem(position).poem);
                             bundle.putString("ItemPoet", adapter.getItem(position).poet);
                             CheckBottomFragment checkBottomFragment = CheckBottomFragment.newInstance(bundle);
@@ -150,8 +161,26 @@ public class MyRecordFragment extends Fragment {
                 } else {
                     switch (view.getId()) {
                         case R.id.delete_imageview:
-                            adapter.deleteItem(position, null);
-                            Toast.makeText(getContext(), String.valueOf(position) + "번째 삭제 버튼", Toast.LENGTH_SHORT).show();
+                            WoolrimApplication.apolloClient.mutate(DeleteNotification.builder().id(adapter.getItem(position)._id).build())
+                                    .enqueue(new ApolloCall.Callback<DeleteNotification.Data>() {
+                                @Override
+                                public void onResponse(@Nonnull Response<DeleteNotification.Data> response) {
+                                    if(response.data().deleteNotification()){
+                                        getActivity().runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                adapter.deleteItem(position, null);
+                                            }
+                                        });
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(@Nonnull ApolloException e) {
+
+                                }
+                            });
+
                             break;
                     }
                 }
@@ -240,7 +269,14 @@ class MyRecordAdapter extends RecyclerView.Adapter<MyMenuViewHolder> {
     @Override
     public void onBindViewHolder(@NonNull MyMenuViewHolder holder, int position) {
         if (fragmentRequestCode == 101) {
-            holder.poetTv.setLayoutParams(new ConstraintLayout.LayoutParams(ConstraintLayout.LayoutParams.WRAP_CONTENT, ConstraintLayout.LayoutParams.WRAP_CONTENT));
+            ConstraintLayout.LayoutParams layoutParams = new ConstraintLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,ViewGroup.LayoutParams.WRAP_CONTENT);
+            layoutParams.verticalBias = 50;
+            layoutParams.bottomToBottom = 0;
+            layoutParams.startToStart = 0;
+            layoutParams.topToTop = 0;
+            layoutParams.leftMargin = 20;
+
+            holder.poetTv.setLayoutParams(layoutParams);
             holder.poetTv.setText(items.get(position).poet);
             holder.poemTv.setText(items.get(position).poem);
             if(items.get(position).auth_flag){
