@@ -91,8 +91,34 @@ public class MyFavoritesFragment extends Fragment {
             public void onClick(MyFavoritesAdapter.MyFavoritesViewHolder myFavoritesViewHolder, View view, final int position) {
                 switch (view.getId()) {
                     case R.id.favorite_icon_iv:
-                        DBManagerHelper.favoriteDAO.deleteFavorite(items.get(position));
-                        myFavoritesAdapter.deleteItem(position);
+                        if(WoolrimApplication.isLogin){
+                            WoolrimApplication.apolloClient.mutate(
+                                    DeleteBookMark.builder()
+                                            .user_id(WoolrimApplication.loginedUserPK)
+                                            .recording_id(myFavoritesAdapter.getItem(position).recordingId).build())
+                                    .enqueue(new ApolloCall.Callback<DeleteBookMark.Data>() {
+                                @Override
+                                public void onResponse(@Nonnull Response<DeleteBookMark.Data> response) {
+                                    if(response.data().deleteBookmark().isSuccess()){
+                                        getActivity().runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                myFavoritesAdapter.deleteItem(position);
+                                            }
+                                        });
+                                    }
+                                }
+
+                                @Override
+                                public void onFailure(@Nonnull ApolloException e) {
+
+                                }
+                            });
+                        }else{
+                            DBManagerHelper.favoriteDAO.deleteFavorite(items.get(position));
+                            myFavoritesAdapter.deleteItem(position);
+                        }
+
                         break;
                     case R.id.favorite_play_iv:
                         WoolrimApplication.apolloClient.query(GetRecordingForPlay.builder().poem_id(items.get(position).poemId).user_id(items.get(position).recordingStudentId).isMy(false).build())

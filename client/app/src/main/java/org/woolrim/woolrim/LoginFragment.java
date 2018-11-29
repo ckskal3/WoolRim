@@ -25,6 +25,7 @@ import java.util.ArrayList;
 
 import org.woolrim.woolrim.DataItems.MyRecordItem;
 import org.woolrim.woolrim.Utils.NetworkStatus;
+import org.woolrim.woolrim.type.Status;
 
 import javax.annotation.Nonnull;
 
@@ -172,11 +173,13 @@ public class LoginFragment extends Fragment {
                                                 Bundle bundle = new Bundle();
                                                 ArrayList<MyRecordItem> myRecordItem = new ArrayList<>();
                                                 for (GetLogin.Recording_list item : response.data().login().recording_list()) {
+                                                    boolean auth_flag;
+                                                    auth_flag = item.auth_flag() != Status.ACCEPTED;
                                                     myRecordItem.add(new MyRecordItem(
                                                             item.id(),
                                                             item.poem().poet().name(),
                                                             item.poem().name(),
-                                                            false
+                                                            auth_flag
                                                     ));
                                                 }
                                                 ArrayList<MyRecordItem> notificationItems = new ArrayList<>();

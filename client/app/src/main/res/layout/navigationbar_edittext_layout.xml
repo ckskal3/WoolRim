@@ -43,7 +43,7 @@
             android:layout_weight="1"
             android:ems="10"
             android:inputType="textPersonName"
-            android:hint="@string/pleasepoem"
+            android:hint="@string/please_poem"
             android:background="#00000000"
             android:textSize="12sp"
             android:layout_marginStart="30dp"/>

@@ -156,6 +156,7 @@ public class PlaybackFragment extends BottomSheetDialogFragment implements View.
 
     private void processServerResponse(String response){
         Gson gson = new Gson();
+        Log.d("Time",response);
         Toast.makeText(getContext(),response,Toast.LENGTH_SHORT).show();
 
         ///성공일떄와 오류일떄 나눠서 처리해야함////////
@@ -274,7 +275,11 @@ public class PlaybackFragment extends BottomSheetDialogFragment implements View.
 
     private void stopPlay() {
         Log.d("Time","stopPlay");
-        completePlay();
+        circleSeekBar.setCurProcess(0);
+        seekBarHandler.removeCallbacks(seekBarRunnable);
+        timerHandler.removeCallbacks(timeRunnable);
+        isPlaying = false;
+        getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
         mediaPlayer.stop();
     }
 

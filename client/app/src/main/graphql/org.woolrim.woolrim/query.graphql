@@ -21,7 +21,8 @@ query getAllPoem{
 
 query GetPoemByName($poet_name: String!, $poem_name: String!){
   getPoemByNames(poet_name:$poet_name, poem_name:$poem_name){
-    content
+    content,
+    length
   }
 }
 

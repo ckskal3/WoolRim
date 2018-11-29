@@ -343,24 +343,7 @@ public class WaveLineViewTemp extends RenderViewTemp {
     //清空画布所有内容
     public void clearDraw(){
         isTemp = true;
-//        Canvas canvas = null;
-//        try{
-//            Log.d("Time","Inner");
-//            canvas = getHolder().lockCanvas(null);
-//            canvas.drawColor(backGroundColor);
-//            resetPaths();
-//            for (int i=0; i< paths.size(); i++){
-//                canvas.drawPath(paths.get(i),paint);
-//            }
-//        }catch(Exception e){
-//            Log.d("Clear","Exception");
-//        }finally{
-//            if(canvas != null){
-//                Log.d("Clear","Finally");
-//                getHolder().unlockCanvasAndPost(canvas);
-//            }
-////            stopAnim();
-//        }
+
     }
 
     //初始化绘制参数

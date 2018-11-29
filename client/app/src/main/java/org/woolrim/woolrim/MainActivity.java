@@ -67,8 +67,8 @@ public class MainActivity extends AppCompatActivity implements FragmentInteracti
     private TextView toolbarRightTv;
     public static TextView toolbarLabelTv, signInAndOutTv, userNameTv;
 
-    private ImageView drawableControlImageView, drawableCloseImageView;
-    public static ImageView profileImageView, profileChangeImageView;
+    private ImageView  drawableCloseImageView;
+    public static ImageView profileImageView, profileChangeImageView, drawableControlImageView;
 
     public static String userName;
 
