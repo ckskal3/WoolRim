@@ -137,17 +137,19 @@ public class LoginFragment extends Fragment {
                                     @Override
                                     public void onResponse(@Nonnull com.apollographql.apollo.api.Response<GetLogin.Data> response) {
                                         if (response.data().login().isSuccess()) {
-                                            final String[] userData = new String[4];
+                                            final String[] userData = new String[5];
                                             userData[0] = response.data().login().user().profile();
                                             userData[1] = response.data().login().user().name();
                                             userData[2] = response.data().login().user().id();
                                             userData[3] = String.valueOf(response.data().login().user().stu_id());
+                                            userData[4] = response.data().login().user().gender();
 
                                             WoolrimApplication.isLogin = true;
                                             WoolrimApplication.loginedUserProfile = WoolrimApplication.FILE_BASE_URL+userData[0];
                                             WoolrimApplication.loginedUserName = userData[1];
                                             WoolrimApplication.loginedUserPK = userData[2];
                                             WoolrimApplication.loginedUserId = Integer.parseInt(userData[3]);
+                                            WoolrimApplication.loginedUserGender = userData[4];
 
                                             getActivity().runOnUiThread(new Runnable() {
                                                 @Override

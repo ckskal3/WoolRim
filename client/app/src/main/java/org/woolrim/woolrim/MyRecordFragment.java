@@ -1,5 +1,6 @@
 package org.woolrim.woolrim;
 
+import android.content.DialogInterface;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -13,11 +14,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 
 import android.util.Log;
-import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewParent;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -29,6 +28,7 @@ import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
 
 import org.woolrim.woolrim.DataItems.MyRecordItem;
+import org.woolrim.woolrim.Utils.DialogDismissListener;
 import org.woolrim.woolrim.Utils.EmptyRecyclerView;
 
 import java.io.File;
@@ -79,19 +79,42 @@ public class MyRecordFragment extends Fragment {
             myBongsaButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    Toast.makeText(getContext(),"신청되었습니다.",Toast.LENGTH_SHORT).show();
                     //서버 전송 필요
+                    ArrayList<String> list = new ArrayList<>();
                     for(MyRecordItem m : adapter.items){
                         if(m.click_flag){
-
+                            list.add(m._id);
                         }
                     }
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            adapter.updateItem();
-                        }
-                    });
+                    if(list.size()>0) {
+                        Bundle bundle = new Bundle();
+                        bundle.putInt("FragmentRequestCode", CheckBottomFragment.MY_VOLUNTEER_SCORE_SUBMIT_REQUEST);
+                        bundle.putStringArrayList("ApplyRecordingId", list);
+                        CheckBottomFragment checkBottomFragment = CheckBottomFragment.newInstance(bundle);
+                        checkBottomFragment.setOnDismissListener(new DialogDismissListener() {
+                            @Override
+                            public void onDismiss(DialogInterface dialogInterface) {
+                                Log.d("Time", "OnDismiss");
+                            }
+
+                            @Override
+                            public void onDismissed(@Nullable String key, boolean flag) {
+                                super.onDismissed(key, flag);
+
+                                if (flag) {
+                                    getActivity().runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Toast.makeText(getContext(), "신청되었습니다.", Toast.LENGTH_SHORT).show();
+                                            adapter.updateItem();
+                                        }
+                                    });
+                                }
+                            }
+                        });
+                        checkBottomFragment.show(getActivity().getSupportFragmentManager(), "MyRecordFragment");
+                    }
+
                 }
             });
         } else {

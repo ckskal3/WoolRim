@@ -28,7 +28,7 @@ public class WoolrimApplication extends Application {
     public final static String BASE_URL = "http://13.125.221.121:3000/graphql";
     public final static String FILE_BASE_URL = "http://13.125.221.121:4000/";
 
-    public static String loginedUserName,loginedUserProfile , loginedUserPK;
+    public static String loginedUserName,loginedUserProfile , loginedUserPK, loginedUserGender;
     public static int loginedUserId;
 
 
@@ -81,6 +81,7 @@ public class WoolrimApplication extends Application {
         loginedUserProfile = null;
         loginedUserPK = null;
         loginedUserName = null;
+        loginedUserGender =  null;
     }
 
 }

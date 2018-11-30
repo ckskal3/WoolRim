@@ -72,3 +72,7 @@ mutation DeleteRecording($id : ID!){
 mutation DeleteNotification($id : ID!){
     deleteNotification(id: $id)
 }
+
+mutation ApplyRecording($id_list : [ID!]!){
+    applyRecording(id_list: $id_list)
+}

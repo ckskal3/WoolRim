@@ -25,6 +25,7 @@ import android.widget.ImageView;
 import com.naver.speech.clientapi.SpeechRecognitionResult;
 
 import org.woolrim.woolrim.Utils.AudioWriterPcm;
+import org.woolrim.woolrim.Utils.DialogDismissListener;
 import org.woolrim.woolrim.Utils.NaverSpeechRecognizer;
 
 import java.lang.ref.WeakReference;
@@ -54,13 +55,13 @@ public class VoiceRecognitionFragment extends DialogFragment {
         return testDialogFragment;
     }
 
-    public abstract static class DialogDismissListener implements DialogInterface.OnDismissListener {
-        public String key;
-
-        public void findSearchKey(@Nullable String key) {
-            this.key = key;
-        }
-    }
+//    public abstract static class DialogDismissListener implements DialogInterface.OnDismissListener {
+//        public String key;
+//
+//        public void findSearchKey(@Nullable String key) {
+//            this.key = key;
+//        }
+//    }
 
     @Override
     public void onAttach(Context context) {
@@ -146,7 +147,7 @@ public class VoiceRecognitionFragment extends DialogFragment {
     @Override
     public void onCancel(DialogInterface dialog) {
         Log.d("Time", "onCancel");
-        mResultListener.findSearchKey("별 헤는 밤");
+        mResultListener.onDismissed("별 헤는 밤");
         super.onCancel(dialog);
         dismiss();
     }

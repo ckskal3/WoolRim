@@ -41,6 +41,7 @@ import com.tsengvn.typekit.TypekitContextWrapper;
 
 import org.woolrim.woolrim.DataItems.MyRecordItem;
 import org.woolrim.woolrim.Utils.PermissionDialog;
+import org.woolrim.woolrim.type.Status;
 import org.woolrim.woolrim.type.UpdateUserInput;
 
 import java.io.File;
@@ -529,11 +530,13 @@ public class MainActivity extends AppCompatActivity implements FragmentInteracti
                             Bundle bundle = new Bundle();
                             ArrayList<MyRecordItem> myRecordItem = new ArrayList<>();
                             for (GetMyMenu.Recording_list item : response.data().getMainInfo().recording_list()) {
+                                boolean auth_flag;
+                                auth_flag = item.auth_flag() != Status.ACCEPTED;
                                 myRecordItem.add(new MyRecordItem(
                                         item.id(),
                                         item.poem().poet().name(),
                                         item.poem().name(),
-                                        false
+                                        auth_flag
                                 ));
                             }
                             ArrayList<MyRecordItem> notificationItems = new ArrayList<>();

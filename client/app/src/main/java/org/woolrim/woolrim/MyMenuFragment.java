@@ -31,8 +31,7 @@ import java.util.Objects;
 import javax.annotation.Nonnull;
 
 import de.hdodenhof.circleimageview.CircleImageView;
-import okhttp3.OkHttpClient;
-import okhttp3.logging.HttpLoggingInterceptor;
+
 
 
 public class MyMenuFragment extends Fragment {
@@ -82,6 +81,16 @@ public class MyMenuFragment extends Fragment {
                 @Override
                 public void onResponse(@Nonnull Response<GetUnReadCount.Data> response) {
                     badgeCount = response.data().getUnreadCount();
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            myTabLayout.getTabBuilderItem(1)
+                                    .badge(true)
+                                    .badgeCount(badgeCount)
+                                    .build();
+                        }
+                    });
+
                 }
 
                 @Override
@@ -124,6 +133,7 @@ public class MyMenuFragment extends Fragment {
 
             @Override
             public void onPageSelected(int position) {
+                Log.d("Time",String.valueOf(position));
                 if(position == 1 && !notificationReadFlag) {
                     myTabLayout.getTabBuilderItem(position).noBadge().build();
                     //서버 연동

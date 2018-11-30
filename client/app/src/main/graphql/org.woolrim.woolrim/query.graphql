@@ -1,18 +1,10 @@
-query getAllNotice {
-  allNotice: getAllNotice {
-    id
-    content
-    user {
-      name
-    }
-  }
-}
-
-query getAllPoem{
+query GetAllPoem{
   allPoem: getAllPoem{
   	id,
   	name,
+  	auth_count,
   	auth_count_man,
+  	auth_count_woman,
     poet{
       name
     }
@@ -47,22 +39,23 @@ query GetRecordingForPlay($poem_id:ID!, $user_id:ID, $isMy:Boolean!){
       path,
       duration,
       user{
-      id,
-      name,
-      gender,
-      profile
-    },
-    poem{
-      id,
-      name,
-      poet{
-       	 	id,
-        	name
-      	}
-    	}
+          id,
+          name,
+          gender,
+          profile
+      },
+      poem{
+          id,
+          name,
+          poet{
+              id,
+              name
+          }
+      },
+      auth_flag
     },
     isBookmarked
-	}
+  }
 }
 
 query GetBookmarkList($stu_id:Int!){
@@ -102,6 +95,7 @@ query GetMyMenu($stu_id:Int!){
     recording_list{
         id,
         path,
+        auth_flag,
         user{
           id,
           name,

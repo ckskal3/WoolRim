@@ -540,6 +540,30 @@
               "deprecationReason": null
             },
             {
+              "name": "getAllRecordingForAudit",
+              "description": "",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "OBJECT",
+                      "name": "GetAllRecordingForAuditResut",
+                      "ofType": null
+                    }
+                  }
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
               "name": "getAllNotification",
               "description": "",
               "args": [],
@@ -1012,6 +1036,12 @@
             },
             {
               "name": "WAITING",
+              "description": "",
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "APPLIED",
               "description": "",
               "isDeprecated": false,
               "deprecationReason": null
@@ -1595,6 +1625,57 @@
         },
         {
           "kind": "OBJECT",
+          "name": "GetAllRecordingForAuditResut",
+          "description": "",
+          "fields": [
+            {
+              "name": "user",
+              "description": "",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "User",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "recording_list",
+              "description": "",
+              "args": [],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "LIST",
+                  "name": null,
+                  "ofType": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "OBJECT",
+                      "name": "Recording",
+                      "ofType": null
+                    }
+                  }
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            }
+          ],
+          "inputFields": null,
+          "interfaces": [],
+          "enumValues": null,
+          "possibleTypes": null
+        },
+        {
+          "kind": "OBJECT",
           "name": "Mutation",
           "description": "",
           "fields": [
@@ -1973,27 +2054,64 @@
               "deprecationReason": null
             },
             {
-              "name": "deleteBookmark",
+              "name": "deleteBookmarkById",
               "description": "",
               "args": [
                 {
-                  "name": "id_list",
+                  "name": "id",
                   "description": "",
                   "type": {
                     "kind": "NON_NULL",
                     "name": null,
                     "ofType": {
-                      "kind": "LIST",
-                      "name": null,
-                      "ofType": {
-                        "kind": "NON_NULL",
-                        "name": null,
-                        "ofType": {
-                          "kind": "SCALAR",
-                          "name": "ID",
-                          "ofType": null
-                        }
-                      }
+                      "kind": "SCALAR",
+                      "name": "ID",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "OBJECT",
+                  "name": "DeleteBookmarkResult",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "deleteBookmark",
+              "description": "",
+              "args": [
+                {
+                  "name": "user_id",
+                  "description": "",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "ID",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                },
+                {
+                  "name": "recording_id",
+                  "description": "",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "ID",
+                      "ofType": null
                     }
                   },
                   "defaultValue": null
@@ -2349,9 +2467,55 @@
               "deprecationReason": null
             },
             {
-              "name": "deleteAllRecording",
+              "name": "acceptRecording",
               "description": "",
-              "args": [],
+              "args": [
+                {
+                  "name": "recording_id",
+                  "description": "",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "ID",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
+              "type": {
+                "kind": "NON_NULL",
+                "name": null,
+                "ofType": {
+                  "kind": "SCALAR",
+                  "name": "Boolean",
+                  "ofType": null
+                }
+              },
+              "isDeprecated": false,
+              "deprecationReason": null
+            },
+            {
+              "name": "rejectRecording",
+              "description": "",
+              "args": [
+                {
+                  "name": "recording_id",
+                  "description": "",
+                  "type": {
+                    "kind": "NON_NULL",
+                    "name": null,
+                    "ofType": {
+                      "kind": "SCALAR",
+                      "name": "ID",
+                      "ofType": null
+                    }
+                  },
+                  "defaultValue": null
+                }
+              ],
               "type": {
                 "kind": "NON_NULL",
                 "name": null,

@@ -1,5 +1,6 @@
 package org.woolrim.woolrim;
 
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -17,6 +18,7 @@ import com.apollographql.apollo.exception.ApolloException;
 import com.bumptech.glide.Glide;
 
 import org.woolrim.woolrim.DataItems.MyRecordItem;
+import org.woolrim.woolrim.Utils.DialogDismissListener;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -30,9 +32,14 @@ public class CheckBottomFragment extends BottomSheetDialogFragment {
     public static final int MY_RECORD_SUBMIT_REQUEST = 3;
 
     private int fragmentRequestCode = 0, requestCode;
-    private String filePath,poetName, poemName, deleteItemId;
+    private String filePath, poetName, poemName, deleteItemId;
     private int deleteItemPosition;
+    private boolean cancelAndOkFlag = false;
+    private ArrayList<String> applyRecordingId;
+
     private TextView leftTextView, rightTextView, checkTextView1, checkTextView2, waringTextView1, waringTextView2;
+
+    private DialogDismissListener mResultListener;
 
     public static CheckBottomFragment newInstance(Bundle bundle) {
         CheckBottomFragment checkBottomFragment = new CheckBottomFragment();
@@ -43,35 +50,48 @@ public class CheckBottomFragment extends BottomSheetDialogFragment {
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d("Time", "onCreate");
         Bundle bundle = getArguments();
         assert bundle != null;
         fragmentRequestCode = bundle.getInt("FragmentRequestCode", 0);
-        if(fragmentRequestCode == RECORDING_BACK_REQUEST){
+        if (fragmentRequestCode == RECORDING_BACK_REQUEST) {
             filePath = bundle.getString("FilePath");
             requestCode = bundle.getInt("RequestCode");
-            if(filePath == null){
-                Log.e("NULL","NULL");
+            if (filePath == null) {
+                Log.e("NULL", "NULL");
             }
-        }else if(fragmentRequestCode == MY_RECORD_DELETE_REQUEST){
+        } else if (fragmentRequestCode == MY_RECORD_DELETE_REQUEST) {
             deleteItemPosition = bundle.getInt("ItemPosition");
             deleteItemId = bundle.getString("ItemId");
             poemName = bundle.getString("ItemPoem");
             poetName = bundle.getString("ItemPoet");
+        } else if (fragmentRequestCode == MY_VOLUNTEER_SCORE_SUBMIT_REQUEST) {
+            applyRecordingId = bundle.getStringArrayList("ApplyRecordingId");
         }
     }
 
 
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        Log.d("Time", "onActivityCreated");
+        if (fragmentRequestCode == MY_VOLUNTEER_SCORE_SUBMIT_REQUEST) {
+            getDialog().setOnDismissListener(mResultListener);
+        }
+    }
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_check,container,false);
+        Log.d("Time", "onCreateView");
 
+        return inflater.inflate(R.layout.fragment_check, container, false);
     }
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        Log.d("Time", "onViewCreated");
         init(view);
         setItems();
 
@@ -80,21 +100,31 @@ public class CheckBottomFragment extends BottomSheetDialogFragment {
     @Override
     public void onStart() {
         super.onStart();
-
     }
 
     @Override
     public void onPause() {
-        dismiss();
         super.onPause();
+        dismiss();
     }
 
     @Override
     public void onDestroyView() {
-        if(fragmentRequestCode == MY_RECORD_SUBMIT_REQUEST){
+        if (fragmentRequestCode == MY_RECORD_SUBMIT_REQUEST) {
             getActivity().getSupportFragmentManager().popBackStack("MainFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
         }
+        if (fragmentRequestCode == MY_VOLUNTEER_SCORE_SUBMIT_REQUEST) {
+            if (cancelAndOkFlag)
+                mResultListener.onDismissed("성공", true);
+            else
+                mResultListener.onDismissed("실패", false);
+        }
         super.onDestroyView();
+    }
+
+    @Override
+    public void onCancel(DialogInterface dialog) {
+        dismiss();
     }
 
     private void init(View view) {
@@ -123,11 +153,11 @@ public class CheckBottomFragment extends BottomSheetDialogFragment {
                         WoolrimApplication.apolloClient.mutate(DeleteRecording.builder().id(deleteItemId).build()).enqueue(new ApolloCall.Callback<DeleteRecording.Data>() {
                             @Override
                             public void onResponse(@Nonnull Response<DeleteRecording.Data> response) {
-                                if(response.data().deleteRecordingById()){
+                                if (response.data().deleteRecordingById()) {
                                     getActivity().runOnUiThread(new Runnable() {
                                         @Override
                                         public void run() {
-                                            MyMenuFragment.myRecordFragment1.adapter.deleteItem(deleteItemPosition,null);
+                                            MyMenuFragment.myRecordFragment1.adapter.deleteItem(deleteItemPosition, null);
                                         }
                                     });
                                     dismiss();
@@ -142,7 +172,7 @@ public class CheckBottomFragment extends BottomSheetDialogFragment {
 
                     }
                 });
-                checkTextView1.setText("'"+poetName+" - "+poemName+"' 울림을 ");
+                checkTextView1.setText("'" + poetName + " - " + poemName + "' 울림을 ");
                 checkTextView2.setText("삭제하시겠습니까?");
                 waringTextView1.setVisibility(View.GONE);
                 waringTextView2.setVisibility(View.GONE);
@@ -152,10 +182,32 @@ public class CheckBottomFragment extends BottomSheetDialogFragment {
                 leftTextView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
+                        cancelAndOkFlag = false;
                         dismiss();
                     }
                 });
                 rightTextView.setText("신청");
+                rightTextView.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        WoolrimApplication.apolloClient.mutate(ApplyRecording.builder().id_list(applyRecordingId).build())
+                                .enqueue(new ApolloCall.Callback<ApplyRecording.Data>() {
+                                    @Override
+                                    public void onResponse(@Nonnull Response<ApplyRecording.Data> response) {
+                                        if(response.data().applyRecording()){
+                                            cancelAndOkFlag = true;
+                                            dismiss();
+                                        }
+                                    }
+
+                                    @Override
+                                    public void onFailure(@Nonnull ApolloException e) {
+
+                                    }
+                                });
+
+                    }
+                });
                 checkTextView1.setText("봉사 점수를 신청하시겠습니까?");
                 checkTextView2.setVisibility(View.GONE);
                 waringTextView1.setText("※봉사 점수 획득 이후에는 본인의 울림을");
@@ -173,8 +225,8 @@ public class CheckBottomFragment extends BottomSheetDialogFragment {
                 rightTextView.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View view) {
-                        if(requestCode != 0 && requestCode != WoolrimApplication.REQUSET_MY_MENU){
-                            switch (requestCode){
+                        if (requestCode != 0 && requestCode != WoolrimApplication.REQUSET_MY_MENU) {
+                            switch (requestCode) {
                                 case WoolrimApplication.REQUSET_HOME:
                                     MainActivity.requestCode = 0;
                                     getActivity().getSupportFragmentManager().popBackStack("MainFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
@@ -193,18 +245,17 @@ public class CheckBottomFragment extends BottomSheetDialogFragment {
                                     getActivity().getSupportFragmentManager().popBackStack("MainFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
                                     break;
                             }
-                            if( filePath != null) {
+                            if (filePath != null) {
                                 File file = new File(filePath);
                                 file.delete();
                             }
                             dismiss();
-                        }else if (requestCode == WoolrimApplication.REQUSET_MY_MENU){
+                        } else if (requestCode == WoolrimApplication.REQUSET_MY_MENU) {
                             MainActivity.requestCode = 0;
                             processMyMenuFragmentChange();
-                        }
-                        else {
+                        } else {
                             getActivity().getSupportFragmentManager().popBackStack();
-                            if( filePath != null) {
+                            if (filePath != null) {
                                 File file = new File(filePath);
                                 file.delete();
                             }
@@ -234,50 +285,56 @@ public class CheckBottomFragment extends BottomSheetDialogFragment {
                 break;
         }
     }
-    private void processMyMenuFragmentChange(){
+
+    private void processMyMenuFragmentChange() {
         WoolrimApplication.apolloClient.query(GetMyMenu.builder().stu_id(WoolrimApplication.loginedUserId).build())
                 .enqueue(new ApolloCall.Callback<GetMyMenu.Data>() {
-            @Override
-            public void onResponse(@Nonnull Response<GetMyMenu.Data> response) {
-                if(response.data().getMainInfo().isSuccess()){
-                    Bundle bundle = new Bundle();
-                    ArrayList<MyRecordItem> myRecordItem = new ArrayList<>();
-                    for (GetMyMenu.Recording_list item : response.data().getMainInfo().recording_list()) {
-                        myRecordItem.add(new MyRecordItem(
-                                item.id(),
-                                item.poem().poet().name(),
-                                item.poem().name(),
-                                false
-                        ));
+                    @Override
+                    public void onResponse(@Nonnull Response<GetMyMenu.Data> response) {
+                        if (response.data().getMainInfo().isSuccess()) {
+                            Bundle bundle = new Bundle();
+                            ArrayList<MyRecordItem> myRecordItem = new ArrayList<>();
+                            for (GetMyMenu.Recording_list item : response.data().getMainInfo().recording_list()) {
+                                myRecordItem.add(new MyRecordItem(
+                                        item.id(),
+                                        item.poem().poet().name(),
+                                        item.poem().name(),
+                                        false
+                                ));
+                            }
+                            ArrayList<MyRecordItem> notificationItems = new ArrayList<>();
+                            for (GetMyMenu.Notification_list item : response.data().getMainInfo().notification_list()) {
+                                notificationItems.add(new MyRecordItem(item.id(), item.content(), null, false));
+                            }
+                            bundle.putParcelableArrayList("PoemList", myRecordItem);
+                            bundle.putParcelableArrayList("NotificationList", notificationItems);
+
+                            MyMenuFragment myMenuFragment = MyMenuFragment.newInstance(bundle);
+                            getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.container, myMenuFragment).commit();
+
+                            if (filePath != null) {
+                                File file = new File(filePath);
+                                file.delete();
+                            }
+                            dismiss();
+                        }
+
                     }
-                    ArrayList<MyRecordItem> notificationItems = new ArrayList<>();
-                    for (GetMyMenu.Notification_list item : response.data().getMainInfo().notification_list()) {
-                        notificationItems.add(new MyRecordItem(item.id(), item.content(), null, false));
+
+                    @Override
+                    public void onFailure(@Nonnull ApolloException e) {
+
                     }
-                    bundle.putParcelableArrayList("PoemList", myRecordItem);
-                    bundle.putParcelableArrayList("NotificationList", notificationItems);
-
-                    MyMenuFragment myMenuFragment = MyMenuFragment.newInstance(bundle);
-                    getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.container, myMenuFragment).commit();
-
-                    if( filePath != null) {
-                        File file = new File(filePath);
-                        file.delete();
-                    }
-                    dismiss();
-                }
-
-            }
-
-            @Override
-            public void onFailure(@Nonnull ApolloException e) {
-
-            }
-        });
+                });
     }
 
-    private void processFavoriteFragmentChange(){
+    private void processFavoriteFragmentChange() {
         MyFavoritesFragment myFavoritesFragment = MyFavoritesFragment.newInstance(new Bundle());
         getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.container, myFavoritesFragment).commit();
+    }
+
+    public void setOnDismissListener(DialogDismissListener mResultListener) {
+        this.mResultListener = mResultListener;
+
     }
 }

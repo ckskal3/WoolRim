@@ -33,6 +33,7 @@ import org.woolrim.woolrim.SQLiteDAO.FavoriteDAO;
 import org.woolrim.woolrim.SectionRecyclerView.SectionAddItem;
 import org.woolrim.woolrim.SectionRecyclerView.SectionItemViewHolder;
 import org.woolrim.woolrim.Utils.DBManagerHelper;
+import org.woolrim.woolrim.type.Status;
 
 import java.util.ArrayList;
 
@@ -227,19 +228,21 @@ public class PoemListFragment extends Fragment {
                             public void onResponse(@Nonnull Response<GetRecordingForPlay.Data> response) {
                                 ArrayList<RecordItem> items = new ArrayList<>();
                                 for (GetRecordingForPlay.GetRecordingForPlay1 item : response.data().getRecordingForPlay()) {
-                                    int flag = item.isBookmarked() ? 1 : 0;
-                                    items.add(new RecordItem(
-                                            item.recording().path(),
-                                            (int)item.recording().duration(),
-                                            item.recording().user().name(),
-                                            item.recording().user().profile(),
-                                            item.recording().poem().name(),
-                                            item.recording().poem().poet().name(),
-                                            Integer.parseInt(item.recording().user().id()),
-                                            Integer.parseInt(item.recording().id()),
-                                            Integer.parseInt(item.recording().poem().id()),
-                                            flag
-                                    ));
+                                    if(item.recording().auth_flag() == Status.ACCEPTED || item.recording().auth_flag() == Status.APPLIED) {
+                                        int flag = item.isBookmarked() ? 1 : 0;
+                                        items.add(new RecordItem(
+                                                item.recording().path(),
+                                                (int) item.recording().duration(),
+                                                item.recording().user().name(),
+                                                item.recording().user().profile(),
+                                                item.recording().poem().name(),
+                                                item.recording().poem().poet().name(),
+                                                Integer.parseInt(item.recording().user().id()),
+                                                Integer.parseInt(item.recording().id()),
+                                                Integer.parseInt(item.recording().poem().id()),
+                                                flag
+                                        ));
+                                    }
                                 }
                                 Bundle bundle = new Bundle();
                                 bundle.putParcelableArrayList("Data", items);
@@ -261,25 +264,27 @@ public class PoemListFragment extends Fragment {
                             public void onResponse(@Nonnull Response<GetRecordingForPlay.Data> response) {
                                 ArrayList<RecordItem> items = new ArrayList<>();
                                 for (GetRecordingForPlay.GetRecordingForPlay1 item : response.data().getRecordingForPlay()) {
-                                    int bookmarkFlag;
-                                    MyFavoritesItem myFavoritesItem = DBManagerHelper.favoriteDAO.selectFavorite(item.recording().user().name(), item.recording().poem().name());
-                                    if (myFavoritesItem.error.equals("ERROR")) {
-                                        bookmarkFlag = 0;
-                                    } else {
-                                        bookmarkFlag = 1;
+                                    if(item.recording().auth_flag() == Status.ACCEPTED || item.recording().auth_flag() == Status.APPLIED) {
+                                        int bookmarkFlag;
+                                        MyFavoritesItem myFavoritesItem = DBManagerHelper.favoriteDAO.selectFavorite(item.recording().user().name(), item.recording().poem().name());
+                                        if (myFavoritesItem.error.equals("ERROR")) {
+                                            bookmarkFlag = 0;
+                                        } else {
+                                            bookmarkFlag = 1;
+                                        }
+                                        items.add(new RecordItem(
+                                                item.recording().path(),
+                                                (int) item.recording().duration(),
+                                                item.recording().user().name(),
+                                                item.recording().user().profile(),
+                                                item.recording().poem().name(),
+                                                item.recording().poem().poet().name(),
+                                                Integer.parseInt(item.recording().user().id()),
+                                                Integer.parseInt(item.recording().id()),
+                                                Integer.parseInt(item.recording().poem().id()),
+                                                bookmarkFlag
+                                        ));
                                     }
-                                    items.add(new RecordItem(
-                                            item.recording().path(),
-                                            (int)item.recording().duration(),
-                                            item.recording().user().name(),
-                                            item.recording().user().profile(),
-                                            item.recording().poem().name(),
-                                            item.recording().poem().poet().name(),
-                                            Integer.parseInt(item.recording().user().id()),
-                                            Integer.parseInt(item.recording().id()),
-                                            Integer.parseInt(item.recording().poem().id()),
-                                            bookmarkFlag
-                                    ));
                                 }
                                 Bundle bundle = new Bundle();
                                 bundle.putParcelableArrayList("Data",items);
