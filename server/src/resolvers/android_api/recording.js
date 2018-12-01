@@ -125,7 +125,7 @@ const createRecording = async (input) => {
     await recording.save();
     await createNotification({
       user_id: user.id,
-      content: `${poem_result[0].name} 울림이 업로드 되었습니다.`,
+      content: `${poem_result[0].name} 울림이 업로드 되었습니다.`,
     })
     return {
       isSuccess: true,
