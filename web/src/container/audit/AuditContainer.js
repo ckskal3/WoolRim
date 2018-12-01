@@ -4,7 +4,7 @@ import AuditPlyer from '../../components/audit/AuditPlayer';
 import { getAllRecordingForAudit, acceptRecording, rejectRecording } from './AuditQueries';
 
 export class AuditContainer extends Component {
-  constructor(props){
+  constructor(props) {
     super(props);
     this.state = {
       play: false,
@@ -14,7 +14,7 @@ export class AuditContainer extends Component {
     }
   }
 
-  componentDidMount(){
+  componentDidMount() {
     this.getData()
   }
 
@@ -34,14 +34,16 @@ export class AuditContainer extends Component {
   }
 
   accept = async (recording_id) => {
-    if(await acceptRecording(recording_id)){
+    if (await acceptRecording(recording_id)) {
       window.alert('승낙 완료');
+    } else {
+      window.alert('승낙 실패, 허용 횟수가 최대치 입니다.');
     }
     window.location.reload();
   }
 
   reject = async (recording_id) => {
-    if(await rejectRecording(recording_id)){
+    if (await rejectRecording(recording_id)) {
       window.alert('거절 완료');
     }
     window.location.reload();
@@ -50,12 +52,12 @@ export class AuditContainer extends Component {
     const { selected_user, selected_recording, play, list } = this.state;
     return (
       <div>
-        <AuditList list={list} onSelectRecord={this.selectRecord}/>
+        <AuditList list={list} onSelectRecord={this.selectRecord} />
         <AuditPlyer stu_id={selected_user}
-         recording_file={selected_recording}
+          recording_file={selected_recording}
           play={play}
           onClickAccept={this.accept}
-          onClickReject={this.reject}/>
+          onClickReject={this.reject} />
       </div>
     );
   }

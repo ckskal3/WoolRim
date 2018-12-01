@@ -26,7 +26,7 @@ class RecordingRegister extends Component {
   render() {
     return (
       <div>
-        <h1>준비 중</h1>
+        <h1>현재는 지원하지 않습니다.</h1>
         < hr/>
       </div>
     )
