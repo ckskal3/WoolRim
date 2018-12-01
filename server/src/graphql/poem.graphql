@@ -13,7 +13,3 @@ type Poem {
 type Query {
   getPoemByNames(poet_name: String!, poem_name: String!): Poem
 }
-
-type Mutation {
-  updateAuthCount(poem_id: ID!, gender: String!, count: Int!): Boolean!
-}
