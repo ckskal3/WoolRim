@@ -201,10 +201,10 @@ public class BadgeTabLayout extends TabLayout{
         if (value <= 0) {
             return "-"+formatBadgeNumber(-value);
         }
-        if(value <=10){
+        if(value <=5){
             return Integer.toString(value);
         }else {
-            return "10+";
+            return "5+";
         }
     }
 

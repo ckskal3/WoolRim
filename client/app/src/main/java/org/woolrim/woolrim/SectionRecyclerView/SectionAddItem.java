@@ -3,6 +3,7 @@ package org.woolrim.woolrim.SectionRecyclerView;
 
 import android.annotation.SuppressLint;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.View;
 
 import org.woolrim.woolrim.DataItems.PoemAndPoetItem;
@@ -70,15 +71,22 @@ public class SectionAddItem extends StatelessSection {
         String name = list.get(position).poem;
 
         itemHolder.tvItem.setText(name);
-
+        Log.d("TIme",list.get(position).poem+" "+String.valueOf(list.get(position).full_count)+" "+String.valueOf(list.get(position).man_count)+" "+String.valueOf(list.get(position).woman_count));
         if (pageCode == WoolrimApplication.REQUSET_POEM_LIST_FRAGMENT) { //들을수 있는곡 없을시 클릭 불가.
-            if (list.get(position).full_count == 0) {
+            if ((list.get(position).man_count + list.get(position).woman_count) == 0) {
                 itemHolder.tvItem.setTextColor(R.color.gray_bar_color);
             } else {
                 itemHolder.setOnItemClickListener(listener);
             }
         } else { //녹음 할 수 있는 곡 없을시 클릭 불가.
-            if (list.get(position).full_count == 4) {
+            int standardAuthCount = list.get(position).full_count/2;
+            boolean flag;
+            if(WoolrimApplication.loginedUserGender.equals("여자")){
+                flag = list.get(position).woman_count >= standardAuthCount;
+            }else{
+                flag = list.get(position).man_count >= standardAuthCount;
+            }
+            if (flag) {
                 itemHolder.tvItem.setTextColor(R.color.gray_bar_color);
             } else {
                 itemHolder.setOnItemClickListener(listener);

@@ -2,7 +2,6 @@ package org.woolrim.woolrim;
 
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.media.PlaybackParams;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -25,6 +24,7 @@ import com.apollographql.apollo.ApolloCall;
 import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.RequestOptions;
 
 import org.woolrim.woolrim.DataItems.MyFavoritesItem;
 import org.woolrim.woolrim.DataItems.RecordItem;
@@ -90,7 +90,7 @@ public class PlayerFragmentTemp extends Fragment implements View.OnTouchListener
         Bundle bundle = getArguments();
         assert bundle != null;
         items = bundle.getParcelableArrayList("Data");
-        bookmarkPosition = bundle.getInt("BookmarkPosition",-1);
+        bookmarkPosition = bundle.getInt("BookmarkPosition", -1);
         assert items != null;
         itemSize = items.size();
         itemArray = new RecordItem[itemSize];
@@ -199,11 +199,12 @@ public class PlayerFragmentTemp extends Fragment implements View.OnTouchListener
             }
         }
         if (itemSize > 1) {
-            if (mSwipeDetected == Action.RL && currentPage != (itemSize-1)) {
+            if (mSwipeDetected == Action.RL && currentPage != (itemSize - 1)) {
                 Log.i(logTag, "우에서 좌");
                 stopMediaAndTimer();
                 updateBookmark();
                 indicator[currentPage].setBackground(ContextCompat.getDrawable(getContext(), R.drawable.default_indicator));
+                itemArray[currentPage].bookmarkFlag = bookmarkFlag;
                 currentPage = ++currentPage % itemSize;
                 setItem(currentPage);
             } else if (mSwipeDetected == Action.LR && currentPage != 0) {
@@ -211,6 +212,7 @@ public class PlayerFragmentTemp extends Fragment implements View.OnTouchListener
                 stopMediaAndTimer();
                 updateBookmark();
                 indicator[currentPage].setBackground(ContextCompat.getDrawable(getContext(), R.drawable.default_indicator));
+                itemArray[currentPage].bookmarkFlag = bookmarkFlag;
                 --currentPage;
                 currentPage = currentPage < 0 ? itemSize - 1 : currentPage;
                 setItem(currentPage);
@@ -237,7 +239,7 @@ public class PlayerFragmentTemp extends Fragment implements View.OnTouchListener
             if (mediaPlayer != null) {
 
                 int mCurrentPosition = mediaPlayer.getCurrentPosition();
-                Log.d("Time",String.valueOf(mCurrentPosition));
+                Log.d("Time", String.valueOf(mCurrentPosition));
                 long minutes = TimeUnit.MILLISECONDS.toMinutes(mCurrentPosition);
                 long seconds = TimeUnit.MILLISECONDS.toSeconds(mCurrentPosition)
                         - TimeUnit.MINUTES.toSeconds(minutes);
@@ -282,7 +284,7 @@ public class PlayerFragmentTemp extends Fragment implements View.OnTouchListener
         if (itemArray[currentPage].studentProfilePath == null || itemArray[currentPage].studentProfilePath.equals(getString(R.string.no_profile_en))) {
             Glide.with(this).load(R.drawable.profile_icon).into(userProfileIV);
         } else {
-            Glide.with(this).load(WoolrimApplication.FILE_BASE_URL+itemArray[currentPage].studentProfilePath).into(userProfileIV);
+            Glide.with(this).load(WoolrimApplication.FILE_BASE_URL + itemArray[currentPage].studentProfilePath).into(userProfileIV);
         }
         if (itemArray[currentPage].bookmarkFlag == 1) {
             favoriteIconIV.setImageResource(R.drawable.favorite_middle_color_icon);
@@ -305,7 +307,7 @@ public class PlayerFragmentTemp extends Fragment implements View.OnTouchListener
     private void stopMediaAndTimer() {
         isPlaying = false;
         isRestartAndResume = false;
-        if(mediaPlayer != null || mediaPlayer.isPlaying()) {
+        if (mediaPlayer != null || mediaPlayer.isPlaying()) {
             mediaPlayer.stop();
             mediaPlayer.release();
         }
@@ -326,7 +328,7 @@ public class PlayerFragmentTemp extends Fragment implements View.OnTouchListener
         Log.d("Flag", String.valueOf(bookmarkFlag) + " " + String.valueOf(itemArray[currentPage].bookmarkFlag));
         if (bookmarkFlag != itemArray[currentPage].bookmarkFlag) { //이전상태와 지금상태가 다를때
             if (WoolrimApplication.isLogin) {//로그인시
-               requestServerForBookmark(bookmarkFlag);
+                requestServerForBookmark(bookmarkFlag);
             } else {//비로그인시
                 itemArray[currentPage].bookmarkFlag = bookmarkFlag;
                 MyFavoritesItem myFavoritesItem = new MyFavoritesItem(
@@ -338,17 +340,17 @@ public class PlayerFragmentTemp extends Fragment implements View.OnTouchListener
                         "Guest"
                 );
                 DBManagerHelper.favoriteDAO.updateFavorite(myFavoritesItem, bookmarkFlag);
-                if(bookmarkFlag == 1 && bookmarkPosition != -1){
+                if (bookmarkFlag == 1 && bookmarkPosition != -1) {
                     MyFavoritesFragment.myFavoritesAdapter.addItem(myFavoritesItem);
-                }else if(bookmarkFlag == 0 && bookmarkPosition != -1){
+                } else if (bookmarkFlag == 0 && bookmarkPosition != -1) {
                     MyFavoritesFragment.myFavoritesAdapter.deleteItem(bookmarkPosition);
                 }
             }
         }
     }
 
-    private void requestServerForBookmark(int bookmarkFlag){
-        if(bookmarkFlag == 1 ){
+    private void requestServerForBookmark(int bookmarkFlag) {
+        if (bookmarkFlag == 1) {
             WoolrimApplication.apolloClient.mutate(CreateBookMark
                     .builder()
                     .input(CreateBookmarkInput
@@ -358,28 +360,28 @@ public class PlayerFragmentTemp extends Fragment implements View.OnTouchListener
                             .build())
                     .build())
                     .enqueue(new ApolloCall.Callback<CreateBookMark.Data>() {
-                @Override
-                public void onResponse(@Nonnull Response<CreateBookMark.Data> response) {
-                    if(response.data().createBookmark().isSuccess()){
-                        if(bookmarkPosition != -1) {
-                            MyFavoritesFragment.myFavoritesAdapter.addItem(new MyFavoritesItem(
-                                    String.valueOf(itemArray[currentPage].mediaId),
-                                    String.valueOf(itemArray[currentPage].poemId),
-                                    String.valueOf(itemArray[currentPage].studentId),
-                                    itemArray[currentPage].poemName,
-                                    itemArray[currentPage].studentName,
-                                    WoolrimApplication.loginedUserName
-                            ));
+                        @Override
+                        public void onResponse(@Nonnull Response<CreateBookMark.Data> response) {
+                            if (response.data().createBookmark().isSuccess()) {
+                                if (bookmarkPosition != -1) {
+                                    MyFavoritesFragment.myFavoritesAdapter.addItem(new MyFavoritesItem(
+                                            String.valueOf(itemArray[currentPage].mediaId),
+                                            String.valueOf(itemArray[currentPage].poemId),
+                                            String.valueOf(itemArray[currentPage].studentId),
+                                            itemArray[currentPage].poemName,
+                                            itemArray[currentPage].studentName,
+                                            WoolrimApplication.loginedUserName
+                                    ));
+                                }
+                            }
                         }
-                    }
-                }
 
-                @Override
-                public void onFailure(@Nonnull ApolloException e) {
+                        @Override
+                        public void onFailure(@Nonnull ApolloException e) {
 
-                }
-            });
-        }else{
+                        }
+                    });
+        } else {
             WoolrimApplication.apolloClient.mutate(DeleteBookMark.builder()
                     .recording_id(String.valueOf(itemArray[currentPage].mediaId))
                     .user_id(String.valueOf(itemArray[currentPage].studentId))
@@ -387,8 +389,8 @@ public class PlayerFragmentTemp extends Fragment implements View.OnTouchListener
                     .enqueue(new ApolloCall.Callback<DeleteBookMark.Data>() {
                         @Override
                         public void onResponse(@Nonnull Response<DeleteBookMark.Data> response) {
-                            if(response.data().deleteBookmark().isSuccess()){
-                                if(bookmarkPosition !=-1) {
+                            if (response.data().deleteBookmark().isSuccess()) {
+                                if (bookmarkPosition != -1) {
                                     MyFavoritesFragment.myFavoritesAdapter.deleteItem(bookmarkPosition);
                                 }
                             }
@@ -399,7 +401,6 @@ public class PlayerFragmentTemp extends Fragment implements View.OnTouchListener
 
                         }
                     });
-
         }
     }
 
@@ -410,7 +411,7 @@ public class PlayerFragmentTemp extends Fragment implements View.OnTouchListener
     }
 
     public void onStartBtnClick() {
-        if(!isRestartAndResume){
+        if (!isRestartAndResume) {
             try {
                 mediaPlayer.setDataSource(itemArray[currentPage].filePath);
                 mediaPlayer.prepareAsync();
@@ -453,7 +454,7 @@ public class PlayerFragmentTemp extends Fragment implements View.OnTouchListener
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }else{
+        } else {
             updateTime();
             updateSeekBar();
 
@@ -469,7 +470,6 @@ public class PlayerFragmentTemp extends Fragment implements View.OnTouchListener
 
             Toast.makeText(getContext(), "재생", Toast.LENGTH_LONG).show();
         }
-
 
 
     }

@@ -31,6 +31,7 @@ import com.google.gson.annotations.SerializedName;
 
 import org.woolrim.woolrim.DataItems.PoetItem;
 import org.woolrim.woolrim.DataItems.PoemAndPoetItem;
+import org.woolrim.woolrim.Utils.DialogDismissListener;
 import org.woolrim.woolrim.Utils.NetworkStatus;
 
 import java.util.ArrayList;
@@ -117,17 +118,17 @@ public class MainFragment extends Fragment implements View.OnClickListener {
                 case R.id.search_voice_layout: // 음성 인식
 
                     VoiceRecognitionFragment testDialogFragment = VoiceRecognitionFragment.newInstance(new Bundle());
-                    testDialogFragment.setDismissListener(new VoiceRecognitionFragment.DialogDismissListener() {
+                    testDialogFragment.setDismissListener(new DialogDismissListener() {
                         @Override
                         public void onDismiss(DialogInterface dialogInterface) {
                             voiceRecognitionTv1.setVisibility(View.VISIBLE);
                             voiceRecognitionTv2.setVisibility(View.VISIBLE);
-                            requestServerForPoemListGraphQL(WoolrimApplication.REQUSET_POEM_LIST_FRAGMENT,key);
+                            requestServerForPoemListGraphQL(WoolrimApplication.REQUSET_POEM_LIST_FRAGMENT,getKey());
                         }
 
                         @Override
-                        public void findSearchKey(String key) {
-                            super.findSearchKey(key);
+                        public void onDismissed(String key) {
+                            super.onDismissed(key);
                             Log.d("Title", key);
                         }
                     });
@@ -150,7 +151,13 @@ public class MainFragment extends Fragment implements View.OnClickListener {
             public void onResponse(@Nonnull com.apollographql.apollo.api.Response<GetAllPoem.Data> response) {
                 ArrayList<PoemAndPoetItem> arrayList = new ArrayList<>();
                 for(GetAllPoem.AllPoem allPoem :response.data().allPoem()){
-                    arrayList.add(new PoemAndPoetItem(Integer.parseInt(allPoem.id()),allPoem.name(),allPoem.poet().name(),allPoem.auth_count_man(),0,allPoem.auth_count_man()));
+                    arrayList.add(new PoemAndPoetItem(
+                            Integer.parseInt(allPoem.id()),
+                            allPoem.name(),
+                            allPoem.poet().name(),
+                            allPoem.auth_count_man(),
+                            allPoem.auth_count_woman(),
+                            allPoem.auth_count()));
                 }
 
                 if(arrayList != null){
