@@ -5,11 +5,18 @@ import { getPoet } from '../web_api/poet';
 */
 const getAllPoem = async () => {
   try {
-    const result = await Poem.query().order('name');
+    const poet_list = await Poet.query().order('name');
+    const result = await Promise.all(poet_list.map(async (poet) => {
+      const poem_list = await Poem.where({poet_id: poet.id}).order('name');
+      return {
+        poet,
+        poem_list,
+      }
+    }));
     return result;
   } catch (err) {
     console.log('getAllPoem has err : ', err);
-    return null;
+    return [];
   }
 }
 
@@ -44,6 +51,7 @@ const poemResolver = {
   },
   Query: {
     getAllPoem: () => getAllPoem(),
+    getAllPoemForWeb: () => Poem.query(),
     getPoemByNames: (obj, { poet_name, poem_name }) => getPoemByNames(poet_name, poem_name),
   },
   Mutation: {

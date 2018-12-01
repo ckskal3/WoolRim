@@ -3,7 +3,7 @@ import serverInfo from '../../serverInfo';
 
 const getAllPoem = async () => {
   const query = `query {
-    getAllPoem{
+    getAllPoemForWeb{
       id
       name
       poet{
@@ -18,7 +18,7 @@ const getAllPoem = async () => {
     }
   }`;
   const result = await axios.post(serverInfo.serverURL, { query });
-  return result.data.data.getAllPoem;
+  return result.data.data.getAllPoemForWeb;
 }
 
 const updatePoem = async (input) => {

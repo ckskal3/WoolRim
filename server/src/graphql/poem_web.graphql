@@ -14,9 +14,15 @@ input UpdatePoemInput {
   length: Float!
 }
 
+type GetAllPoemResult {
+  poet: Poet!
+  poem_list: [Poem!]!
+}
+
 type Query {
   getPoem(id: ID!): Poem
-  getAllPoem: [Poem!]!
+  getAllPoem: [GetAllPoemResult!]!
+  getAllPoemForWeb: [Poem!]!
 }
 
 type Mutation {
