@@ -4,6 +4,7 @@ import schema from './graphql/index';
 import cors from 'cors';
 import fs from 'fs';
 import path from 'path';
+import mixAudio from './mixAudio';
 
 const multer = require('multer');
 
@@ -50,8 +51,30 @@ apiServer.listen(3000, () => {
   console.log('3000번 api 서버 포트 개방!!');
 });
 
-fileServer.post('/upload', upload.single('user_recording'), function (req, res) {
-  res.status(200).send('success');
+fileServer.post('/upload', upload.single('user_recording'), async function (req, res) {
+  // console.log(req.body); // stu id
+  // console.log(req.file)
+  // { fieldname: 'user_recording',
+  // originalname: 'AudioTest.aac',
+  // encoding: '7bit',
+  // mimetype: 'audio/aac',
+  // destination: '/Users/jaws/privateProj/woolrim_storage/555555/',
+  // filename: 'AudioTest.aac',
+  // path: '/Users/jaws/privateProj/woolrim_storage/555555/AudioTest.aac',
+  // size: 571370 }
+  
+  console.time('mix_time')
+  if(await mixAudio(req.body.stu_id, req.file.originalname)){
+    console.timeEnd('mix_time')
+    res.status(200).send('success');
+    console.log('학번: ',req.body.stu_id,', 파일이름: ',req.file.originalname,' 합성 성공');
+    const file_name_without_type = req.file.filename.replace(/\..+$/, '').trim();
+    fs.renameSync(req.file.path, `${req.file.destination}${file_name_without_type}_0.mp3`);
+  }else{
+    console.timeEnd('mix_time')
+    res.status(500).send('fail');
+    console.log('학번: ',req.body.stu_id,', 파일이름: ',req.file.originalname,' 합성 실패');
+  }
 });
 
 fileServer.get('/upload', function (req, res) {
