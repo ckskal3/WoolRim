@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import ReactPlayer from 'react-player'
 import { Slider, Button, Intent } from '@blueprintjs/core';
+import serverInfo from '../../serverInfo';
 
 class AuditPlayer extends Component {
   constructor(props){
@@ -20,7 +21,7 @@ class AuditPlayer extends Component {
     return(
       <div style={{display: 'inline-block', 'vertical-align': 'top', width: '400px'}}>
       <ReactPlayer
-        url={recording_file.path} 
+        url={serverInfo + recording_file.path} 
         playing={play}
         controls
         volume={volume}
