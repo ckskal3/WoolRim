@@ -1,6 +1,7 @@
 package org.woolrim.woolrim;
 
 import android.media.MediaPlayer;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -38,7 +39,7 @@ public class PlaybackFragment extends BottomSheetDialogFragment implements View.
     private static final String RECORDITEM = "RecordItem";
     private RecordItem recordItem;
 
-    private Handler handler = new Handler();
+//    private Handler handler = new Handler();
 
     private MediaPlayer mediaPlayer;
     private CircleSeekBar circleSeekBar;
@@ -76,7 +77,6 @@ public class PlaybackFragment extends BottomSheetDialogFragment implements View.
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         init(view);
-
 
         setUpPlayer();
 
@@ -135,7 +135,7 @@ public class PlaybackFragment extends BottomSheetDialogFragment implements View.
 //        String url = "http://192.168.1.252:3000/upload";
         SimpleMultiPartRequest simpleMultiPartRequest = new SimpleMultiPartRequest(
                 Request.Method.POST,
-                url,
+                WoolrimApplication.FILE_BASE_URL+"upload",
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -149,7 +149,8 @@ public class PlaybackFragment extends BottomSheetDialogFragment implements View.
                     }
                 }
         );
-        simpleMultiPartRequest.addFile("file",recordItem.filePath);
+        simpleMultiPartRequest.addStringParam("stu_id",String.valueOf(WoolrimApplication.loginedUserId));
+        simpleMultiPartRequest.addFile("user_recording", recordItem.filePath);
 
         WoolrimApplication.requestQueue.add(simpleMultiPartRequest);
     }
@@ -239,8 +240,6 @@ public class PlaybackFragment extends BottomSheetDialogFragment implements View.
 
         updateSeekBar();
         updateTime();
-
-
         getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
     }
@@ -336,6 +335,5 @@ public class PlaybackFragment extends BottomSheetDialogFragment implements View.
         playBtn.setImageResource(R.drawable.pause_icon);
         playingTimeTv.setTextColor(ContextCompat.getColor(getContext(),R.color.app_sub_color));
     }
-
 
 }

@@ -150,14 +150,16 @@ public class MainFragment extends Fragment implements View.OnClickListener {
             @Override
             public void onResponse(@Nonnull com.apollographql.apollo.api.Response<GetAllPoem.Data> response) {
                 ArrayList<PoemAndPoetItem> arrayList = new ArrayList<>();
-                for(GetAllPoem.AllPoem allPoem :response.data().allPoem()){
-                    arrayList.add(new PoemAndPoetItem(
-                            Integer.parseInt(allPoem.id()),
-                            allPoem.name(),
-                            allPoem.poet().name(),
-                            allPoem.auth_count_man(),
-                            allPoem.auth_count_woman(),
-                            allPoem.auth_count()));
+                for(GetAllPoem.GetAllPoem1 allPoem :response.data().getAllPoem()){
+                    for(GetAllPoem.Poem_list items :allPoem.poem_list()) {
+                        arrayList.add(new PoemAndPoetItem(
+                                Integer.parseInt(items.id()),
+                                items.name(),
+                                items.poet().name(),
+                                items.auth_count_man(),
+                                items.auth_count_woman(),
+                                items.auth_count()));
+                    }
                 }
 
                 if(arrayList != null){

@@ -1,12 +1,7 @@
 package org.woolrim.woolrim;
 
-import android.content.Context;
-
-import android.graphics.Canvas;
-import android.media.AudioRecord;
-import android.media.audiofx.Visualizer;
+import android.os.AsyncTask;
 import android.os.Build;
-import android.os.Handler;
 import android.os.SystemClock;
 import android.support.v4.app.FragmentTransaction;
 import android.media.AudioFormat;
@@ -16,12 +11,13 @@ import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
-import android.util.AttributeSet;
+import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Chronometer;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -37,7 +33,6 @@ import java.io.File;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-import jaygoo.widget.wlv.WaveLineView;
 import omrecorder.AudioChunk;
 import omrecorder.AudioRecordConfig;
 import omrecorder.OmRecorder;
@@ -48,19 +43,19 @@ import omrecorder.Recorder;
 public class RecordFragment extends Fragment implements View.OnClickListener, MainActivity.OnKeyBackPressedListener {
     private Recorder recorder;
     private TextView poemTv, limitDurationWarningTv;
-    private ImageView startAndPauseIconIV;
+    private ImageView startAndPauseIconIV, progressCircleIV;
     private LinearLayout startBtn, stopBtn, replayBtn;
     private Chronometer chronometer;
 
-    private long totalDuration, tempDuration, startTime, pausedTime, limtDuration;
+    private long totalDuration, tempDuration, startTime, pausedTime, limitDuration;
 
     private String mFileName = null, mFilePath = null, mFileNameAAC = null;
     private String poetName, poemName, poemContent;
 
     private boolean isRecording = false, isPaused = false;
-    public static  boolean isBGM = false;
+    public static boolean isBGM = false;
 
-//    private WaveLineView waveLineView;
+    private Animation itemRotate;
 
     private WaveLineViewTemp waveLineView;
 
@@ -73,12 +68,13 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        Log.d("Time", "onCreateView");
         Bundle bundle = getArguments();
         assert bundle != null;
         poemName = bundle.getString("PoemName");
         poetName = bundle.getString("PoetName");
         poemContent = bundle.getString("PoemContent");
-        limtDuration = bundle.getInt("PoemLimitDuration");
+        limitDuration = bundle.getInt("PoemLimitDuration");
         return inflater.inflate(R.layout.fragment_record, container, false);
     }
 
@@ -86,9 +82,11 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        Log.d("Time", "onViewCreated");
+
         init(view);
 
-        long itemDuration = limtDuration-100;
+        long itemDuration = limitDuration - 100;
         long minutes = TimeUnit.MILLISECONDS.toMinutes(itemDuration);
         long seconds = TimeUnit.MILLISECONDS.toSeconds(itemDuration)
                 - TimeUnit.MINUTES.toSeconds(minutes);
@@ -98,16 +96,8 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
         setListener();
 
 
-
     }
 
-    @Override
-    public void onAttach(Context context) {
-        Log.d("Time", "onAttach");
-
-        super.onAttach(context);
-
-    }
 
     @Override
     public void onDetach() {
@@ -136,7 +126,21 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
         Log.d("Time", "onResume");
         waveLineView.onResume();
         super.onResume();
+
         MainActivity.toolbarLabelTv.setText(poetName + " - " + poemName);
+        MainActivity.drawableControlImageView.setVisibility(View.INVISIBLE);
+        MainActivity.drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
+    }
+
+    @Override
+    public void onPause() {
+//        Log.d("Time",mFilePath);
+        if (waveLineView.isRunning())
+            waveLineView.onPause();
+        MainActivity.drawableControlImageView.setVisibility(View.VISIBLE);
+        MainActivity.drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
+        //녹음멈추고 플레이버튼 변경
+        super.onPause();
     }
 
     private void init(View view) {
@@ -147,7 +151,10 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
         startAndPauseIconIV = view.findViewById(R.id.start_and_pause_icon_iv);
         stopBtn = view.findViewById(R.id.stop_layout);
         replayBtn = view.findViewById(R.id.replay_layout);
-        chronometer = view.findViewById(R.id.recordingduration_chronometer);
+        chronometer = view.findViewById(R.id.recording_duration_chronometer);
+        progressCircleIV = view.findViewById(R.id.progress_circular);
+        itemRotate = AnimationUtils.loadAnimation(getContext(), R.anim.item_rotate);
+
     }
 
     private void setupRecorder() {
@@ -216,14 +223,14 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
         switch (view.getId()) {
             case R.id.record_layout:
                 if (!isRecording && !isPaused) { //최초 실행 녹음
-                    if(isBGM){
+                    if (isBGM) {
                         //서버연동후
-                        Log.d("Time",mFilePath);
-                        isBGM  = false;
+                        Log.d("Time", mFilePath);
+                        isBGM = false;
                     }
 
                     totalDuration = 0;
-                    tempDuration =0;
+                    tempDuration = 0;
 
                     if (mFilePath != null) { //이전 녹음 존재시 삭제
                         waveLineView.onResume();
@@ -294,9 +301,7 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
                         startAndPauseIconIV.setImageResource(R.drawable.record_start_circle);
                         waveLineView.clearDraw();
 
-
-                        int timer = (int)chronometer.getBase();
-                        Log.d("Time",String.valueOf(totalDuration));
+                        Log.d("Time", String.valueOf(totalDuration));
                         chronometer.setTextColor(getColor(R.color.timer_default_text_color));
                         chronometer.stop();
                         chronometer.setBase(SystemClock.elapsedRealtime());
@@ -308,57 +313,75 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
 
                     isRecording = false;
                     isPaused = false;
-                    Log.d("Time", String.valueOf(totalDuration)+" "+String.valueOf(limtDuration));
-                    if(totalDuration > limtDuration){
+                    Log.d("Time", String.valueOf(totalDuration) + " " + String.valueOf(limitDuration));
+                    if (totalDuration > limitDuration) {
                         File file = new File(mFilePath);
                         file.delete();
                         mFilePath = null;
-                        Toast.makeText(getContext(),"최대녹음시간을 초과하였습니다.\n재녹음 해주세요.",Toast.LENGTH_SHORT).show();
-                    }else {
-                        /////////////////
-                        AudioEncoder accEncoder = AudioEncoder.createAccEncoder(mFilePath, new AudioEncoder.OnEncodingCompletedListener() {
-                            @Override
-                            public void onEndingCompleted() {
-                                File file = new File(mFilePath);
-                                file.delete();
-                                Toast.makeText(getContext(), "인코딩 완료", Toast.LENGTH_SHORT).show();
-                                mFilePath = mFileNameAAC;
-                            }
-                        });
-
-                        accEncoder.encodeToFile(mFileNameAAC);
-
-                        ///////////////////
+                        Toast.makeText(getContext(), "최대녹음시간을 초과하였습니다.\n재녹음 해주세요.", Toast.LENGTH_SHORT).show();
                     }
-
-
-
                 }
 
                 break;
             case R.id.replay_layout:
                 if (mFilePath != null && !isPaused && !isRecording) {
-                    Bundle bundle = new Bundle();
-                    bundle.putParcelable("RecordItem", new RecordItem(mFileName, mFilePath, 0, (int)totalDuration));
-                    bundle.putLong("LimitDuration",limtDuration);
-                    PlaybackFragment playbackFragment = PlaybackFragment.newInstance(bundle);
-                    FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
-                    playbackFragment.show(fragmentTransaction, "playback");
+                    if (!mFilePath.equals(mFileNameAAC)) {
+                        /////////////////
+                        final AudioEncoder accEncoder = AudioEncoder.createAccEncoder(mFilePath,
+                                new AudioEncoder.OnEncodingStartListener() {
+                                    @Override
+                                    public void onEncodingStart() {
+                                        //프로그래스바 시작
+                                        Log.d("Time", "OnStartEncoding");
+                                    }
+                                },
+                                new AudioEncoder.OnEncodingCompletedListener() {
+                                    @Override
+                                    public void onEncodingCompleted() {
+                                        //프로그래스바 종료
+//                                    progressCircleIV.setVisibility(View.INVISIBLE);
+
+                                        File file = new File(mFilePath);
+                                        file.delete();
+//                                    Toast.makeText(getContext(), "인코딩 완료", Toast.LENGTH_SHORT).show();
+                                        mFilePath = mFileNameAAC;
+
+                                        Bundle bundle = new Bundle();
+                                        bundle.putParcelable("RecordItem", new RecordItem(mFileName, mFilePath, 0, (int) totalDuration));
+                                        bundle.putLong("LimitDuration", limitDuration);
+                                        PlaybackFragment playbackFragment = PlaybackFragment.newInstance(bundle);
+                                        FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+                                        playbackFragment.show(fragmentTransaction, "playback");
+
+                                    }
+                                });
+                        new EncodingAndTemp().execute(accEncoder);
+                    } else {
+                        Bundle bundle = new Bundle();
+                        bundle.putParcelable("RecordItem", new RecordItem(mFileName, mFilePath, 0, (int) totalDuration));
+                        bundle.putLong("LimitDuration", limitDuration);
+                        PlaybackFragment playbackFragment = PlaybackFragment.newInstance(bundle);
+                        FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
+                        playbackFragment.show(fragmentTransaction, "playback");
+
+                    }
                 }
                 break;
         }
     }
-///////////////이부분 수정함///////////////////////
-    private void animateVoice(final float maxPeak) {
-        waveLineView.setVolume((int)(maxPeak));
 
-        Log.d("Volume",String.valueOf(maxPeak));
+    ///////////////이부분 수정함///////////////////////
+    private void animateVoice(final float maxPeak) {
+        waveLineView.setVolume((int) (maxPeak));
+
+        Log.d("Volume", String.valueOf(maxPeak));
 //        recordButton.animate().scaleX(1 + maxPeak).scaleY(1 + maxPeak).setDuration(10).start();
     }
-/////////////////////////////////////////////////////
+
+    /////////////////////////////////////////////////////
     @Override
     public void onBack(int requestCode) {
-        if(mFilePath != null) {
+        if (mFilePath != null) {
             Bundle bundle = new Bundle();
 //        if(requestCode == 0)Log.d("RequestCode",String.valueOf(requestCode));FT
             bundle.putInt("FragmentRequestCode", CheckBottomFragment.RECORDING_BACK_REQUEST);
@@ -367,18 +390,51 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
             CheckBottomFragment checkBottomFragment = CheckBottomFragment.newInstance(bundle);
             FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
             checkBottomFragment.show(fragmentTransaction, "check");
-        }else{//이거 고쳐야된다
+        } else {//이거 고쳐야된다
             getActivity().getSupportFragmentManager().popBackStack();
         }
     }
 
-    private int getColor(int colorId){
+    private int getColor(int colorId) {
         final int version = Build.VERSION.SDK_INT;
         if (version >= 23) {
             return getResources().getColor(colorId, null);
         } else {
             return getResources().getColor(colorId);
         }
+    }
+
+    private class EncodingAndTemp extends AsyncTask<AudioEncoder, Boolean, Boolean> {
+        @Override
+        protected Boolean doInBackground(AudioEncoder... audioEncoders) {
+            audioEncoders[0].encodeToFile(mFileNameAAC);
+            return null;
+        }
+
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            onProgressUpdate(false);
+        }
+
+        @Override
+        protected void onPostExecute(Boolean aBoolean) {
+            super.onPostExecute(aBoolean);
+            onProgressUpdate(true);
+        }
+
+        @Override
+        protected void onProgressUpdate(Boolean... values) {
+            super.onProgressUpdate(values);
+            if (values[0]) {
+                progressCircleIV.clearAnimation();
+                progressCircleIV.setVisibility(View.INVISIBLE);
+            } else {
+                progressCircleIV.setVisibility(View.VISIBLE);
+                progressCircleIV.setAnimation(itemRotate);
+            }
+        }
+
     }
 }
 

@@ -391,7 +391,13 @@ public class PlayerFragmentTemp extends Fragment implements View.OnTouchListener
                         public void onResponse(@Nonnull Response<DeleteBookMark.Data> response) {
                             if (response.data().deleteBookmark().isSuccess()) {
                                 if (bookmarkPosition != -1) {
-                                    MyFavoritesFragment.myFavoritesAdapter.deleteItem(bookmarkPosition);
+                                    getActivity().runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            MyFavoritesFragment.myFavoritesAdapter.deleteItem(bookmarkPosition);
+
+                                        }
+                                    });
                                 }
                             }
                         }

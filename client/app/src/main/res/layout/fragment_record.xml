@@ -1,10 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/app_background_color">
 
+    <ImageView
+        android:id="@+id/progress_circular"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:layout_marginBottom="8dp"
+        android:translationZ="3dp"
+        android:visibility="invisible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:srcCompat="@drawable/rotate_icon" />
 
     <ScrollView
         android:id="@+id/scrollView"
@@ -55,29 +71,29 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1">
+
             <org.woolrim.woolrim.Utils.WaveLineViewTemp
                 android:id="@+id/wave_line_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:layout_gravity="center"
                 app:wlvBackgroundColor="@android:color/transparent"
+                app:wlvFineLineWidth="0dp"
                 app:wlvLineColor="@color/app_main_color"
                 app:wlvMoveSpeed="200"
-                app:wlvFineLineWidth="0dp"
-                app:wlvThickLineWidth="1.5dp"
                 app:wlvSensibility="5"
-                />
+                app:wlvThickLineWidth="1.5dp" />
+
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
                 android:layout_gravity="center_vertical"
-                android:background="@color/app_main_color"/>
+                android:background="@color/app_main_color" />
         </FrameLayout>
 
 
-
         <Chronometer
-            android:id="@+id/recordingduration_chronometer"
+            android:id="@+id/recording_duration_chronometer"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="15dp"
@@ -90,57 +106,61 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="10dp"
-            android:textSize="7sp"
-            android:text="@string/limit_duration_warning_kr"/>
+            android:text="@string/limit_duration_warning_kr"
+            android:textSize="7sp" />
 
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="108dp"
-            android:layout_marginEnd="9dp"
             android:layout_marginStart="15dp"
+            android:layout_marginEnd="9dp"
             android:layout_marginBottom="10dp"
             android:background="@drawable/shadow"
             android:gravity="center"
             android:orientation="horizontal">
 
-           <LinearLayout
-               android:id="@+id/replay_layout"
-               android:layout_width="wrap_content"
-               android:layout_height="match_parent"
-               android:orientation="vertical"
-               android:gravity="center">
+            <LinearLayout
+                android:id="@+id/replay_layout"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:gravity="center"
+                android:orientation="vertical">
 
-               <ImageView
-                   android:layout_width="wrap_content"
-                   android:layout_height="wrap_content"
-                   android:layout_marginTop="16dp"
-                   app:srcCompat="@drawable/replay_icon" />
-               <TextView
-                   android:layout_width="wrap_content"
-                   android:layout_height="wrap_content"
-                   android:text="@string/replay"
-                   android:textSize="12sp"
-                   android:textColor="@color/recording_fragment_tool_box_color"/>
-           </LinearLayout>
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="16dp"
+                    app:srcCompat="@drawable/replay_icon" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/replay"
+                    android:textColor="@color/recording_fragment_tool_box_color"
+                    android:textSize="12sp" />
+            </LinearLayout>
 
             <LinearLayout
                 android:id="@+id/record_layout"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:orientation="vertical"
                 android:layout_marginStart="42dp"
                 android:layout_marginEnd="42dp"
-                android:gravity="center">
+                android:gravity="center"
+                android:orientation="vertical">
+
                 <FrameLayout
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content">
+
                     <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="3dp"
                         android:layout_gravity="center"
-                        app:srcCompat="@drawable/record_circle"/>
+                        android:layout_marginTop="3dp"
+                        app:srcCompat="@drawable/record_circle" />
+
                     <ImageView
                         android:id="@+id/start_and_pause_icon_iv"
                         android:layout_width="wrap_content"
@@ -155,27 +175,26 @@
                 android:id="@+id/stop_layout"
                 android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:orientation="vertical"
-                android:gravity="center">
+                android:gravity="center"
+                android:orientation="vertical">
 
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="16dp"
                     app:srcCompat="@drawable/record_stop_icon" />
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/record_complete_kr"
-                    android:textSize="12sp"
-                    android:textColor="@color/recording_fragment_tool_box_color"/>
+                    android:textColor="@color/recording_fragment_tool_box_color"
+                    android:textSize="12sp" />
             </LinearLayout>
-
 
 
         </LinearLayout>
 
     </LinearLayout>
-
 
 </android.support.constraint.ConstraintLayout>

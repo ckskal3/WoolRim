@@ -8,6 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.widget.DrawerLayout;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -25,12 +26,20 @@ import android.widget.RadioButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.error.AuthFailureError;
+import com.android.volley.error.VolleyError;
+import com.android.volley.request.StringRequest;
+
 import org.woolrim.woolrim.DataItems.BGMItem;
 import org.woolrim.woolrim.Utils.NetworkStatus;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import io.feeeei.circleseekbar.CircleSeekBar;
@@ -94,7 +103,38 @@ public class BGMSelectFragment extends Fragment {
 
         bgmSelectAdapter.setOnItemClickListener(new BGMSelectAdapter.OnItemClickListenr() {
             @Override
-            public void onItemClick(BGMSelectAdapter.BGMListViewHolder holder, View view, int position) {
+            public void onItemClick(BGMSelectAdapter.BGMListViewHolder holder, View view, final int position) {
+                StringRequest stringRequest = new StringRequest(
+                        Request.Method.POST,
+                        WoolrimApplication.FILE_BASE_URL + "mix",
+                        new Response.Listener<String>() {
+                            @Override
+                            public void onResponse(String response) {
+                                Toast.makeText(getContext(),response,Toast.LENGTH_SHORT).show();
+                            }
+                        },
+                        new Response.ErrorListener() {
+                            @Override
+                            public void onErrorResponse(VolleyError error) {
+
+                            }
+                        }
+                ){
+                    @Override
+                    protected Map<String, String> getParams() throws AuthFailureError {
+                        Map<String, String> params = new HashMap<>();
+                        /*
+                        mix_num : 배경음 숫자,
+                        stu_id: 학번,
+                        file_name: 파일이름
+                         */
+                        params.put("mix_num",String.valueOf(position));
+                        params.put("stu_id","123456789");
+                        params.put("file_name","WoolRim_1.aac");
+                        return params;
+                    }
+                };
+                WoolrimApplication.requestQueue.add(stringRequest);
                 currentItemPosition = position;
                 mediaPlayerStatus = INIT;
                 stopItemSetting();
@@ -187,12 +227,14 @@ public class BGMSelectFragment extends Fragment {
     @Override
     public void onResume() {
         MainActivity.toolbarLabelTv.setText(R.string.bgm_en);
+        MainActivity.drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED);
         super.onResume();
     }
 
     @Override
     public void onDetach() {
         MainActivity.drawableControlImageView.setVisibility(View.VISIBLE);
+        MainActivity.drawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED);
         RecordFragment.isBGM = true;
         super.onDetach();
     }
