@@ -33,18 +33,6 @@ const getPoemByNames = async (poet_name, poem_name) => {
   }
 }
 
-const updateAuthCount = async (poem_id, gender, count) => {
-  if(!(gender === '남자' || gender === '여자')){
-    return false;
-  }
-  if(gender === '남자'){
-    await Poem.where({id: poem_id}).update({auth_count_man: count});
-  }else{
-    await Poem.where({id: poem_id}).update({auth_count_woman: count});
-  }
-  return true;
-}
-
 const poemResolver = {
   Poem: {
     poet: (obj) => getPoet(obj.poet_id),
@@ -54,9 +42,6 @@ const poemResolver = {
     getAllPoemForWeb: () => Poem.query(),
     getPoemByNames: (obj, { poet_name, poem_name }) => getPoemByNames(poet_name, poem_name),
   },
-  Mutation: {
-    updateAuthCount: (obj, { poem_id, gender, count }) => updateAuthCount(poem_id, gender, count),
-  }
 }
 
 export { poemResolver };

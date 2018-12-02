@@ -6,7 +6,6 @@
 # import * from 'poet.graphql'
 
 # import Query.* from 'poem.graphql'
-# import Mutation.* from 'poem.graphql'
 
 # import Query.* from 'recording.graphql'
 # import Mutation.* from 'recording.graphql'
