@@ -19,6 +19,8 @@ import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Button;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
@@ -33,6 +35,7 @@ import com.android.volley.error.VolleyError;
 import com.android.volley.request.StringRequest;
 
 import org.woolrim.woolrim.DataItems.BGMItem;
+import org.woolrim.woolrim.DataItems.RecordItem;
 import org.woolrim.woolrim.Utils.NetworkStatus;
 
 import java.io.IOException;
@@ -50,10 +53,13 @@ public class BGMSelectFragment extends Fragment {
     private Button selectCompleteBtn;
     private CircleSeekBar circleSeekBar;
     private TextView fullTImeTextView, playtimeTextView;
-    private ImageView playButtonIconIV;
+    private ImageView playButtonIconIV,progressCircleIV;
 
     private BGMSelectAdapter bgmSelectAdapter;
     private MediaPlayer mediaPlayer;
+    private RecordItem recordItem;
+    private Animation itemRotate;
+
     private int duration, mediaPlayerStatus, currentItemPosition = -1;
     private String fileName;
 
@@ -61,6 +67,7 @@ public class BGMSelectFragment extends Fragment {
     public Handler timerHandler = new Handler(Looper.getMainLooper());
 
     private static final int INIT = 0, PLAYBACK = 1, PAUSE = 2, RESUME = 3;
+    private static String RECORDITEM = "RecordItem";
 
     public static BGMSelectFragment newInstance(Bundle bundle) {
         BGMSelectFragment bgmSelectFragment = new BGMSelectFragment();
@@ -72,8 +79,7 @@ public class BGMSelectFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Bundle bundle = getArguments();
-        duration = bundle.getInt("Duration");
-        fileName = bundle.getString("FileName");
+        recordItem = bundle.getParcelable(RECORDITEM);
         return inflater.inflate(R.layout.fragment_bgmselect, container, false);
     }
 
@@ -83,7 +89,7 @@ public class BGMSelectFragment extends Fragment {
         init(view);
 
         MainActivity.drawableControlImageView.setVisibility(View.INVISIBLE);
-        duration = 188800;
+        duration = recordItem.duration;
         circleSeekBar.setMaxProcess(duration);
 
 
@@ -104,37 +110,6 @@ public class BGMSelectFragment extends Fragment {
         bgmSelectAdapter.setOnItemClickListener(new BGMSelectAdapter.OnItemClickListenr() {
             @Override
             public void onItemClick(BGMSelectAdapter.BGMListViewHolder holder, View view, final int position) {
-                StringRequest stringRequest = new StringRequest(
-                        Request.Method.POST,
-                        WoolrimApplication.FILE_BASE_URL + "mix",
-                        new Response.Listener<String>() {
-                            @Override
-                            public void onResponse(String response) {
-                                Toast.makeText(getContext(),response,Toast.LENGTH_SHORT).show();
-                            }
-                        },
-                        new Response.ErrorListener() {
-                            @Override
-                            public void onErrorResponse(VolleyError error) {
-
-                            }
-                        }
-                ){
-                    @Override
-                    protected Map<String, String> getParams() throws AuthFailureError {
-                        Map<String, String> params = new HashMap<>();
-                        /*
-                        mix_num : 배경음 숫자,
-                        stu_id: 학번,
-                        file_name: 파일이름
-                         */
-                        params.put("mix_num",String.valueOf(position));
-                        params.put("stu_id","123456789");
-                        params.put("file_name","WoolRim_1.aac");
-                        return params;
-                    }
-                };
-                WoolrimApplication.requestQueue.add(stringRequest);
                 currentItemPosition = position;
                 mediaPlayerStatus = INIT;
                 stopItemSetting();
@@ -208,11 +183,10 @@ public class BGMSelectFragment extends Fragment {
                             mediaPlayer.stop();
                             mediaPlayer.release();
                             mediaPlayer = null;
+                            mediaPlayerStatus = INIT;
+                            stopItemSetting();
                         }
-                        Bundle bundle = new Bundle();
-                        bundle.putInt("FragmentRequestCode", CheckBottomFragment.MY_RECORD_SUBMIT_REQUEST);
-                        CheckBottomFragment checkBottomFragment = CheckBottomFragment.newInstance(bundle);
-                        checkBottomFragment.show(getActivity().getSupportFragmentManager(), "BGMSelectFragment");
+                        requestServerForMix();
                     }
                 }else{
                     Toast.makeText(getContext(), getString(R.string.internet_connect_warning), Toast.LENGTH_SHORT).show();
@@ -246,6 +220,8 @@ public class BGMSelectFragment extends Fragment {
         circleSeekBar = view.findViewById(R.id.bgm_seek_bar);
         fullTImeTextView = view.findViewById(R.id.bgm_full_time_tv);
         playtimeTextView = view.findViewById(R.id.bgm_playing_time_tv);
+        progressCircleIV = view.findViewById(R.id.bgm_progress_circular);
+        itemRotate = AnimationUtils.loadAnimation(getContext(), R.anim.item_rotate);
     }
 
     private Runnable seekBarRunnable = new Runnable() {
@@ -307,6 +283,50 @@ public class BGMSelectFragment extends Fragment {
 
         playButtonIconIV.setImageResource(R.drawable.record_pause_icon);
         playtimeTextView.setTextColor(ContextCompat.getColor(getContext(), R.color.app_sub_color));
+    }
+
+    private void requestServerForMix(){
+        progressCircleIV.setVisibility(View.VISIBLE);
+        progressCircleIV.setAnimation(itemRotate);
+        StringRequest stringRequest = new StringRequest(
+                Request.Method.POST,
+                WoolrimApplication.FILE_BASE_URL + "mix",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        Toast.makeText(getContext(),response,Toast.LENGTH_SHORT).show();
+                        progressCircleIV.setVisibility(View.INVISIBLE);
+                        progressCircleIV.clearAnimation();
+                        processResponse();
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        progressCircleIV.setVisibility(View.INVISIBLE);
+                        progressCircleIV.clearAnimation();
+                    }
+                }
+        ){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+                params.put("mix_num",String.valueOf(currentItemPosition));
+                params.put("stu_id","123456789");
+                params.put("file_name","WoolRim_1.aac");
+                return params;
+            }
+        };
+        WoolrimApplication.requestQueue.add(stringRequest);
+    }
+
+    private void processResponse(){
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(RECORDITEM,recordItem);
+        bundle.putString("SelectedBGM",bgmSelectAdapter.getItem(currentItemPosition).bgmName);
+        bundle.putString("SelectedBGMPosition",String.valueOf(currentItemPosition));
+        MixesRecordPlayerFragment mixesRecordPlayerFragment = MixesRecordPlayerFragment.newInstance(bundle);
+        getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.container,mixesRecordPlayerFragment).addToBackStack("MainFragment").commit();
     }
 
 

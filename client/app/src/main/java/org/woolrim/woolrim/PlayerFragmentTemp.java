@@ -24,7 +24,6 @@ import com.apollographql.apollo.ApolloCall;
 import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
 import com.bumptech.glide.Glide;
-import com.bumptech.glide.request.RequestOptions;
 
 import org.woolrim.woolrim.DataItems.MyFavoritesItem;
 import org.woolrim.woolrim.DataItems.RecordItem;

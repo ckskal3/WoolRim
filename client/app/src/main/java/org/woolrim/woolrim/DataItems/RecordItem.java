@@ -8,11 +8,13 @@ public class RecordItem implements Parcelable {
     public int studentId, mediaId, poemId, bookmarkFlag, duration;
     public String error;
 
-    public RecordItem(String fileName, String filePath, int studentId, int duration) {
+    public RecordItem(String fileName, String filePath, int studentId, int duration, String poemName, String poetName) {
         this.fileName = fileName;
         this.filePath = filePath;
         this.studentId = studentId;
         this.duration = duration;
+        this.poemName = poemName;
+        this.poetName = poetName;
     }
 
     public RecordItem(String filePath,int duration, String studentName, String studentProfilePath, String poemName, String poetName, int studentId, int mediaId, int poemId, int bookmarkFlag) {

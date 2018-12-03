@@ -1,5 +1,6 @@
 package org.woolrim.woolrim;
 
+import android.content.DialogInterface;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.SystemClock;
@@ -25,8 +26,15 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 
+import com.android.volley.Request;
+import com.android.volley.Response;
+import com.android.volley.error.VolleyError;
+import com.android.volley.request.SimpleMultiPartRequest;
+import com.google.gson.Gson;
+
 import org.woolrim.woolrim.AudioMixUtils.AudioEncoder;
 import org.woolrim.woolrim.DataItems.RecordItem;
+import org.woolrim.woolrim.Utils.DialogDismissListener;
 import org.woolrim.woolrim.Utils.WaveLineViewTemp;
 
 import java.io.File;
@@ -51,6 +59,7 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
 
     private String mFileName = null, mFilePath = null, mFileNameAAC = null;
     private String poetName, poemName, poemContent;
+    private static String RECORDITEM = "RecordItem";
 
     private boolean isRecording = false, isPaused = false;
     public static boolean isBGM = false;
@@ -58,6 +67,7 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
     private Animation itemRotate;
 
     private WaveLineViewTemp waveLineView;
+
 
     public static RecordFragment newInstance(Bundle bundle) {
         RecordFragment recordFragment = new RecordFragment();
@@ -331,8 +341,6 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
                                 new AudioEncoder.OnEncodingStartListener() {
                                     @Override
                                     public void onEncodingStart() {
-                                        //프로그래스바 시작
-                                        Log.d("Time", "OnStartEncoding");
                                     }
                                 },
                                 new AudioEncoder.OnEncodingCompletedListener() {
@@ -347,9 +355,29 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
                                         mFilePath = mFileNameAAC;
 
                                         Bundle bundle = new Bundle();
-                                        bundle.putParcelable("RecordItem", new RecordItem(mFileName, mFilePath, 0, (int) totalDuration));
-                                        bundle.putLong("LimitDuration", limitDuration);
+                                        bundle.putParcelable(RECORDITEM,
+                                                new RecordItem(
+                                                        mFileName,
+                                                        mFilePath,
+                                                        WoolrimApplication.loginedUserId,
+                                                        (int) totalDuration,
+                                                        poemName,
+                                                        poetName));
                                         PlaybackFragment playbackFragment = PlaybackFragment.newInstance(bundle);
+                                        playbackFragment.setOnDialogDismissListener(new DialogDismissListener() {
+                                            @Override
+                                            public void onDismiss(DialogInterface dialogInterface) {
+
+                                            }
+
+                                            @Override
+                                            public void onDismissed(@Nullable String key, boolean flag) {
+                                                super.onDismissed(key, flag);
+                                                if(flag){
+                                                    requestServerForFileUpload();
+                                                }
+                                            }
+                                        });
                                         FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
                                         playbackFragment.show(fragmentTransaction, "playback");
 
@@ -358,9 +386,30 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
                         new EncodingAndTemp().execute(accEncoder);
                     } else {
                         Bundle bundle = new Bundle();
-                        bundle.putParcelable("RecordItem", new RecordItem(mFileName, mFilePath, 0, (int) totalDuration));
+                        bundle.putParcelable(RECORDITEM,
+                                new RecordItem(
+                                        mFileName,
+                                        mFilePath,
+                                        WoolrimApplication.loginedUserId,
+                                        (int) totalDuration,
+                                        poemName,
+                                        poetName));
                         bundle.putLong("LimitDuration", limitDuration);
                         PlaybackFragment playbackFragment = PlaybackFragment.newInstance(bundle);
+                        playbackFragment.setOnDialogDismissListener(new DialogDismissListener() {
+                            @Override
+                            public void onDismiss(DialogInterface dialogInterface) {
+
+                            }
+
+                            @Override
+                            public void onDismissed(@Nullable String key, boolean flag) {
+                                super.onDismissed(key, flag);
+                                if(flag){
+                                    requestServerForFileUpload();
+                                }
+                            }
+                        });
                         FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
                         playbackFragment.show(fragmentTransaction, "playback");
 
@@ -393,6 +442,57 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
         } else {//이거 고쳐야된다
             getActivity().getSupportFragmentManager().popBackStack();
         }
+    }
+
+    private void requestServerForFileUpload(){
+        progressCircleIV.setVisibility(View.VISIBLE);
+        progressCircleIV.setAnimation(itemRotate);
+        SimpleMultiPartRequest simpleMultiPartRequest = new SimpleMultiPartRequest(
+                Request.Method.POST,
+                WoolrimApplication.FILE_BASE_URL+"upload",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+                        progressCircleIV.setVisibility(View.INVISIBLE);
+                        progressCircleIV.clearAnimation();
+                        processServerResponse(response);
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+                        progressCircleIV.setVisibility(View.INVISIBLE);
+                        progressCircleIV.clearAnimation();
+                    }
+                }
+        );
+        simpleMultiPartRequest.addStringParam("stu_id",String.valueOf(WoolrimApplication.loginedUserId));
+        simpleMultiPartRequest.addFile("user_recording", mFilePath);
+
+        WoolrimApplication.requestQueue.add(simpleMultiPartRequest);
+    }
+
+    private void processServerResponse(String response){
+        Gson gson = new Gson();
+        Log.d("Time",response);
+        Toast.makeText(getContext(),response,Toast.LENGTH_SHORT).show();
+
+        ///성공일떄와 오류일떄 나눠서 처리해야함////////
+
+        ////////////////////////////////////////////
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(RECORDITEM, new RecordItem(
+                "WoolRim_1.aac",
+                mFilePath,
+                WoolrimApplication.loginedUserId,
+                (int)totalDuration,
+                poemName,
+                poetName
+        ));
+        BGMSelectFragment bgmSelectFragment = BGMSelectFragment.newInstance(bundle);
+        getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.container, bgmSelectFragment).addToBackStack("BGNSelectFragment")
+                .commit();
+
     }
 
     private int getColor(int colorId) {

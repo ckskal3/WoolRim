@@ -164,6 +164,25 @@ public class MyRecordFragment extends Fragment {
                             bundle.putString("ItemPoem", adapter.getItem(position).poem);
                             bundle.putString("ItemPoet", adapter.getItem(position).poet);
                             CheckBottomFragment checkBottomFragment = CheckBottomFragment.newInstance(bundle);
+                            checkBottomFragment.setOnDismissListener(new DialogDismissListener() {
+                                @Override
+                                public void onDismiss(DialogInterface dialogInterface) {
+
+                                }
+
+                                @Override
+                                public void onDismissed(@Nullable String key, boolean flag) {
+                                    super.onDismissed(key, flag);
+                                    if(flag){
+                                        getActivity().runOnUiThread(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                adapter.deleteItem(position, null);
+                                            }
+                                        });
+                                    }
+                                }
+                            });
                             checkBottomFragment.show(getActivity().getSupportFragmentManager(), "MyRecordFragment");
 //                            Toast.makeText(getContext(), String.valueOf(position) + "번째 삭제 버튼", Toast.LENGTH_SHORT).show();
                             break;
