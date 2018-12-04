@@ -12,6 +12,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.android.volley.Request;
+import com.android.volley.error.AuthFailureError;
+import com.android.volley.error.VolleyError;
+import com.android.volley.request.StringRequest;
 import com.apollographql.apollo.ApolloCall;
 import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
@@ -22,8 +26,12 @@ import org.woolrim.woolrim.Utils.DialogDismissListener;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.annotation.Nonnull;
+
+import retrofit2.http.POST;
 
 public class CheckBottomFragment extends BottomSheetDialogFragment {
     public static final int MY_RECORD_DELETE_REQUEST = 0;
@@ -113,7 +121,7 @@ public class CheckBottomFragment extends BottomSheetDialogFragment {
         if (fragmentRequestCode == MY_RECORD_SUBMIT_REQUEST) {
             getActivity().getSupportFragmentManager().popBackStack("MainFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
         }
-        if (fragmentRequestCode == MY_VOLUNTEER_SCORE_SUBMIT_REQUEST) {
+        if (fragmentRequestCode == MY_VOLUNTEER_SCORE_SUBMIT_REQUEST || fragmentRequestCode == MY_RECORD_DELETE_REQUEST) {
             if (cancelAndOkFlag)
                 mResultListener.onDismissed("성공", true);
             else
@@ -154,12 +162,7 @@ public class CheckBottomFragment extends BottomSheetDialogFragment {
                             @Override
                             public void onResponse(@Nonnull Response<DeleteRecording.Data> response) {
                                 if (response.data().deleteRecordingById()) {
-                                    getActivity().runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            MyMenuFragment.myRecordFragment1.adapter.deleteItem(deleteItemPosition, null);
-                                        }
-                                    });
+                                    cancelAndOkFlag = true;
                                     dismiss();
                                 }
                             }

@@ -1,6 +1,8 @@
 package org.woolrim.woolrim;
 
+import android.content.DialogInterface;
 import android.media.MediaPlayer;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -25,6 +27,7 @@ import com.google.gson.Gson;
 
 import org.woolrim.woolrim.DataItems.RecordItem;
 import org.woolrim.woolrim.Utils.DBManagerHelper;
+import org.woolrim.woolrim.Utils.DialogDismissListener;
 
 import java.io.File;
 import java.io.IOException;
@@ -38,14 +41,15 @@ public class PlaybackFragment extends BottomSheetDialogFragment implements View.
     private static final String RECORDITEM = "RecordItem";
     private RecordItem recordItem;
 
-    private Handler handler = new Handler();
+//    private Handler handler = new Handler();
 
     private MediaPlayer mediaPlayer;
     private CircleSeekBar circleSeekBar;
     private ImageView playBtn;
     private TextView completeTv, deleteTv, fullTimeTv, playingTimeTv;
 
-    private boolean isPlaying = false;
+    private boolean isPlaying = false, flag = false;
+    private DialogDismissListener dialogDismissListener;
 
     public Handler seekBarHandler = new Handler(Looper.getMainLooper());
     public Handler timerHandler = new Handler(Looper.getMainLooper());
@@ -77,7 +81,6 @@ public class PlaybackFragment extends BottomSheetDialogFragment implements View.
         super.onViewCreated(view, savedInstanceState);
         init(view);
 
-
         setUpPlayer();
 
         playBtn.setOnClickListener(this);
@@ -86,6 +89,11 @@ public class PlaybackFragment extends BottomSheetDialogFragment implements View.
 
     }
 
+    @Override
+    public void onActivityCreated(Bundle savedInstanceState) {
+        super.onActivityCreated(savedInstanceState);
+        getDialog().setOnDismissListener(dialogDismissListener);
+    }
 
     private void init(View view) {
         circleSeekBar = view.findViewById(R.id.playback_circle_seek_bar);
@@ -96,6 +104,8 @@ public class PlaybackFragment extends BottomSheetDialogFragment implements View.
         fullTimeTv = view.findViewById(R.id.playback_full_time_textview);
 
     }
+
+
 
     @Override
     public void onClick(View view) {
@@ -110,18 +120,21 @@ public class PlaybackFragment extends BottomSheetDialogFragment implements View.
                     File file = new File(recordItem.filePath);
                     if (file.delete())
                         Toast.makeText(getContext(), "삭제되었습니다.", Toast.LENGTH_SHORT).show();
+                    dialogDismissListener.onDismissed(null, flag);
                     dismiss();
                     break;
                 case R.id.playback_complete_textview:
                     recordItem.duration = mediaPlayer.getDuration();
-                    if(mediaPlayer != null){
+                    if (mediaPlayer != null) {
                         stopAndResetPlayer();
                     }
-                    DBManagerHelper.recordDAO.insertRecord(recordItem);
-
-                    //////////////////서버로 파일 보내는 코드//////////////////
-                    requestServerForFileUpload();
-                    ////////////////////////////////////////////////////////
+                    flag = true;
+                    dismiss();
+//                    DBManagerHelper.recordDAO.insertRecord(recordItem);
+//
+//                    //////////////////서버로 파일 보내는 코드//////////////////
+//                    requestServerForFileUpload();
+//                    ////////////////////////////////////////////////////////
 
                     break;
             }
@@ -129,13 +142,14 @@ public class PlaybackFragment extends BottomSheetDialogFragment implements View.
         }
     }
 
-    private void requestServerForFileUpload(){
+
+    private void requestServerForFileUpload() {
         String url = "http://stou2.cafe24.com/Woolrim/FileUpload.php";
 
 //        String url = "http://192.168.1.252:3000/upload";
         SimpleMultiPartRequest simpleMultiPartRequest = new SimpleMultiPartRequest(
                 Request.Method.POST,
-                url,
+                WoolrimApplication.FILE_BASE_URL + "upload",
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
@@ -149,15 +163,16 @@ public class PlaybackFragment extends BottomSheetDialogFragment implements View.
                     }
                 }
         );
-        simpleMultiPartRequest.addFile("file",recordItem.filePath);
+        simpleMultiPartRequest.addStringParam("stu_id", String.valueOf(WoolrimApplication.loginedUserId));
+        simpleMultiPartRequest.addFile("user_recording", recordItem.filePath);
 
         WoolrimApplication.requestQueue.add(simpleMultiPartRequest);
     }
 
-    private void processServerResponse(String response){
+    private void processServerResponse(String response) {
         Gson gson = new Gson();
-        Log.d("Time",response);
-        Toast.makeText(getContext(),response,Toast.LENGTH_SHORT).show();
+        Log.d("Time", response);
+        Toast.makeText(getContext(), response, Toast.LENGTH_SHORT).show();
 
         ///성공일떄와 오류일떄 나눠서 처리해야함////////
 
@@ -172,20 +187,33 @@ public class PlaybackFragment extends BottomSheetDialogFragment implements View.
 
     @Override
     public void onPause() {
-        super.onPause();
-
         if (mediaPlayer != null) {
+            Log.d("Time","onPause");
             stopAndResetPlayer();
         }
+        dismiss();
+        super.onPause();
     }
 
     @Override
     public void onDestroyView() {
-        super.onDestroyView();
-
         if (mediaPlayer != null) {
+            Log.d("Time","onDestroyView");
             stopAndResetPlayer();
         }
+        dialogDismissListener.onDismissed(null, flag);
+        super.onDestroyView();
+
+    }
+
+    @Override
+    public void onCancel(DialogInterface dialog) {
+        if (mediaPlayer != null) {
+            Log.d("Time","onDestroyView");
+            stopAndResetPlayer();
+        }
+        dialogDismissListener.onDismissed(null, flag);
+        super.onCancel(dialog);
     }
 
     private void onPlay(boolean isPlaying) throws IOException {
@@ -205,9 +233,9 @@ public class PlaybackFragment extends BottomSheetDialogFragment implements View.
         try {
             mediaPlayer.setDataSource(recordItem.filePath);
             mediaPlayer.prepare();
-        }catch (IOException e){
+        } catch (IOException e) {
             e.printStackTrace();
-        }finally {
+        } finally {
             circleSeekBar.setMaxProcess(mediaPlayer.getDuration());
 
             long itemDuration = mediaPlayer.getDuration();
@@ -227,7 +255,7 @@ public class PlaybackFragment extends BottomSheetDialogFragment implements View.
 
     }
 
-    private void startPlay()  {
+    private void startPlay() {
         startItemSetting();
 
         mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
@@ -239,12 +267,9 @@ public class PlaybackFragment extends BottomSheetDialogFragment implements View.
 
         updateSeekBar();
         updateTime();
-
-
         getActivity().getWindow().addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON);
 
     }
-
 
 
     private void resumePlay() {
@@ -263,7 +288,7 @@ public class PlaybackFragment extends BottomSheetDialogFragment implements View.
         mediaPlayer.pause();
     }
 
-    private void completePlay(){
+    private void completePlay() {
         stopAndPauseItemSetting();
 
         circleSeekBar.setCurProcess(circleSeekBar.getMaxProcess());
@@ -274,7 +299,7 @@ public class PlaybackFragment extends BottomSheetDialogFragment implements View.
     }
 
     private void stopPlay() {
-        Log.d("Time","stopPlay");
+        Log.d("Time", "stopPlay");
         circleSeekBar.setCurProcess(0);
         seekBarHandler.removeCallbacks(seekBarRunnable);
         timerHandler.removeCallbacks(timeRunnable);
@@ -283,11 +308,12 @@ public class PlaybackFragment extends BottomSheetDialogFragment implements View.
         mediaPlayer.stop();
     }
 
-    private void stopAndResetPlayer(){
+    private void stopAndResetPlayer() {
         stopPlay();
         mediaPlayer.release();
         mediaPlayer = null;
     }
+
     private Runnable seekBarRunnable = new Runnable() {
         @Override
         public void run() {
@@ -305,7 +331,7 @@ public class PlaybackFragment extends BottomSheetDialogFragment implements View.
             if (mediaPlayer != null) {
 
                 int mCurrentPosition = mediaPlayer.getCurrentPosition();
-                Log.d("Time",String.valueOf(mCurrentPosition));
+                Log.d("Time", String.valueOf(mCurrentPosition));
                 long minutes = TimeUnit.MILLISECONDS.toMinutes(mCurrentPosition);
                 long seconds = TimeUnit.MILLISECONDS.toSeconds(mCurrentPosition)
                         - TimeUnit.MINUTES.toSeconds(minutes);
@@ -322,20 +348,29 @@ public class PlaybackFragment extends BottomSheetDialogFragment implements View.
         seekBarHandler.postDelayed(seekBarRunnable, 20);
     }
 
+    @Override
+    public void onDismiss(DialogInterface dialog) {
+        Log.d("Time","onDismiss");
+        super.onDismiss(dialog);
+    }
+
     private void updateTime() {
         timerHandler.postDelayed(timeRunnable, 5);
     }
 
-    private void stopAndPauseItemSetting(){
+    private void stopAndPauseItemSetting() {
         playBtn.setImageResource(R.drawable.play_big_icon);
-        playingTimeTv.setTextColor(ContextCompat.getColor(getContext(),R.color.timer_default_text_color));
+        playingTimeTv.setTextColor(ContextCompat.getColor(getContext(), R.color.timer_default_text_color));
     }
 
 
-    private void startItemSetting(){
+    private void startItemSetting() {
         playBtn.setImageResource(R.drawable.pause_icon);
-        playingTimeTv.setTextColor(ContextCompat.getColor(getContext(),R.color.app_sub_color));
+        playingTimeTv.setTextColor(ContextCompat.getColor(getContext(), R.color.app_sub_color));
     }
 
+    public void setOnDialogDismissListener(DialogDismissListener dialogDismissListener) {
+        this.dialogDismissListener = dialogDismissListener;
+    }
 
 }

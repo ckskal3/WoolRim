@@ -1,12 +1,14 @@
 query GetAllPoem{
-  allPoem: getAllPoem{
-  	id,
-  	name,
-  	auth_count,
-  	auth_count_man,
-  	auth_count_woman,
-    poet{
-      name
+  getAllPoem{
+    poem_list{
+      id,
+      name,
+      auth_count,
+      auth_count_man,
+      auth_count_woman,
+      poet{
+        name
+      }
     }
   }
 }

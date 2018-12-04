@@ -60,7 +60,7 @@ import static com.android.volley.Request.Method.POST;
 
 
 public class MainActivity extends AppCompatActivity implements FragmentInteraction, View.OnClickListener {
-    private DrawerLayout drawer;
+    public static DrawerLayout drawer;
     private NavigationView navigationView;
     private LinearLayout homeLayout, favoritesLayout, myPageLayout, signInAndOutLayout;
     private Toolbar toolbar;

@@ -5,7 +5,6 @@ import android.media.MediaCodecInfo;
 import android.media.MediaFormat;
 import android.util.Log;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -19,8 +18,8 @@ class AACAudioEncoder extends AudioEncoder {
     private final static String AUDIO_MIME = "audio/mp4a-latm";
     private final static long audioBytesPerSample = 44100 * 16 / 8;
 
-    AACAudioEncoder(String rawAudioFile, OnEncodingCompletedListener onEncodingCompletedListener) {
-        super(rawAudioFile,onEncodingCompletedListener);
+    AACAudioEncoder(String rawAudioFile,OnEncodingStartListener onEncodingStartListener ,OnEncodingCompletedListener onEncodingCompletedListener) {
+        super(rawAudioFile,onEncodingStartListener,onEncodingCompletedListener);
     }
 
     @Override
@@ -28,6 +27,8 @@ class AACAudioEncoder extends AudioEncoder {
         FileInputStream fisRawAudio = null;
         FileOutputStream fosAccAudio = null;
         try {
+//            onEncodingStartListener.onEncodingStart();
+
             fisRawAudio = new FileInputStream(rawAudioFile);
             fosAccAudio = new FileOutputStream(outEncodeFile);
 
@@ -137,7 +138,7 @@ class AACAudioEncoder extends AudioEncoder {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-            onEncodingCompletedListener.onEndingCompleted();
+            onEncodingCompletedListener.onEncodingCompleted();
 
         }
     }
@@ -146,7 +147,7 @@ class AACAudioEncoder extends AudioEncoder {
         MediaCodec codec = MediaCodec.createEncoderByType(AUDIO_MIME);
         MediaFormat format = new MediaFormat();
         format.setString(MediaFormat.KEY_MIME, AUDIO_MIME);
-        format.setInteger(MediaFormat.KEY_BIT_RATE, 64000);
+        format.setInteger(MediaFormat.KEY_BIT_RATE, 128000);
         format.setInteger(MediaFormat.KEY_CHANNEL_COUNT, 2);
         format.setInteger(MediaFormat.KEY_SAMPLE_RATE, 44100);
         format.setInteger(MediaFormat.KEY_AAC_PROFILE,

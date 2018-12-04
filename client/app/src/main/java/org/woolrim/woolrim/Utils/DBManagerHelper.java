@@ -63,7 +63,7 @@ public class DBManagerHelper {
         database = sqLiteDatabaseHelper.getWritableDatabase();
 
         userDAO = new UserDAO(database);
-        recordDAO = new RecordDAO(database);
+//        recordDAO = new RecordDAO(database);
         favoriteDAO = new FavoriteDAO(database);
         return this;
     }
@@ -74,7 +74,7 @@ public class DBManagerHelper {
 
     public static class SQLiteDatabaseHelper extends SQLiteOpenHelper {
 
-        public static SQLiteDatabase databaseTemp;
+
 
         public SQLiteDatabaseHelper(Context context) {
             super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -84,7 +84,7 @@ public class DBManagerHelper {
         public void onCreate(SQLiteDatabase sqLiteDatabase) {
             database = sqLiteDatabase;
             createUserTable(sqLiteDatabase);
-            createRecordTable(sqLiteDatabase);
+//            createRecordTable(sqLiteDatabase);
             createFavoriteTable(sqLiteDatabase);
         }
 
@@ -93,11 +93,11 @@ public class DBManagerHelper {
         public void onUpgrade(SQLiteDatabase sqLiteDatabase, int oldVersion, int newVersion) {
             if (newVersion > oldVersion) {
                 dropTable(sqLiteDatabase, USER_TABLE_NAME);
-                dropTable(sqLiteDatabase, RECORD_TABLE_NAME);
+//                dropTable(sqLiteDatabase, RECORD_TABLE_NAME);
                 dropTable(sqLiteDatabase, FAVORITE_TABLE_NAME);
 
                 createUserTable(sqLiteDatabase);
-                createRecordTable(sqLiteDatabase);
+//                createRecordTable(sqLiteDatabase);
                 createFavoriteTable(sqLiteDatabase);
 
             }
@@ -160,11 +160,11 @@ public class DBManagerHelper {
         public static void recycleTable() {
             dropTable(database, FAVORITE_TABLE_NAME);
             dropTable(database, USER_TABLE_NAME);
-            dropTable(database, RECORD_TABLE_NAME);
-            dropTable(database, POEM_TABLE_NAME);
+//            dropTable(database, RECORD_TABLE_NAME);
+//            dropTable(database, POEM_TABLE_NAME);
 
-            createPoemTable(database);
-            createRecordTable(database);
+//            createPoemTable(database);
+//            createRecordTable(database);
             createUserTable(database);
             createFavoriteTable(database);
         }

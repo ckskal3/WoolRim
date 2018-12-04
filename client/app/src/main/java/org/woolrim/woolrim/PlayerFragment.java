@@ -162,7 +162,7 @@ public class PlayerFragment extends Fragment implements View.OnClickListener, Pl
 
         playerBackgroundLayout.setOnTouchListener(this);
 
-        mediaPlayer = MediaPlayer.create(getContext(), R.raw.voice_test);
+        mediaPlayer = MediaPlayer.create(getContext(), R.raw.bgm_1);
 
 
         long itemDuration = mediaPlayer.getDuration();

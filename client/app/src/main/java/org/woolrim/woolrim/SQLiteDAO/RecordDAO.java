@@ -57,11 +57,12 @@ public class RecordDAO {
     }
 
     public RecordItem processCursor(Cursor cursor) {
-        return new RecordItem(
-                cursor.getString(cursor.getColumnIndex(DBManagerHelper.COLUMN_RECORD_NAME)),
-                cursor.getString(cursor.getColumnIndex(DBManagerHelper.COLUMN_RECORD_PATH)),
-                cursor.getInt(cursor.getColumnIndex(DBManagerHelper.COLUMN_RECORD_STUDENT_ID)),
-                cursor.getInt(cursor.getColumnIndex(DBManagerHelper.COLUMN_RECORD_DURATION))
-        );
+        return null;
+//        return new RecordItem(
+//                cursor.getString(cursor.getColumnIndex(DBManagerHelper.COLUMN_RECORD_NAME)),
+//                cursor.getString(cursor.getColumnIndex(DBManagerHelper.COLUMN_RECORD_PATH)),
+//                cursor.getInt(cursor.getColumnIndex(DBManagerHelper.COLUMN_RECORD_STUDENT_ID)),
+//                cursor.getInt(cursor.getColumnIndex(DBManagerHelper.COLUMN_RECORD_DURATION)),
+//        );
     }
 }
