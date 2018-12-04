@@ -53,7 +53,7 @@ public class BGMSelectFragment extends Fragment {
     private Button selectCompleteBtn;
     private CircleSeekBar circleSeekBar;
     private TextView fullTImeTextView, playtimeTextView;
-    private ImageView playButtonIconIV,progressCircleIV;
+    private ImageView playButtonIconIV, progressCircleIV;
 
     private BGMSelectAdapter bgmSelectAdapter;
     private MediaPlayer mediaPlayer;
@@ -61,6 +61,7 @@ public class BGMSelectFragment extends Fragment {
     private Animation itemRotate;
 
     private int duration, mediaPlayerStatus, currentItemPosition = -1;
+    private int[] bgms = {0, R.raw.bgm_1, R.raw.bgm_2, R.raw.bgm_3};
     private String fileName;
 
     public Handler seekBarHandler = new Handler(Looper.getMainLooper());
@@ -114,12 +115,13 @@ public class BGMSelectFragment extends Fragment {
                 mediaPlayerStatus = INIT;
                 stopItemSetting();
                 if (mediaPlayer != null) {
-                    if(mediaPlayer.isPlaying()) mediaPlayer.stop();
+                    if (mediaPlayer.isPlaying()) mediaPlayer.stop();
                     mediaPlayer.release();
                     mediaPlayer = null;
                 }
-                try {
-                    mediaPlayer = new MediaPlayer();
+
+                if (position != 0) {
+                    mediaPlayer = MediaPlayer.create(getContext(), bgms[position]);
                     mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                         @Override
                         public void onCompletion(MediaPlayer mediaPlayer) {
@@ -127,11 +129,16 @@ public class BGMSelectFragment extends Fragment {
                             stopItemSetting();
                         }
                     });
-                    mediaPlayer.setDataSource("http://stou2.cafe24.com/test/WoolRim_1.mp3");
-//                    mediaPlayer.setDataSource(WoolrimApplication.FILE_BASE_URL+String.valueOf(WoolrimApplication.loginedUserId)+"/"+fileName+"_"+String.valueOf(position)+".mp3");
-                } catch (IOException e) {
-                    e.printStackTrace();
+//                mediaPlayer.prepareAsync();
+                    mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
+                        @Override
+                        public void onPrepared(MediaPlayer mediaPlayer) {
+                            mediaPlayer.start();
+                        }
+                    });
                 }
+//                    mediaPlayer.setDataSource(WoolrimApplication.FILE_BASE_URL+String.valueOf(WoolrimApplication.loginedUserId)+"/"+fileName+"_"+String.valueOf(position)+".mp3");
+
 //                Log.d("Name", bgmSelectAdapter.getItem(position).bgmName);
             }
         });
@@ -188,7 +195,7 @@ public class BGMSelectFragment extends Fragment {
                         }
                         requestServerForMix();
                     }
-                }else{
+                } else {
                     Toast.makeText(getContext(), getString(R.string.internet_connect_warning), Toast.LENGTH_SHORT).show();
                 }
             }
@@ -285,7 +292,7 @@ public class BGMSelectFragment extends Fragment {
         playtimeTextView.setTextColor(ContextCompat.getColor(getContext(), R.color.app_sub_color));
     }
 
-    private void requestServerForMix(){
+    private void requestServerForMix() {
         progressCircleIV.setVisibility(View.VISIBLE);
         progressCircleIV.setAnimation(itemRotate);
         StringRequest stringRequest = new StringRequest(
@@ -294,7 +301,7 @@ public class BGMSelectFragment extends Fragment {
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String response) {
-                        Toast.makeText(getContext(),response,Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getContext(), response, Toast.LENGTH_SHORT).show();
                         progressCircleIV.setVisibility(View.INVISIBLE);
                         progressCircleIV.clearAnimation();
                         processResponse();
@@ -307,26 +314,26 @@ public class BGMSelectFragment extends Fragment {
                         progressCircleIV.clearAnimation();
                     }
                 }
-        ){
+        ) {
             @Override
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> params = new HashMap<>();
-                params.put("mix_num",String.valueOf(currentItemPosition));
-                params.put("stu_id","123456789");
-                params.put("file_name","WoolRim_1.aac");
+                params.put("mix_num", String.valueOf(currentItemPosition));
+                params.put("stu_id", "123456789");
+                params.put("file_name", "WoolRim_1.aac");
                 return params;
             }
         };
         WoolrimApplication.requestQueue.add(stringRequest);
     }
 
-    private void processResponse(){
+    private void processResponse() {
         Bundle bundle = new Bundle();
-        bundle.putParcelable(RECORDITEM,recordItem);
-        bundle.putString("SelectedBGM",bgmSelectAdapter.getItem(currentItemPosition).bgmName);
-        bundle.putString("SelectedBGMPosition",String.valueOf(currentItemPosition));
+        bundle.putParcelable(RECORDITEM, recordItem);
+        bundle.putString("SelectedBGM", bgmSelectAdapter.getItem(currentItemPosition).bgmName);
+        bundle.putString("SelectedBGMPosition", String.valueOf(currentItemPosition));
         MixesRecordPlayerFragment mixesRecordPlayerFragment = MixesRecordPlayerFragment.newInstance(bundle);
-        getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.container,mixesRecordPlayerFragment).addToBackStack("MainFragment").commit();
+        getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.container, mixesRecordPlayerFragment).addToBackStack("MainFragment").commit();
     }
 
 

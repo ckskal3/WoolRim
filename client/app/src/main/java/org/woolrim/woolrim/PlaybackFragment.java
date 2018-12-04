@@ -1,5 +1,6 @@
 package org.woolrim.woolrim;
 
+import android.content.DialogInterface;
 import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -104,6 +105,8 @@ public class PlaybackFragment extends BottomSheetDialogFragment implements View.
 
     }
 
+
+
     @Override
     public void onClick(View view) {
         try {
@@ -138,6 +141,7 @@ public class PlaybackFragment extends BottomSheetDialogFragment implements View.
         } catch (IOException e) {
         }
     }
+
 
     private void requestServerForFileUpload() {
         String url = "http://stou2.cafe24.com/Woolrim/FileUpload.php";
@@ -184,6 +188,7 @@ public class PlaybackFragment extends BottomSheetDialogFragment implements View.
     @Override
     public void onPause() {
         if (mediaPlayer != null) {
+            Log.d("Time","onPause");
             stopAndResetPlayer();
         }
         dismiss();
@@ -193,11 +198,22 @@ public class PlaybackFragment extends BottomSheetDialogFragment implements View.
     @Override
     public void onDestroyView() {
         if (mediaPlayer != null) {
+            Log.d("Time","onDestroyView");
             stopAndResetPlayer();
         }
         dialogDismissListener.onDismissed(null, flag);
         super.onDestroyView();
 
+    }
+
+    @Override
+    public void onCancel(DialogInterface dialog) {
+        if (mediaPlayer != null) {
+            Log.d("Time","onDestroyView");
+            stopAndResetPlayer();
+        }
+        dialogDismissListener.onDismissed(null, flag);
+        super.onCancel(dialog);
     }
 
     private void onPlay(boolean isPlaying) throws IOException {
@@ -330,6 +346,12 @@ public class PlaybackFragment extends BottomSheetDialogFragment implements View.
 
     private void updateSeekBar() {
         seekBarHandler.postDelayed(seekBarRunnable, 20);
+    }
+
+    @Override
+    public void onDismiss(DialogInterface dialog) {
+        Log.d("Time","onDismiss");
+        super.onDismiss(dialog);
     }
 
     private void updateTime() {

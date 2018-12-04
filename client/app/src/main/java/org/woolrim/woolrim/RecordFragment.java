@@ -183,10 +183,12 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
 
 
     private PullableSource mic() {
-        PullableSource ps = new PullableSource.Default(
-                new AudioRecordConfig.Default(
-                        MediaRecorder.AudioSource.MIC, AudioFormat.ENCODING_PCM_16BIT,
-                        AudioFormat.CHANNEL_IN_STEREO, 44100
+        PullableSource ps = new PullableSource.NoiseSuppressor(
+                new PullableSource.Default(
+                        new AudioRecordConfig.Default(
+                                MediaRecorder.AudioSource.MIC, AudioFormat.ENCODING_PCM_16BIT,
+                                AudioFormat.CHANNEL_IN_STEREO, 44100
+                        )
                 )
         );
 //        audioRecord = ps.audioRecord();
