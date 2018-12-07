@@ -1,4 +1,5 @@
 import { Notification, User } from '../../model';
+import * as _ from 'lodash';
 
 export const getNotificationByLogin = async (stu_id) => {
   try {
@@ -10,7 +11,7 @@ export const getNotificationByLogin = async (stu_id) => {
     if (result.length === 0) {
       return [];
     }
-    return result;
+    return _.orderBy(result, ['created'], ['desc']);
   } catch (err) {
     console.log('getNotification has err : ', err);
     return [];
@@ -29,7 +30,7 @@ const getNotification = async (stu_id) => {
     }
     return {
       isSuccess: true,
-      notification_list: result,
+      notification_list: _.orderBy(result, ['created'], ['desc']),
     };
   } catch (err) {
     console.log('getNotification has err : ', err);

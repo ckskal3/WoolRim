@@ -45,7 +45,6 @@ type GetRecordingForPlayResult {
 
 type Query {
   getAllRecording(stu_id: Int): GetAllRecordingResult
-  getAllRecordingByLogin(stu_id: Int): [Recording!]!
   getRecordingForPlay(poem_id: ID!, user_id: ID, isMy: Boolean!): [GetRecordingForPlayResult!]!
 }
 
