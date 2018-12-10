@@ -1,7 +1,9 @@
 import { Recording, User, Poem, Bookmark } from '../../model';
 import { getUser } from '../web_api/user';
 import { getPoem } from '../web_api/poem';
-import { createNotification } from '../web_api/notification'
+import { createNotification } from '../web_api/notification';
+import * as _ from 'lodash';
+import { deleteRecordingById } from '../web_api/recording';
 
 export const getAllRecording = async (stu_id) => {
   try {
@@ -51,7 +53,7 @@ export const getAllRecordingByLogin = async (stu_id) => {
     if (result.length === 0) {
       return [];
     }
-    return result;
+    return _.orderBy(result, ['created'], ['desc']);
   } catch (err) {
     console.log('getAllRecording has err : ', err);
     return [];
@@ -155,7 +157,7 @@ const deleteRecording = async (input) => {
   const recording = await Recording
     .where({ $and: [{ user_id }, { poem_id: poem_result[0].id, }] }).one();
   try {
-    await Recording.delete({ id: recording.id });
+    await deleteRecordingById(recording.id);
     return {
       isSuccess: true,
     };

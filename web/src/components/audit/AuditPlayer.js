@@ -21,7 +21,7 @@ class AuditPlayer extends Component {
     return(
       <div style={{display: 'inline-block', 'vertical-align': 'top', width: '400px'}}>
       <ReactPlayer
-        url={serverInfo + recording_file.path} 
+        url={serverInfo.fileServerURL + recording_file.path} 
         playing={play}
         controls
         volume={volume}
