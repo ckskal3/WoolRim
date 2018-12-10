@@ -21,16 +21,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.apollographql.apollo.ApolloCall;
-import com.apollographql.apollo.ApolloClient;
 import com.apollographql.apollo.api.Response;
 import com.apollographql.apollo.exception.ApolloException;
-import com.google.gson.Gson;
 
 import org.woolrim.woolrim.DataItems.MyFavoritesItem;
 import org.woolrim.woolrim.DataItems.PoetItem;
 import org.woolrim.woolrim.DataItems.PoemAndPoetItem;
 import org.woolrim.woolrim.DataItems.RecordItem;
-import org.woolrim.woolrim.SQLiteDAO.FavoriteDAO;
 import org.woolrim.woolrim.SectionRecyclerView.SectionAddItem;
 import org.woolrim.woolrim.SectionRecyclerView.SectionItemViewHolder;
 import org.woolrim.woolrim.Utils.DBManagerHelper;
@@ -41,8 +38,6 @@ import java.util.ArrayList;
 import javax.annotation.Nonnull;
 
 import io.github.luizgrp.sectionedrecyclerviewadapter.SectionedRecyclerViewAdapter;
-import okhttp3.OkHttpClient;
-import okhttp3.logging.HttpLoggingInterceptor;
 
 public class PoemListFragment extends Fragment {
 
@@ -251,10 +246,10 @@ public class PoemListFragment extends Fragment {
                                 }
                                 Bundle bundle = new Bundle();
                                 bundle.putParcelableArrayList("Data", items);
-                                PlayerFragmentTemp playerFragmentTemp = PlayerFragmentTemp.newInstance(bundle);
+                                PlayerFragment playerFragment = PlayerFragment.newInstance(bundle);
 //                    PlayerFrameFragment playerFrameFragment = PlayerFrameFragment.newInstance(bundle);
                                 getActivity().getSupportFragmentManager().beginTransaction().addToBackStack("RecordListFragment")
-                                        .replace(R.id.container, playerFragmentTemp).commit();
+                                        .replace(R.id.container, playerFragment).commit();
                             }
 
                             @Override
@@ -293,9 +288,9 @@ public class PoemListFragment extends Fragment {
                                 }
                                 Bundle bundle = new Bundle();
                                 bundle.putParcelableArrayList("Data",items);
-                                PlayerFragmentTemp playerFragmentTemp = PlayerFragmentTemp.newInstance(bundle);
+                                PlayerFragment playerFragment = PlayerFragment.newInstance(bundle);
                                 getActivity().getSupportFragmentManager().beginTransaction().addToBackStack("RecordListFragment")
-                                        .replace(R.id.container, playerFragmentTemp).commit();
+                                        .replace(R.id.container, playerFragment).commit();
                             }
 
                             @Override

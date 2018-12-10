@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -36,8 +35,8 @@ public class SinglePlayerActivity extends AppCompatActivity implements View.OnCl
         Bundle bundle = new Bundle();
         bundle.putParcelableArrayList("Data",items);
         bundle.putInt("BookmarkPosition",position);
-        PlayerFragmentTemp playerFragmentTemp = PlayerFragmentTemp.newInstance(bundle);
-        getSupportFragmentManager().beginTransaction().add(R.id.single_player_container,playerFragmentTemp).commit();
+        PlayerFragment playerFragment = PlayerFragment.newInstance(bundle);
+        getSupportFragmentManager().beginTransaction().add(R.id.single_player_container, playerFragment).commit();
 
     }
 

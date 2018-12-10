@@ -257,7 +257,7 @@ public class MainActivity extends AppCompatActivity implements FragmentInteracti
                         LoginFragment loginFragment = LoginFragment.newInstance(bundle);
                         FragmentTransaction ft = currentFragmentTransaction.replace(R.id.container, loginFragment);
 
-                        if (currentFragment instanceof LoginFragment || currentFragment instanceof MyFavoritesFragment || currentFragment instanceof PlayerFragmentTemp) {
+                        if (currentFragment instanceof LoginFragment || currentFragment instanceof MyFavoritesFragment || currentFragment instanceof PlayerFragment) {
                             ft.commit();
                         } else {
                             ft.addToBackStack("MainFragment").commit();
@@ -291,7 +291,7 @@ public class MainActivity extends AppCompatActivity implements FragmentInteracti
                             LoginFragment loginFragment = LoginFragment.newInstance(bundle);
                             if (currentFragment instanceof SignUpFragment) {
                                 currentFragmentManager.popBackStack();
-                            } else if (currentFragment instanceof PlayerFragmentTemp) {
+                            } else if (currentFragment instanceof PlayerFragment) {
                                 currentFragmentTransaction.replace(R.id.container, loginFragment)
                                         .commit();
                             } else {
@@ -471,7 +471,7 @@ public class MainActivity extends AppCompatActivity implements FragmentInteracti
     }
 
     private void processFavoriteFragmentChange(Fragment fragment, Bundle bundle) {
-        if (fragment instanceof MyMenuFragment || fragment instanceof LoginFragment || fragment instanceof PlayerFragmentTemp) {
+        if (fragment instanceof MyMenuFragment || fragment instanceof LoginFragment || fragment instanceof PlayerFragment) {
             Log.d("Title", "here");
             MyFavoritesFragment myFavoritesFragment = MyFavoritesFragment.newInstance(bundle);
             getSupportFragmentManager().beginTransaction().replace(R.id.container, myFavoritesFragment).commit();
@@ -506,7 +506,7 @@ public class MainActivity extends AppCompatActivity implements FragmentInteracti
 
         MyMenuFragment myMenuFragment = MyMenuFragment.newInstance(bundle);
 
-        if (currentFragment instanceof MyFavoritesFragment || currentFragment instanceof LoginFragment || currentFragment instanceof PlayerFragmentTemp) {
+        if (currentFragment instanceof MyFavoritesFragment || currentFragment instanceof LoginFragment || currentFragment instanceof PlayerFragment) {
             currentFragmentTransaction
                     .replace(R.id.container, myMenuFragment)
                     .commit();
@@ -548,7 +548,7 @@ public class MainActivity extends AppCompatActivity implements FragmentInteracti
 
                             MyMenuFragment myMenuFragment = MyMenuFragment.newInstance(bundle);
 
-                            if (currentFragment instanceof MyFavoritesFragment || currentFragment instanceof PlayerFragmentTemp) {
+                            if (currentFragment instanceof MyFavoritesFragment || currentFragment instanceof PlayerFragment) {
                                 currentFragmentTransaction
                                         .replace(R.id.container, myMenuFragment)
                                         .commit();
