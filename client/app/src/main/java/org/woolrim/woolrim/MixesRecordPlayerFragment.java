@@ -116,7 +116,10 @@ public class MixesRecordPlayerFragment extends Fragment implements View.OnClickL
                             + bgmPosition
                             + ".mp3");
         } catch (IOException e){}
-        Glide.with(this).load(WoolrimApplication.loginedUserProfile).into(userProfileIV);
+        if(WoolrimApplication.loginedUserProfile.equals(WoolrimApplication.FILE_BASE_URL) || WoolrimApplication.loginedUserProfile.equals(WoolrimApplication.FILE_BASE_URL+getString(R.string.no_profile_en))){
+            Glide.with(this).load(R.drawable.profile_icon).into(userProfileIV);
+        }else
+            Glide.with(this).load(WoolrimApplication.loginedUserProfile).into(userProfileIV);
 
         long[] timer = calculateTimer(duration);
         fullTimeTextView.setText(String.format(getString(R.string.timer_format), timer[0], timer[1]));
@@ -202,7 +205,7 @@ public class MixesRecordPlayerFragment extends Fragment implements View.OnClickL
         updateSeekBar();
         updateTime();
 
-        playIconBackIV.setImageResource(R.drawable.record_pause_icon);
+        playIconBackIV.setImageResource(R.drawable.pause_icon);
         playingTimeTextView.setTextColor(ContextCompat.getColor(getContext(), R.color.app_sub_color));
     }
 

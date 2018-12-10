@@ -71,7 +71,7 @@ public class SectionAddItem extends StatelessSection {
         String name = list.get(position).poem;
 
         itemHolder.tvItem.setText(name);
-        Log.d("TIme",list.get(position).poem+" "+String.valueOf(list.get(position).full_count)+" "+String.valueOf(list.get(position).man_count)+" "+String.valueOf(list.get(position).woman_count));
+//        Log.d("TIme",list.get(position).poem+" "+String.valueOf(list.get(position).full_count)+" "+String.valueOf(list.get(position).man_count)+" "+String.valueOf(list.get(position).woman_count));
         if (pageCode == WoolrimApplication.REQUSET_POEM_LIST_FRAGMENT) { //들을수 있는곡 없을시 클릭 불가.
             if ((list.get(position).man_count + list.get(position).woman_count) == 0) {
                 itemHolder.tvItem.setTextColor(R.color.gray_bar_color);

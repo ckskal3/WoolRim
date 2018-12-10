@@ -74,9 +74,9 @@ public class MyMenuFragment extends Fragment {
 
         init(view);
 
-        setView();
+        if(WoolrimApplication.isLogin){
+            setView();
 
-        if(!WoolrimApplication.isTest){
             WoolrimApplication.apolloClient.query(GetUnReadCount.builder().user_id(userPK).build()).enqueue(new ApolloCall.Callback<GetUnReadCount.Data>() {
                 @Override
                 public void onResponse(@Nonnull Response<GetUnReadCount.Data> response) {
@@ -213,7 +213,7 @@ public class MyMenuFragment extends Fragment {
 
     private void setView(){
         userNameTv.setText(userName);
-        if(WoolrimApplication.loginedUserProfile == null || WoolrimApplication.loginedUserProfile.equals(getString(R.string.no_profile_en))){
+        if(WoolrimApplication.loginedUserProfile.equals(WoolrimApplication.FILE_BASE_URL) || WoolrimApplication.loginedUserProfile.equals(WoolrimApplication.FILE_BASE_URL+getString(R.string.no_profile_en))){
             Glide.with(this).load(R.drawable.profile_icon).into(profileIv);
         }else{
             Glide.with(this).load(WoolrimApplication.loginedUserProfile).into(profileIv);

@@ -99,6 +99,7 @@ public class MainFragment extends Fragment implements View.OnClickListener {
     public void onResume() {
         super.onResume();
         Log.d("MainFragement", "onResume()");
+        WoolrimApplication.goHome = false;
         MainActivity.toolbarLabelTv.setText("울림");
 
     }

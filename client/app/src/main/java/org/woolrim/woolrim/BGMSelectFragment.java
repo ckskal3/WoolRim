@@ -81,6 +81,8 @@ public class BGMSelectFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         Bundle bundle = getArguments();
         recordItem = bundle.getParcelable(RECORDITEM);
+//        fileName = recordItem.fileName.substring(0,recordItem.fileName.length()-4);
+        Log.d("Time",recordItem.fileName);
         return inflater.inflate(R.layout.fragment_bgmselect, container, false);
     }
 
@@ -319,8 +321,8 @@ public class BGMSelectFragment extends Fragment {
             protected Map<String, String> getParams() throws AuthFailureError {
                 Map<String, String> params = new HashMap<>();
                 params.put("mix_num", String.valueOf(currentItemPosition));
-                params.put("stu_id", "123456789");
-                params.put("file_name", "WoolRim_1.aac");
+                params.put("stu_id", String.valueOf(WoolrimApplication.loginedUserId));
+                params.put("file_name", recordItem.fileName);
                 return params;
             }
         };

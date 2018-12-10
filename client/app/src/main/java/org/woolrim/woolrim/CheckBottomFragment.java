@@ -119,9 +119,11 @@ public class CheckBottomFragment extends BottomSheetDialogFragment {
     @Override
     public void onDestroyView() {
         if (fragmentRequestCode == MY_RECORD_SUBMIT_REQUEST) {
+            Log.d("Time","Here");
+            WoolrimApplication.goHome = true;
             getActivity().getSupportFragmentManager().popBackStack("MainFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
         }
-        if (fragmentRequestCode == MY_VOLUNTEER_SCORE_SUBMIT_REQUEST || fragmentRequestCode == MY_RECORD_DELETE_REQUEST) {
+        else if (fragmentRequestCode == MY_VOLUNTEER_SCORE_SUBMIT_REQUEST || fragmentRequestCode == MY_RECORD_DELETE_REQUEST) {
             if (cancelAndOkFlag)
                 mResultListener.onDismissed("성공", true);
             else
@@ -132,6 +134,11 @@ public class CheckBottomFragment extends BottomSheetDialogFragment {
 
     @Override
     public void onCancel(DialogInterface dialog) {
+        if (fragmentRequestCode == MY_RECORD_SUBMIT_REQUEST) {
+            Log.d("Time","There");
+            WoolrimApplication.goHome = true;
+            getActivity().getSupportFragmentManager().popBackStack("MainFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
+        }
         dismiss();
     }
 
@@ -232,6 +239,7 @@ public class CheckBottomFragment extends BottomSheetDialogFragment {
                             switch (requestCode) {
                                 case WoolrimApplication.REQUSET_HOME:
                                     MainActivity.requestCode = 0;
+                                    WoolrimApplication.goHome = true;
                                     getActivity().getSupportFragmentManager().popBackStack("MainFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
                                     break;
                                 case WoolrimApplication.REQUSET_FAVORITE:
@@ -245,6 +253,7 @@ public class CheckBottomFragment extends BottomSheetDialogFragment {
                                     MainActivity.userNameTv.setText(R.string.guest);
                                     MainActivity.profileChangeImageView.setVisibility(View.INVISIBLE);
                                     Glide.with(getContext()).load(R.drawable.profile_icon).into(MainActivity.profileImageView);
+                                    WoolrimApplication.goHome = true;
                                     getActivity().getSupportFragmentManager().popBackStack("MainFragment", FragmentManager.POP_BACK_STACK_INCLUSIVE);
                                     break;
                             }
@@ -274,13 +283,7 @@ public class CheckBottomFragment extends BottomSheetDialogFragment {
                 break;
             case MY_RECORD_SUBMIT_REQUEST:
                 leftTextView.setVisibility(View.INVISIBLE);
-                rightTextView.setText("확인");
-                rightTextView.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        dismiss();
-                    }
-                });
+                rightTextView.setVisibility(View.INVISIBLE);
                 checkTextView1.setText("울림 활동에 참여해 주셔서 감사합니다.");
                 checkTextView2.setText("결과는 '마이울림'에서 확인 가능합니다.");
                 waringTextView1.setText("※관리자가 음질, 장난 등 녹음 상태를 확인후에");

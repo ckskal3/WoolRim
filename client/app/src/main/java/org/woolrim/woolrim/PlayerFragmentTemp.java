@@ -418,7 +418,7 @@ public class PlayerFragmentTemp extends Fragment implements View.OnTouchListener
     public void onStartBtnClick() {
         if (!isRestartAndResume) {
             try {
-                mediaPlayer.setDataSource(itemArray[currentPage].filePath);
+                mediaPlayer.setDataSource(WoolrimApplication.FILE_BASE_URL+ itemArray[currentPage].filePath);
                 mediaPlayer.prepareAsync();
                 mediaPlayer.setOnPreparedListener(new MediaPlayer.OnPreparedListener() {
                     @Override

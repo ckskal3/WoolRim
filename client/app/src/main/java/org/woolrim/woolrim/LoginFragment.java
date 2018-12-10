@@ -144,8 +144,14 @@ public class LoginFragment extends Fragment {
                                             userData[3] = String.valueOf(response.data().login().user().stu_id());
                                             userData[4] = response.data().login().user().gender();
 
+//                                            Log.d("Time",userData[0]);
+
                                             WoolrimApplication.isLogin = true;
-                                            WoolrimApplication.loginedUserProfile = WoolrimApplication.FILE_BASE_URL+userData[0];
+                                            if(response.data().login().user().profile() == null) {
+                                                WoolrimApplication.loginedUserProfile = WoolrimApplication.FILE_BASE_URL;
+                                            }else{
+                                                WoolrimApplication.loginedUserProfile = WoolrimApplication.FILE_BASE_URL + userData[0];
+                                            }
                                             WoolrimApplication.loginedUserName = userData[1];
                                             WoolrimApplication.loginedUserPK = userData[2];
                                             WoolrimApplication.loginedUserId = Integer.parseInt(userData[3]);

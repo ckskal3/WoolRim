@@ -39,6 +39,9 @@ import org.woolrim.woolrim.Utils.WaveLineViewTemp;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import java.util.concurrent.TimeUnit;
 
 import omrecorder.AudioChunk;
@@ -57,7 +60,7 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
 
     private long totalDuration, tempDuration, startTime, pausedTime, limitDuration;
 
-    private String mFileName = null, mFilePath = null, mFileNameAAC = null;
+    private String mFileName = null, mFilePath = null, mFileNameAAC = null, mFilePathAAC = null;
     private String poetName, poemName, poemContent;
     private static String RECORDITEM = "RecordItem";
 
@@ -208,13 +211,14 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
 
         do {
             count++;
+//            String tempName = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.KOREA).format(new Date());
 
-            mFileName = getString(R.string.app_name)
-                    + "_" + +count + ".pcm";//count부분 갯수 받아와서 수정해야됨
-            mFileNameAAC = getString(R.string.app_name)
-                    + "_" + +count + ".aac";
+            mFileName =  new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.KOREA).format(new Date());
+            mFileName = new StringBuilder().append(mFileName).append(".pcm").toString();
+            mFileNameAAC = new SimpleDateFormat("yyyyMMdd_HHmmss", Locale.KOREA).format(new Date());;
+            mFileNameAAC = new StringBuilder().append(mFileNameAAC).append(".aac").toString();
             mFilePath = Environment.getExternalStorageDirectory().getAbsolutePath();
-            mFileNameAAC = Environment.getExternalStorageDirectory().getAbsolutePath() + getString(R.string.temp_folder_name) + mFileNameAAC;
+            mFilePathAAC = Environment.getExternalStorageDirectory().getAbsolutePath() + getString(R.string.temp_folder_name) + mFileNameAAC;
             mFilePath += getString(R.string.temp_folder_name) + mFileName;
 
 
@@ -237,7 +241,6 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
                 if (!isRecording && !isPaused) { //최초 실행 녹음
                     if (isBGM) {
                         //서버연동후
-                        Log.d("Time", mFilePath);
                         isBGM = false;
                     }
 
@@ -337,7 +340,7 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
                 break;
             case R.id.replay_layout:
                 if (mFilePath != null && !isPaused && !isRecording) {
-                    if (!mFilePath.equals(mFileNameAAC)) {
+                    if (!mFilePath.equals(mFilePathAAC)) {
                         /////////////////
                         final AudioEncoder accEncoder = AudioEncoder.createAccEncoder(mFilePath,
                                 new AudioEncoder.OnEncodingStartListener() {
@@ -354,7 +357,8 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
                                         File file = new File(mFilePath);
                                         file.delete();
 //                                    Toast.makeText(getContext(), "인코딩 완료", Toast.LENGTH_SHORT).show();
-                                        mFilePath = mFileNameAAC;
+                                        mFilePath = mFilePathAAC;
+                                        mFileName = mFileNameAAC;
 
                                         Bundle bundle = new Bundle();
                                         bundle.putParcelable(RECORDITEM,
@@ -484,7 +488,7 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
         ////////////////////////////////////////////
         Bundle bundle = new Bundle();
         bundle.putParcelable(RECORDITEM, new RecordItem(
-                "WoolRim_1.aac",
+                mFileName,
                 mFilePath,
                 WoolrimApplication.loginedUserId,
                 (int)totalDuration,
@@ -509,7 +513,7 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
     private class EncodingAndTemp extends AsyncTask<AudioEncoder, Boolean, Boolean> {
         @Override
         protected Boolean doInBackground(AudioEncoder... audioEncoders) {
-            audioEncoders[0].encodeToFile(mFileNameAAC);
+            audioEncoders[0].encodeToFile(mFilePathAAC);
             return null;
         }
 

@@ -30,6 +30,7 @@ public class WoolrimApplication extends Application {
 
     public static String loginedUserName,loginedUserProfile , loginedUserPK, loginedUserGender;
     public static int loginedUserId;
+    public static boolean goHome = false;
 
 
     public static RequestQueue requestQueue;

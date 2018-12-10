@@ -113,6 +113,8 @@ public class MyRecordFragment extends Fragment {
                             }
                         });
                         checkBottomFragment.show(getActivity().getSupportFragmentManager(), "MyRecordFragment");
+                    }else{
+                        Toast.makeText(getContext(),"눌렸네",Toast.LENGTH_SHORT).show();
                     }
 
                 }

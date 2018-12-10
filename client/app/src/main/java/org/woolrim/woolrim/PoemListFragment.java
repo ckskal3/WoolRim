@@ -9,6 +9,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -66,6 +67,7 @@ public class PoemListFragment extends Fragment {
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        Log.d("Time : PoemListFragment","onCreateView");
         Bundle bundle = getArguments();
         assert bundle != null;
         poetDataArrayList = bundle.getParcelableArrayList("DataItems");
@@ -78,79 +80,82 @@ public class PoemListFragment extends Fragment {
 
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
+        Log.d("Time : PoemListFragment","onViewCreated");
+
         super.onViewCreated(view, savedInstanceState);
 
         init(view);
+        if(!WoolrimApplication.goHome) {
+            inputMethodManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
 
-        inputMethodManager = (InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE);
+            sectionAdapter = new SectionedRecyclerViewAdapter();
 
-        sectionAdapter = new SectionedRecyclerViewAdapter();
+            for (PoetItem poetItem : poetDataArrayList) {
 
-        for (PoetItem poetItem : poetDataArrayList) {
+                if (poetItem.poemName.size() > 0) {
 
-            if (poetItem.poemName.size() > 0) {
+                    String poetName = poetItem.poetName;
+                    ArrayList<PoemAndPoetItem> dataItems = poetItem.poemName;
 
-                String poetName = poetItem.poetName;
-                ArrayList<PoemAndPoetItem> dataItems = poetItem.poemName;
-
-                setHeaderAndItems(poetName, dataItems);
-            }
-
-        }
-
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
-        mRecyclerView.setAdapter(sectionAdapter);
-
-        searchPoemEditText.setImeOptions(EditorInfo.IME_ACTION_SEARCH);
-
-        searchPoemEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
-            @Override
-            public void onFocusChange(View inview, boolean flag) {
-                if (flag) {
-                    transparentView.setVisibility(View.VISIBLE);
+                    setHeaderAndItems(poetName, dataItems);
                 }
-            }
-        });
 
-        searchPoemEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
-                switch (actionId) {
-                    case EditorInfo.IME_ACTION_SEARCH:
-                        hide();
-                        break;
+            }
+
+            mRecyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+            mRecyclerView.setAdapter(sectionAdapter);
+
+            searchPoemEditText.setImeOptions(EditorInfo.IME_ACTION_SEARCH);
+
+            searchPoemEditText.setOnFocusChangeListener(new View.OnFocusChangeListener() {
+                @Override
+                public void onFocusChange(View inview, boolean flag) {
+                    if (flag) {
+                        transparentView.setVisibility(View.VISIBLE);
+                    }
                 }
-                return true;
+            });
+
+            searchPoemEditText.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+                @Override
+                public boolean onEditorAction(TextView textView, int actionId, KeyEvent keyEvent) {
+                    switch (actionId) {
+                        case EditorInfo.IME_ACTION_SEARCH:
+                            hide();
+                            break;
+                    }
+                    return true;
+                }
+            });
+
+            transparentView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    hide();
+                }
+            });
+
+            searchPoemEditText.addTextChangedListener(new TextWatcher() {
+                @Override
+                public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                }
+
+                @Override
+                public void afterTextChanged(Editable editable) {
+                    String searchKey = searchPoemEditText.getText().toString().trim();
+                    search(searchKey);
+                }
+            });
+
+            if (searchKey != null) {
+                searchPoemEditText.setText(searchKey);
             }
-        });
-
-        transparentView.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                hide();
-            }
-        });
-
-        searchPoemEditText.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
-
-            }
-
-            @Override
-            public void afterTextChanged(Editable editable) {
-                String searchKey = searchPoemEditText.getText().toString().trim();
-                search(searchKey);
-            }
-        });
-
-        if (searchKey != null) {
-            searchPoemEditText.setText(searchKey);
         }
 
     }
