@@ -28,8 +28,10 @@ import android.widget.Toast;
 
 import com.android.volley.Request;
 import com.android.volley.Response;
+import com.android.volley.error.AuthFailureError;
 import com.android.volley.error.VolleyError;
 import com.android.volley.request.SimpleMultiPartRequest;
+import com.android.volley.request.StringRequest;
 import com.google.gson.Gson;
 
 import org.woolrim.woolrim.AudioMixUtils.AudioEncoder;
@@ -41,7 +43,9 @@ import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import omrecorder.AudioChunk;
@@ -249,6 +253,7 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
 
                     if (mFilePath != null) { //이전 녹음 존재시 삭제
                         waveLineView.onResume();
+                        removeFile(mFilePath, mFileName);
                         File file = new File(mFilePath);
                         if (file.delete()) {
                             Log.d("삭제", "됨");
@@ -442,6 +447,7 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
             bundle.putInt("FragmentRequestCode", CheckBottomFragment.RECORDING_BACK_REQUEST);
             bundle.putInt("RequestCode", requestCode);
             bundle.putString("FilePath", mFilePath);
+            bundle.putString("FileName",mFileName);
             CheckBottomFragment checkBottomFragment = CheckBottomFragment.newInstance(bundle);
             FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
             checkBottomFragment.show(fragmentTransaction, "check");
@@ -499,6 +505,40 @@ public class RecordFragment extends Fragment implements View.OnClickListener, Ma
         getActivity().getSupportFragmentManager().beginTransaction().replace(R.id.container, bgmSelectFragment).addToBackStack("BGNSelectFragment")
                 .commit();
 
+    }
+
+    private void removeFile(final String mFilePath, final String mFileName){
+
+        StringRequest stringRequest = new StringRequest(
+                Request.Method.POST,
+                WoolrimApplication.FILE_BASE_URL + "remove_record",
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String response) {
+
+                        File file = new File(mFilePath);
+                        file.delete();
+
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError error) {
+
+                    }
+                }
+
+        ){
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError {
+                Map<String, String> params = new HashMap<>();
+                params.put("stu_id",String.valueOf(WoolrimApplication.loginedUserId));
+                params.put("file_name",mFileName);
+                return params;
+            }
+        };
+
+        WoolrimApplication.requestQueue.add(stringRequest);
     }
 
     private int getColor(int colorId) {

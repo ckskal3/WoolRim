@@ -40,7 +40,7 @@ public class CheckBottomFragment extends BottomSheetDialogFragment {
     public static final int MY_RECORD_SUBMIT_REQUEST = 3;
 
     private int fragmentRequestCode = 0, requestCode;
-    private String filePath, poetName, poemName, deleteItemId;
+    private String filePath, poetName, poemName, deleteItemId,fileName;
     private int deleteItemPosition;
     private boolean cancelAndOkFlag = false;
     private ArrayList<String> applyRecordingId;
@@ -64,6 +64,7 @@ public class CheckBottomFragment extends BottomSheetDialogFragment {
         fragmentRequestCode = bundle.getInt("FragmentRequestCode", 0);
         if (fragmentRequestCode == RECORDING_BACK_REQUEST) {
             filePath = bundle.getString("FilePath");
+            fileName = bundle.getString("FileName");
             requestCode = bundle.getInt("RequestCode");
             if (filePath == null) {
                 Log.e("NULL", "NULL");
@@ -258,10 +259,35 @@ public class CheckBottomFragment extends BottomSheetDialogFragment {
                                     break;
                             }
                             if (filePath != null) {
-                                File file = new File(filePath);
-                                file.delete();
+                                StringRequest stringRequest = new StringRequest(
+                                        Request.Method.POST,
+                                        WoolrimApplication.FILE_BASE_URL + "remove_record",
+                                        new com.android.volley.Response.Listener<String>() {
+                                            @Override
+                                            public void onResponse(String response) {
+                                                File file = new File(filePath);
+                                                file.delete();
+                                                dismiss();
+                                            }
+                                        },
+                                        new com.android.volley.Response.ErrorListener() {
+                                            @Override
+                                            public void onErrorResponse(VolleyError error) {
+
+                                            }
+                                        }
+                                ){
+                                    @Override
+                                    protected Map<String, String> getParams() throws AuthFailureError {
+                                        Map<String, String> params = new HashMap<>();
+                                        params.put("stu_id",String.valueOf(WoolrimApplication.loginedUserId));
+                                        params.put("file_name",fileName);
+                                        return params;
+                                    }
+                                };
+                                WoolrimApplication.requestQueue.add(stringRequest);
+
                             }
-                            dismiss();
                         } else if (requestCode == WoolrimApplication.REQUSET_MY_MENU) {
                             MainActivity.requestCode = 0;
                             processMyMenuFragmentChange();
