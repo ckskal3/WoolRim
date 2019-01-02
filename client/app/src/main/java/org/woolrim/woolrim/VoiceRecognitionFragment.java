@@ -38,8 +38,8 @@ public class VoiceRecognitionFragment extends DialogFragment {
 
     private Animation itemRotate;
 
-    private static final String CILENT_ID = "ka8kv275st";
-    private static final String CILENT_SECRET = "dCaDIOkKh9D1GL8P3ykZrv9BDq0y108Kg3U47XAV";
+    private static final String CILENT_ID = "n5zrl0x602";
+    private static final String CILENT_SECRET = "Zf6Ob1Su5OoU3Qi6dVYer6wcxoREZcay9R4DXbuy";
 
     private RecognitionHandler handler;
     private NaverSpeechRecognizer naverRecognizer;
@@ -85,7 +85,7 @@ public class VoiceRecognitionFragment extends DialogFragment {
 
         dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
 
-//        naverRecognizer.getSpeechRecognizer().initialize();
+        naverRecognizer.getSpeechRecognizer().initialize();
 
         return builder.create();
     }
@@ -221,7 +221,8 @@ public class VoiceRecognitionFragment extends DialogFragment {
                     strBuf.append(result);
                     strBuf.append("\n");
                 }
-                mResult = strBuf.toString();
+                mResult = results.get(0).trim();
+                mResultListener.onDismissed(mResult);
 //                textView.setText(mResult);
                 break;
 
@@ -229,8 +230,9 @@ public class VoiceRecognitionFragment extends DialogFragment {
                 if (writer != null) {
                     writer.close();
                 }
-
-                mResult = "Error code : " + msg.obj.toString();
+                String temp = msg.obj.toString();
+                mResult = "";
+                mResultListener.onDismissed(mResult);
 //                textView.setText(mResult);
 //                button.setText("시작");
 //                button.setEnabled(true);
