@@ -178,6 +178,10 @@ fileServer.get('/upload', function (req, res) {
   res.render('upload');
 });
 
+fileServer.get('/privacy', function (req, res) {
+  res.render('personal_info_privacy');
+});
+
 fileServer.get('/mix', function (req, res) {
   res.render('mix');
 });
