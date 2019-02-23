@@ -5,6 +5,9 @@ import android.support.annotation.Nullable;
 import android.support.v7.widget.RecyclerView;
 import android.util.AttributeSet;
 import android.view.View;
+import android.widget.TextView;
+
+import org.woolrim.woolrim.R;
 
 public class EmptyRecyclerView extends RecyclerView {
     private View mEmptyView;
@@ -53,8 +56,10 @@ public class EmptyRecyclerView extends RecyclerView {
             adapter.registerAdapterDataObserver(observer);
         }
     }
-    public void setEmptyView(View view) {
+    public void setEmptyView(View view, String noItemString) {
         this.mEmptyView = view;
+        TextView noItemTextView = mEmptyView.findViewById(R.id.my_record_no_item_tv);
+        noItemTextView.setText(noItemString);
         initEmptyView();
     }
 }

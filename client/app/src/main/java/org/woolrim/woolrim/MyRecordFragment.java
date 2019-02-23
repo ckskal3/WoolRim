@@ -46,6 +46,7 @@ public class MyRecordFragment extends Fragment {
     private Button myBongsaButton;
 
     private int fragmentRequestCode = 0;
+    private String noItemString ="";
     private ArrayList<MyRecordItem> poemLists, notificationLists;
     public MyRecordAdapter adapter;
 
@@ -74,6 +75,7 @@ public class MyRecordFragment extends Fragment {
 
 
         if (fragmentRequestCode == 101) {
+            noItemString = "나의 울림이 없습니다" ;
             myMenuTextView.setText("나의울림");
             myMenuIconIv.setImageResource(R.drawable.my_record_icon);
             myBongsaButton.setOnClickListener(new View.OnClickListener() {
@@ -113,13 +115,12 @@ public class MyRecordFragment extends Fragment {
                             }
                         });
                         checkBottomFragment.show(getActivity().getSupportFragmentManager(), "MyRecordFragment");
-                    }else{
-                        Toast.makeText(getContext(),"눌렸네",Toast.LENGTH_SHORT).show();
                     }
 
                 }
             });
         } else {
+            noItemString = "울림 알람이 없습니다" ;
             myMenuTextView.setText("울림알람");
             myMenuIconIv.setImageResource(R.drawable.my_alarm_icon);
             myBongsaButton.setVisibility(View.GONE);
@@ -146,7 +147,8 @@ public class MyRecordFragment extends Fragment {
 
         myRecordRecyclerView.addItemDecoration(new DividerItemDecoration(getContext(),DividerItemDecoration.VERTICAL));
         myRecordRecyclerView.setAdapter(adapter);
-        myRecordRecyclerView.setEmptyView(view.findViewById(R.id.my_no_item_view));
+
+        myRecordRecyclerView.setEmptyView(view.findViewById(R.id.my_no_item_view),noItemString);
 
 
         adapter.setOnItemClickListener(new MyRecordAdapter.OnItemClickListener() {
@@ -156,7 +158,7 @@ public class MyRecordFragment extends Fragment {
                     switch (view.getId()) {
                         case R.id.play_imageview:
                             MyRecordItem myRecordItem = adapter.getItem(position);
-                            Toast.makeText(getContext(), String.valueOf(position) + "번째 플레이 버튼" + myRecordItem.poem + " " + myRecordItem.poet, Toast.LENGTH_SHORT).show();
+//                            Toast.makeText(getContext(), String.valueOf(position) + "번째 플레이 버튼" + myRecordItem.poem + " " + myRecordItem.poet, Toast.LENGTH_SHORT).show();
                             break;
                         case R.id.delete_imageview:
                             Bundle bundle = new Bundle();
