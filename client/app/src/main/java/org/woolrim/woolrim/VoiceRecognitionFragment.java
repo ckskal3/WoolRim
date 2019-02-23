@@ -21,6 +21,7 @@ import android.view.WindowManager;
 import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import com.naver.speech.clientapi.SpeechRecognitionResult;
 
@@ -66,12 +67,15 @@ public class VoiceRecognitionFragment extends DialogFragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-//        naverRecognizer = new NaverSpeechRecognizer(context,handler,CILENT_ID);
+        handler = new RecognitionHandler(this);
+        naverRecognizer = new NaverSpeechRecognizer(context,handler,CILENT_ID);
+        Log.d("InTime","OnAttach");
     }
 
     @NonNull
     @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
+        Log.d("InTime","onCreateDialog");
 
         Dialog dialog = super.onCreateDialog(savedInstanceState);
 
@@ -94,16 +98,12 @@ public class VoiceRecognitionFragment extends DialogFragment {
     @Override
     public void onStart() {
         super.onStart();
+        Log.d("InTime","onStart");
 
         Window window = getDialog().getWindow();
 
         assert window != null;
         window.setGravity(Gravity.TOP);
-
-
-//        int[] location = new int[2];
-//        view.getLocationOnScreen(location);
-//        int sourceY = location[1];
 
         WindowManager.LayoutParams params = window.getAttributes();
         params.y = dpToPx(74f); // above source view
@@ -122,7 +122,14 @@ public class VoiceRecognitionFragment extends DialogFragment {
             voiceRecognitionBgIv.startAnimation(itemRotate);
             MainFragment.isRecognitioning = true;
         }
-
+        if(!naverRecognizer.getSpeechRecognizer().isRunning()) {
+            // Start button is pushed when SpeechRecognizer's state is inactive.
+            // Run SpeechRecongizer by calling recognize().
+            mResult = "";
+            naverRecognizer.recognize();
+        } else {
+            naverRecognizer.getSpeechRecognizer().stop();
+        }
         voiceRecognitionIconIv.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -147,7 +154,7 @@ public class VoiceRecognitionFragment extends DialogFragment {
     @Override
     public void onCancel(DialogInterface dialog) {
         Log.d("Time", "onCancel");
-        mResultListener.onDismissed("별 헤는 밤");
+        mResultListener.onDismissed(mResult);
         super.onCancel(dialog);
         dismiss();
     }
@@ -164,16 +171,16 @@ public class VoiceRecognitionFragment extends DialogFragment {
         Log.d("Time", "onDestroyView");
         voiceRecognitionBgIv.clearAnimation();
         MainFragment.isRecognitioning = false;
-//        naverRecognizer.getSpeechRecognizer().release();
+        naverRecognizer.getSpeechRecognizer().release();
 
         super.onDestroyView();
     }
 
-//    @Override
-//    public void onDismiss(DialogInterface dialog) {
-//        Log.d("Time","onDismiss");
-//        super.onDismiss(dialog);
-//    }
+    @Override
+    public void onDismiss(DialogInterface dialog) {
+        Log.d("Time","onDismiss");
+        super.onDismiss(dialog);
+    }
 
     private void init(View view) {
         voiceRecognitionBgIv = view.findViewById(R.id.voice_recognition_icon_background);
@@ -191,11 +198,10 @@ public class VoiceRecognitionFragment extends DialogFragment {
 
     }
 
-    private void handleMessage(Message msg) {
+    private void handleMessage(Message msg, Context context) {
         switch (msg.what) {
             case R.id.clientReady:
                 // Now an user can speak.
-//                textView.setText("Connected");
                 writer = new AudioWriterPcm(
                         Environment.getExternalStorageDirectory().getAbsolutePath() + "/NaverSpeechTest");
                 writer.open("Test");
@@ -208,7 +214,6 @@ public class VoiceRecognitionFragment extends DialogFragment {
             case R.id.partialResult:
                 // Extract obj property typed with String.
                 mResult = (String) (msg.obj);
-//                textView.setText(mResult);
                 break;
 
             case R.id.finalResult:
@@ -216,35 +221,25 @@ public class VoiceRecognitionFragment extends DialogFragment {
                 // The first element is recognition result for speech.
                 SpeechRecognitionResult speechRecognitionResult = (SpeechRecognitionResult) msg.obj;
                 List<String> results = speechRecognitionResult.getResults();
-                StringBuilder strBuf = new StringBuilder();
-                for (String result : results) {
-                    strBuf.append(result);
-                    strBuf.append("\n");
-                }
                 mResult = results.get(0).trim();
+                Toast.makeText(context, mResult, Toast.LENGTH_SHORT).show();
                 mResultListener.onDismissed(mResult);
-//                textView.setText(mResult);
+                dismiss();
                 break;
 
             case R.id.recognitionError:
                 if (writer != null) {
                     writer.close();
                 }
-                String temp = msg.obj.toString();
                 mResult = "";
                 mResultListener.onDismissed(mResult);
-//                textView.setText(mResult);
-//                button.setText("시작");
-//                button.setEnabled(true);
+                dismiss();
                 break;
 
             case R.id.clientInactive:
                 if (writer != null) {
                     writer.close();
                 }
-
-//                button.setText("시작");
-//                button.setEnabled(true);
                 break;
         }
     }
@@ -260,7 +255,7 @@ public class VoiceRecognitionFragment extends DialogFragment {
         public void handleMessage(Message msg) {
             VoiceRecognitionFragment activity = voiceRecognitionFragment.get();
             if (activity != null) {
-                activity.handleMessage(msg);
+                activity.handleMessage(msg,activity.getContext());
             }
         }
     }

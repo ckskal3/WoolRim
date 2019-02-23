@@ -137,7 +137,6 @@ public class MainFragment extends Fragment implements View.OnClickListener {
                     FragmentTransaction fragmentTransaction = getActivity().getSupportFragmentManager().beginTransaction();
                     testDialogFragment.show(fragmentTransaction, "playback");
 
-                    Toast.makeText(getContext(), "곧 구현될 예정입니다.", Toast.LENGTH_SHORT).show();
                     break;
             }
         }
