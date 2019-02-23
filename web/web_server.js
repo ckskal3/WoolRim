@@ -17,8 +17,7 @@ app.get('/*', (req, res) => {
 });
 
 app.listen(5000, (req, res) => {
-  console.log('5000 포트 개방!')
-  console.log(path.join(__dirname, 'build'));
+  console.log('backoffice web server at port 5000')
 });
 
 app.post('/login', async (req, res) => {

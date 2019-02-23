@@ -37,14 +37,9 @@ fileServer.set('views', __dirname + '/templates')
 
 apiServer.use(cors());
 
-apiServer.get('/graphql', graphqlHTTP({
-  schema,
-  graphiql: true
-}));
-
 apiServer.post('/graphql', graphqlHTTP({
   schema,
-  graphiql: false
+  graphiql: false,
 }));
 
 apiServer.get('/', (req, res, next) => {
@@ -52,8 +47,9 @@ apiServer.get('/', (req, res, next) => {
 });
 
 apiServer.listen(3000, () => {
-  console.log('3000번 api 서버 포트 개방!!');
+  console.log('api server at port 3000');
 });
+
 fileServer.get('/mix_complete', function (req, res) { res.render('mix_complete') })
 fileServer.post('/mix_complete', async function (req, res) {
   const file_name_without_type = req.body.file_name.replace(/\..+$/, '').trim();
@@ -176,16 +172,6 @@ fileServer.post('/upload', upload.single('user_recording'), async function (req,
   } else {
     res.status(500).send('fail');
   }
-  // console.log(req.body); // stu id
-  // console.log(req.file)
-  // { fieldname: 'user_recording',
-  // originalname: 'AudioTest.aac',
-  // encoding: '7bit',
-  // mimetype: 'audio/aac',
-  // destination: '/Users/jaws/privateProj/woolrim_storage/555555/',
-  // filename: 'AudioTest.aac',
-  // path: '/Users/jaws/privateProj/woolrim_storage/555555/AudioTest.aac',
-  // size: 571370 }
 });
 
 fileServer.get('/upload', function (req, res) {
@@ -198,9 +184,8 @@ fileServer.get('/mix', function (req, res) {
 
 fileServer.get('/:id/:filename', function (req, res) {
   res.sendFile(path.join(__dirname, `../../../woolrim_storage/${req.params.id}/${req.params.filename}`))
-  // res.sendFile(path.join(__dirname,`../uploads/${req.params.id}/${req.params.filename}`))
 })
 
 fileServer.listen(4000, () => {
-  console.log('4000번 file 서버 포트 개방!!');
+  console.log('file server at port 4000');
 });
