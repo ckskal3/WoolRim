@@ -21,19 +21,13 @@ app.listen(5000, (req, res) => {
 });
 
 app.post('/login', async (req, res) => {
-  const query = `mutation($name: String!, $passwd: String!) {
-    adminLogin(name: $name, passwd: $passwd){
-      isSuccess
-      user {
-        id
-        name
-      }
-    }
+  const query = `mutation($stu_id: Int!, $passwd: String!) {
+    adminLogin(stu_id: $stu_id, passwd: $passwd)
   }`
   const result = (await axios.post(serverInfo.serverURL, {
     query,
     variables: {
-      name: req.body.id,
+      stu_id: req.body.id,
       passwd: req.body.passwd,
     }
   })).data.data.adminLogin;

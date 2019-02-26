@@ -11,6 +11,7 @@ import '@blueprintjs/core/lib/css/blueprint.css';
 import '@blueprintjs/table/lib/css/table.css';
 import { UserContainer, PoetContainer, PoemContainer, NoticeContainer, RecordingContainer, AuditContainer } from './container'
 import Header from './common/Header'
+import LoginView from './LoginView';
 
 const userInfo = {
   name: '관리자',
@@ -19,15 +20,7 @@ const userInfo = {
 
 ReactDOM.render(
   <Router>
-    <div>
-      <Header user={userInfo} />
-      <Route path="/user" component={UserContainer} />
-      <Route path="/poet" component={PoetContainer} />
-      <Route path="/poem" component={PoemContainer} />
-      <Route path="/notice" render={props => <NoticeContainer {...props} current_account={userInfo} />} />
-      <Route path="/recording" component={RecordingContainer} />
-      <Route path="/audit" component={AuditContainer} />
-    </div>
+    <LoginView/>
   </Router>
   , document.getElementById('root')
 );

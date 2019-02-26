@@ -43,6 +43,6 @@ type Query {
 type Mutation {
   createUser(input: CreateUserInput!): UserResult!
   login(stu_id: Int!, passwd: String!): LoginResult!
-  adminLogin(name: String!, passwd: String!): LoginResult!
+  adminLogin(stu_id: Int!, passwd: String!): Boolean!
   modifyUser(input: UpdateUserInput!): UserResult!
 }

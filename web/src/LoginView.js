@@ -3,7 +3,7 @@ import { Route } from 'react-router-dom';
 import Header from './common/Header'
 import axios from 'axios';
 import { FormGroup, InputGroup, Card, Intent, Tooltip, Button, Toaster } from '@blueprintjs/core';
-import { UserContainer, PoetContainer, PoemContainer, NoticeContainer, RecordingContainer } from './container'
+import { AuditContainer, UserContainer, PoetContainer, PoemContainer, NoticeContainer, RecordingContainer } from './container'
 
 import './LoginView.css';
 import serverInfo from './serverInfo';
@@ -24,12 +24,12 @@ class LoginView extends Component {
 
   onLogin = async () => {
     const { id, passwd } = this.state;
-    const result = (await axios.post(serverInfo.webServerURL + '/login', {
+    const result = (await axios.post(serverInfo.webServerURL + 'login', {
       id,
       passwd,
     })).data;
-    
-    if (!result.isSuccess) {
+
+    if (!result) {
       this.toastRef.show({
         icon: 'warning-sign',
         intent: Intent.DANGER,
@@ -41,7 +41,6 @@ class LoginView extends Component {
 
     this.setState({
       auth: true,
-      userInfo: result.user,
     })
   }
 
@@ -72,21 +71,17 @@ class LoginView extends Component {
 
 
   render() {
-    // const { auth, userInfo } = this.state;
-    const auth = true;
-    const userInfo = {
-      name: '관리자',
-      id: 6,
-    }
+    const { auth } = this.state;
     if (auth) {
       return (
         <div>
-          <Header user={userInfo} />
+          <Header user={{name: '관리자'}} />
           <Route path="/user" component={UserContainer} />
           <Route path="/poet" component={PoetContainer} />
           <Route path="/poem" component={PoemContainer} />
-          <Route path="/notice" render={props => <NoticeContainer {...props} current_account={userInfo}/>} />
+          <Route path="/notice" render={props => <NoticeContainer {...props} />} />
           <Route path="/recording" component={RecordingContainer} />
+          <Route path="/audit" component={AuditContainer} />
         </div>
       )
     } else {
